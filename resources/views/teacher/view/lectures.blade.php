@@ -56,7 +56,11 @@
                                     @foreach ($lectures as $key => $lecture)
                                         <tr>
                                             <td>{{ $key + 1 }}</td>
-                                            <td>{{ $lecture->tenbg }}</td>
+                                            <td>
+                                                <a href="{{ route('lecture.detail', ['id' => $lecture->msbg]) }}">
+                                                    {{ $lecture->tenbg }}
+                                                </a>
+                                            </td>
                                             <td>
                                                 <a href="{{ route('update.lecture', ['malop' => $class->malop, 'id' => $lecture->msbg]) }}"
                                                     class="btn btn-warning">

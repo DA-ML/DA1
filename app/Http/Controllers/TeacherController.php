@@ -413,4 +413,13 @@ class TeacherController extends Controller
     {
         dd($malop, $id);
     }
+
+    public function show($id)
+    {
+        // Tìm bài giảng theo ID
+        $lecture = BaiGiang::findOrFail($id);
+
+        // Trả về view chi tiết bài giảng
+        return view('teacher.detail.lecture', compact('lecture'));
+    }
 }
