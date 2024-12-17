@@ -1,0 +1,141 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Định nghĩa color palette */
+:root {
+    --primary-color: #208ce4; /* Màu chính */
+    --secondary-color: #004b9a; /* Màu phụ */
+    --tertiary-color: #00b1ff; /* Màu thứ ba */
+    --success-color: #28a745; /* Màu thành công */
+    --error-color: #e14177; /* Màu lỗi */
+    --warning-color: #ffc107; /* Màu cảnh báo */
+    --info-color: #00b1ff; /* Màu thông tin */
+    --light-color: #fff; /* Màu sáng */
+    --dark-color: #f0f2f5; /* Màu tối */
+}
+
+/* Các biến font */
+:root {
+    --font-size-base: 16px;
+    --font-size-lg: 18px;
+    --font-size-sm: 14px;
+    --font-family: "Inter";
+}
+
+/* Định dạng button */
+button {
+    padding: 10px;
+    border-radius: 10px;
+    font-size: var(--font-size-base);
+    font-family: var(--font-family);
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+/* Các variant cho button */
+button.primary {
+    background-color: var(--primary-color);
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    height: 100%;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+button.primary:hover {
+    background-color: var(--secondary-color);
+}
+
+button.secondary {
+    background-color: var(--secondary-color);
+    color: #fff;
+}
+
+button.tertiary {
+    background-color: var(--primary-color);
+    color: #fff;
+}
+
+button.tertiary:hover {
+    background-color: var(--tertiary-color);
+}
+
+button.success {
+    background-color: var(--success-color);
+    color: #fff;
+}
+
+button.danger {
+    background-color: var(--error-color);
+    color: #fff;
+}
+
+button.warning {
+    background-color: var(--warning-color);
+    color: #fff;
+}
+
+/* Định dạng cho input */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid rgba(0, 60, 60, 0.2);
+    font-size: var(--font-size-base);
+    font-family: var(--font-family);
+    color: #000;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    align-items: center;
+}
+
+/* Định dạng cho input khi focus */
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+textarea:focus {
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+/* Các variant cho input */
+input[type="text"].error,
+input[type="email"].error,
+input[type="password"].error {
+    border-color: var(--error-color);
+}
+
+input[type="text"].success,
+input[type="email"].success,
+input[type="password"].success {
+    border-color: var(--success-color);
+}
+
+form {
+    box-sizing: border-box;
+    display: flex;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+}
+
+form input[type="text"],
+form input[type="email"],
+form input[type="password"] {
+    display: flex;
+    height: 40px;
+    padding: 10px;
+    align-items: center;
+    align-self: stretch;
+    width: 100%;
+    color: #000;
+}

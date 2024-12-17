@@ -1,0 +1,63 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Controller;
+use App\Http\Controllers\TeacherController;
+use App\Http\Controllers\StudentController;
+
+// Route hiển thị trang đăng nhập
+Route::get('login', [Controller::class, 'showLoginForm'])->name('login');
+
+// Route xử lý đăng nhập
+Route::post('login', [Controller::class, 'login'])->name('login.submit');
+
+// Route đăng xuất
+// web.php
+Route::post('/logout', [Controller::class, 'logout'])->name('logout');
+
+
+// Route nhóm cho sinh viên
+Route::middleware('check.login')->group(function () {
+    Route::get('student/classlist', [StudentController::class, 'classList'])->name('student.classlist');
+
+    Route::get('student/profile', [StudentController::class, 'studentProfile'])->name('student.profile');
+
+    Route::get('student/dashboard', [StudentController::class, 'studentDashboard'])->name('student.dashboard');
+
+    Route::get('student/view/classes/{malop}', [StudentController::class, 'viewClass'])->name('class.details');
+});
+
+// Route nhóm cho giáo viên
+Route::middleware('check.login')->group(function () {
+    Route::get('teacher/classlist', [TeacherController::class, 'classList'])->name('teacher.classlist');
+
+    Route::get('teacher/profile', [TeacherController::class, 'teacherProfile'])->name('teacher.profile');
+
+    Route::get('teacher/dashboard', [TeacherController::class, 'teacherDashboard'])->name('teacher.dashboard');
+
+    Route::get('teacher/view/classes/{malop}', [TeacherController::class, 'viewClass'])->name('class.details');
+
+    Route::get('teacher/view/tests/{malop}', [TeacherController::class, 'classTest'])->name('class.tests');
+
+    Route::get('teacher/view/lectures/{malop}', [TeacherController::class, 'classLecture'])->name('class.lectures');
+
+    Route::get('teacher/view/members/{malop}', [TeacherController::class, 'classMember'])->name('class.members');
+
+    Route::get('teacher/view/statics/{malop}', [TeacherController::class, 'classStatics'])->name('class.statics');
+
+    Route::get('teacher/view/scores/{malop}', [TeacherController::class, 'classScores'])->name('class.scores');
+
+    Route::get('teacher/add/lecture/{malop}', [TeacherController::class, 'addLecture'])->name('add.lecture');
+    Route::post('teacher/add/lecture/{malop}', [TeacherController::class, 'addLecture'])->name('add.lecture');
+
+    Route::get('teacher/add/test/type/{malop}', [TeacherController::class, 'testType'])->name('test.type');
+
+    Route::get('teacher/add/test/form/{malop}', [TeacherController::class, 'testForm'])->name('test.form');
+    Route::post('teacher/add/test/store/{malop}', [TeacherController::class, 'storeTest'])->name('test.store');
+    Route::delete('teacher/delete/test/{malop}/{id}', [TeacherController::class, 'deleteTest'])->name('class.delete.test');
+
+    Route::get('teacher/add/test/essay/{malop}', [TeacherController::class, 'testEssay'])->name('test.essay');
+
+    Route::get('teacher/update/lecture/{malop}', [TeacherController::class, 'updateLecture'])->name('update.lecture');
+    Route::delete('teacher/delete/lecture/{malop}/{id}', [TeacherController::class, 'deleteLecture'])->name('class.delete.lecture');
+});
