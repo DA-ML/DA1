@@ -54,7 +54,8 @@ Route::middleware('check.login')->group(function () {
 
     Route::get('teacher/add/test/form/{malop}', [TeacherController::class, 'testForm'])->name('test.form');
     Route::post('teacher/add/test/store/{malop}', [TeacherController::class, 'storeTest'])->name('test.store');
-    Route::delete('teacher/delete/test/{malop}/{id}', [TeacherController::class, 'deleteTest'])->name('class.delete.test');
+    Route::post('teacher/add/test/storeessay/{malop}', [TeacherController::class, 'storetestEssay'])->name('test.store.essay');
+    Route::delete('teacher/delete/test/{malop}/{msbkt}', [TeacherController::class, 'deleteTest'])->name('class.delete.test');
 
     Route::get('teacher/add/test/essay/{malop}', [TeacherController::class, 'testEssay'])->name('test.essay');
 

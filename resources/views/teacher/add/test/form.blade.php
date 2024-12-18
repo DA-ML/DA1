@@ -204,7 +204,7 @@
         justify-content: space-between;
         align-items: center;
         align-self: stretch;
-        background: #004b9a;
+        background: #208ce4;
         height: 60px;
         width: 100%;
     }
@@ -348,7 +348,7 @@
     }
 
     [data-tab-button].active {
-        background-color: #004b9a;
+        background-color: #208ce4;
         color: #fff;
     }
 </style>

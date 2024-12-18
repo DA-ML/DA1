@@ -22,7 +22,7 @@
             <div class="class-btn">
                 <div class="btn">
                     <div class="lecturelist-btn">
-                        <input type="text" placeholder="Tìm kiếm">
+                        @include('components.search_bar')
                         <button class="primary"
                             onclick="window.location.href='{{ url('teacher/add/test/type/' . $class->malop) }}'">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="25" viewBox="0 0 24 25"
@@ -36,11 +36,16 @@
                     </div>
                     <!-- Hiển thị bảng danh sách bài tập -->
                     <div class="class-lectures">
-                        <table class="table table-striped">
+                        <table class="table table-striped" style="width: 100%">
                             <thead>
                                 <tr>
                                     <th>STT</th>
                                     <th>Tên bài tập</th>
+                                    <th>Loại</th>
+                                    <th>Ngày bắt đầu</th>
+                                    <th>Ngày kết thúc</th>
+                                    <th>Thời gian làm bài</th>
+                                    <th>Thành phần đánh giá</th>
                                     <th>Hành động</th>
                                     <th>Xóa</th>
                                 </tr>
@@ -57,6 +62,11 @@
                                         <tr>
                                             <td>{{ $key + 1 }}</td>
                                             <td>{{ $test->tenbkt }}</td>
+                                            <td>{{ $test->loai_bkt }}</td>
+                                            <td>{{ $test->ngaybatdau }}</td>
+                                            <td>{{ $test->ngayketthuc }}</td>
+                                            <td>{{ $test->thoigianlambai }}</td>
+                                            <td>{{ $test->danhgia_id }}</td>
                                             <td>
                                                 <a href="{{ route('update.lecture', ['malop' => $class->malop, 'id' => $test->msbkt]) }}"
                                                     class="btn btn-warning">
@@ -69,7 +79,23 @@
                                                 </a>
                                             </td>
                                             <td>
-
+                                                <form
+                                                    action="{{ route('class.delete.test', ['malop' => $class->malop, 'msbkt' => $test->msbkt]) }}"
+                                                    method="POST" style="display:inline-block;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit"
+                                                        style="background: none; border: none; padding: 0;"
+                                                        onclick="return confirm('Bạn có chắc chắn muốn xóa không?')">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24"
+                                                            height="24" viewBox="0 0 24 24" fill="none">
+                                                            <path
+                                                                d="M14 10V17M10 10L10 17M4 6H20M18 6V17.8C18 18.9201 18.0002 19.4802 17.7822 19.908C17.5905 20.2844 17.2841 20.5902 16.9078 20.782C16.48 21 15.9203 21 14.8002 21H9.2002C8.08009 21 7.51962 21 7.0918 20.782C6.71547 20.5902 6.40973 20.2844 6.21799 19.908C6 19.4802 6 18.9201 6 17.8V6H18ZM16 6H8C8 5.06812 8 4.60216 8.15224 4.23462C8.35523 3.74456 8.74432 3.35523 9.23438 3.15224C9.60192 3 10.0681 3 11 3H13C13.9319 3 14.3978 3 14.7654 3.15224C15.2554 3.35523 15.6447 3.74456 15.8477 4.23462C15.9999 4.60216 16 5.06812 16 6Z"
+                                                                stroke="#208CE4" stroke-width="2" stroke-linecap="round"
+                                                                stroke-linejoin="round" />
+                                                        </svg>
+                                                    </button>
+                                                </form>
                                             </td>
 
                                         </tr>
@@ -228,13 +254,14 @@
     .class-lectures {
         width: 100%;
         display: flex;
-        padding: 0px 30px;
+        padding: 0px;
         justify-content: center;
         align-items: flex-start;
         gap: 10px;
         flex: 1 0 0;
         align-self: stretch;
         background: #FFF;
+        overflow-y: auto;
     }
 
     /* Table */
@@ -247,15 +274,21 @@
     .class-lectures th {
         font-size: 16px;
         font-weight: bold;
-        padding: 8px;
         text-align: left;
-        background-color: #dedede;
+        background-color: #208CE4;
+        padding: 8px;
+        color: white;
     }
 
     .class-lectures td {
         font-size: 16px;
         font-weight: normal;
-        padding: 8px;
         text-align: left;
+        padding: 8px;
+    }
+
+    .class-lectures a {
+        text-decoration: none;
+        color: #000;
     }
 </style>

@@ -7,12 +7,14 @@ use App\Models\BaiGiang;
 use App\Models\CauHoi;
 use App\Models\BaiKiemTra;
 use App\Models\ThanhPhanDanhGia;
+use App\Models\ChuanDauRa;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Carbon\Carbon;
 use Exception;
+use App\Http\Controllers\Log;
 
 class TeacherController extends Controller
 {
@@ -286,7 +288,7 @@ class TeacherController extends Controller
         if (!$class) {
             return redirect()->route('teacher.classlist')->withErrors(['error' => 'Lớp không tồn tại']);
         }
-        return view('teacher.add.test.essay', compact('class'));
+        return view('teacher.add.test.essay', compact('class', 'malop'));
     }
 
     public function updateLecture($malop)
@@ -331,7 +333,7 @@ class TeacherController extends Controller
         return redirect()->route('class.lectures', ['malop' => $malop])->withErrors(['error' => 'Bài giảng không tồn tại']);
     }
 
-    // Lưu bài giảng
+    // Lưu bài tập (trắc nghiệm)
     public function storetest(Request $request, $malop)
     {
         // Validation form
@@ -352,10 +354,13 @@ class TeacherController extends Controller
         try {
             // Lưu file vào thư mục public/test/{msbkt}
             $filePath = null;
+
+            $msbkt = BaiKiemTra::max('msbkt') ?? 0; // Trả về 0 nếu không có bản ghi nào
+            $msbkt += 1;
+
             if ($request->hasFile('file-input')) {
                 $file = $request->file('file-input');
                 // Tạo msbkt (có thể sử dụng msbkt tự động từ database sau)
-                $msbkt = 'msbkt_' . time();
                 $folderPath = public_path('test/' . $msbkt);
                 if (!File::exists($folderPath)) {
                     File::makeDirectory($folderPath, 0777, true);
@@ -409,9 +414,140 @@ class TeacherController extends Controller
     }
 
     // Xóa bài tập
-    public function deleteTest($malop, $id)
+    public function deleteTest($malop, $msbkt)
     {
-        dd($malop, $id);
+        try {
+            // Tìm bài kiểm tra theo mã lớp và mã bài kiểm tra
+            $baiKiemTra = BaiKiemTra::where('malop', $malop)->where('msbkt', $msbkt)->first();
+
+            // Nếu không tìm thấy bài kiểm tra, trả về lỗi
+            if (!$baiKiemTra) {
+                return redirect()->route('class.tests', ['malop' => $malop])->with('error', 'Bài kiểm tra không tồn tại.');
+            }
+
+            // Xóa các câu hỏi liên quan đến bài kiểm tra
+            CauHoi::where('msbkt', $msbkt)->delete();
+
+            // Xóa file bài kiểm tra trong thư mục nếu có
+            if ($baiKiemTra->file_path && File::exists(public_path($baiKiemTra->file_path))) {
+                File::delete(public_path($baiKiemTra->file_path));
+            }
+
+            // Xóa thư mục chứa bài kiểm tra (nếu cần)
+            $folderPath = public_path('test/' . $msbkt);
+
+            // Kiểm tra nếu thư mục tồn tại
+            if (File::exists($folderPath)) {
+                // Xóa toàn bộ thư mục và các file bên trong
+                File::deleteDirectory($folderPath); // Không cần tham số thứ hai nếu muốn xóa tất cả
+            }
+
+
+            // Xóa bài kiểm tra
+            $baiKiemTra->delete();
+
+            // Trả về thông báo thành công
+            return redirect()->route('class.tests', ['malop' => $malop])->with('success', 'Xóa bài tập thành công.');
+        } catch (Exception $e) {
+            // Nếu xảy ra lỗi, trả về thông báo lỗi
+            return redirect()->route('class.tests', ['malop' => $malop])->with('error', 'Đã có lỗi xảy ra khi xóa bài tập. Vui lòng thử lại sau.');
+        }
+    }
+
+    // Đếm số lượng chuẩn đầu ra
+    public function getCdr(Request $request)
+    {
+        $tpdgId = $request->query('tpdg');
+        if (!$tpdgId) {
+            return response()->json(['error' => 'Thiếu TPDG ID.'], 400);
+        }
+
+        $cdrs = ChuanDauRa::where('tpdg_id', $tpdgId)->get();
+
+        if ($cdrs->isEmpty()) {
+            return response()->json(['cdrs' => [], 'message' => 'Không tìm thấy chuẩn đầu ra.'], 200);
+        }
+
+        return response()->json(['cdrs' => $cdrs, 'count' => $cdrs->count()], 200);
+    }
+
+    // Lưu bài tập (tự luận)
+    public function storetestEssay(Request $request, $malop)
+    {
+
+        // Validation form
+        $validated = $request->validate([
+            'tenbkt' => 'required|string|max:255',
+            'date-start' => 'required|date',
+            'date-end' => 'required|date|after_or_equal:date-start',
+            'file-input' => 'nullable|file|mimes:jpg,jpeg,png,pdf,docx,doc|max:10240', // Tệp có thể lên đến 10MB
+            'tpdg' => 'required|string',
+            // Kiểm tra câu trả lời và chuẩn đầu ra cho các câu hỏi
+            'answer-*' => 'required|string', // Kiểm tra câu trả lời cho tất cả các câu hỏi
+            'cdr-*' => 'required|string',    // Kiểm tra chuẩn đầu ra cho tất cả các câu hỏi
+            'points-*' => 'required|numeric|min:0', // Kiểm tra điểm cho các câu hỏi
+        ]);
+
+        try {
+            // Lưu file vào thư mục public/test/{msbkt}
+            $filePath = null;
+
+            $msbkt = BaiKiemTra::max('msbkt') ?? 0; // Trả về 0 nếu không có bản ghi nào
+            $msbkt += 1;
+
+            if ($request->hasFile('file-input')) {
+                $file = $request->file('file-input');
+                // Tạo msbkt (có thể sử dụng msbkt tự động từ database sau)
+                $folderPath = public_path('test/' . $msbkt);
+                if (!File::exists($folderPath)) {
+                    File::makeDirectory($folderPath, 0777, true);
+                }
+
+                // Lưu tệp vào thư mục tương ứng
+                $filePath = 'test/' . $msbkt . '/' . $file->getClientOriginalName();
+                $file->move($folderPath, $file->getClientOriginalName());
+            }
+
+            // Tạo mới bài kiểm tra
+            $baiKiemTra = new BaiKiemTra([
+                'tenbkt' => $request->input('tenbkt'),
+                'ngaybatdau' => $request->input('date-start'),
+                'ngayketthuc' => $request->input('date-end'),
+                'thoigianlambai' => null,
+                'danhgia_id' => ThanhPhanDanhGia::where('thanhphan', $request->input('tpdg'))->first()->id,
+                'malop' => $malop,
+                'loai_bkt' => 'TuLuan',  // Mặc định là tự luận
+                'num_ques' => null,
+                'file_path' => $filePath, // Lưu đường dẫn file
+                'diem' => null, // Bạn có thể thêm logic tính điểm nếu cần
+                'loinhanxet' => null, // Nếu có thông tin nhận xét thì thêm vào đây
+            ]);
+
+            // Lưu bài kiểm tra
+            $baiKiemTra->save();
+            $msbkt = $baiKiemTra->msbkt;
+
+            // Lưu danh sách câu hỏi
+            $numQuestions = $request->input('num-questions');
+            for ($i = 1; $i <= $numQuestions; $i++) {
+                // Lưu câu hỏi
+                $cauHoi = new CauHoi([
+                    'chuan_id' => $request->input(key: "cdr-$i"), // Chuẩn đầu ra
+                    'dapan' => null, // Câu trả lời
+                    'diem' => $request->input("points-$i"), // Điểm cho câu hỏi
+                    'msbkt' => $msbkt,
+                ]);
+
+                // Lưu câu hỏi
+                $cauHoi->save();
+            }
+
+            // Thông báo thành công
+            return redirect()->route('class.tests', ['malop' => $malop])->with('success', 'Thêm bài tập thành công');
+        } catch (Exception $e) {
+            // Nếu có lỗi, hiện thông báo lỗi
+            return redirect()->back()->with('error', 'Đã có lỗi xảy ra khi lưu bài kiểm tra. Vui lòng thử lại sau.')->withInput();
+        }
     }
 
     public function show($id)
