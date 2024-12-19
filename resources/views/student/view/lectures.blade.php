@@ -15,6 +15,9 @@
                                 fill="black" />
                         </svg>
                         Mã lớp: {{ $class->malop }}
+                        @foreach ($class->quanLyGV as $quanLyGV)
+                            <p>Giáo viên: <strong>{{ $quanLyGV->giaoVien->tengv }}</strong></p>
+                        @endforeach
                     </div>
                 </div>
             </div>
@@ -22,7 +25,7 @@
             <div class="class-btn">
                 <div class="btn">
                     <div class="lecturelist-btn">
-                        <input type="text" placeholder="Tìm kiếm">
+                        @include('components.search_bar')
                     </div>
                     <!-- Hiển thị bảng danh sách bài giảng -->
                     <div class="class-lectures">
@@ -44,7 +47,12 @@
                                     @foreach ($lectures as $key => $lecture)
                                         <tr>
                                             <td>{{ $key + 1 }}</td>
-                                            <td>{{ $lecture->tenbg }}</td>
+                                            <td>
+                                                <a style="text-decoration: none; color: #000"
+                                                    href="{{ route('student.lecture.detail', ['id' => $lecture->msbg]) }}">
+                                                    {{ $lecture->tenbg }}
+                                                </a>
+                                            </td>
                                         </tr>
                                     @endforeach
                                 @endif

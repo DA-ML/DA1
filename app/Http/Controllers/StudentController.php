@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\LopHoc;
+use App\Models\BaiGiang;
+use App\Models\QuanLyHS;
+use App\Models\SinhVien;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Psy\Readline\Hoa\Console;
@@ -48,6 +51,7 @@ class StudentController extends Controller
             ->with([
                 'quanLyHS',
                 'quanLyGV',
+                'quanLyGV.giaoVien',
                 'baiGiang',
                 'baiKiemTra'
             ])
@@ -75,7 +79,15 @@ class StudentController extends Controller
             return redirect()->route('student.classlist')->withErrors(['error' => 'Lớp không tồn tại']);
         }
 
-        return view('student.view.tests', compact('class'));
+        // Lấy danh sách bài tập từ lớp học
+        $class = LopHoc::where('malop', $malop)->with('baiKiemTra')->first();
+        if (!$class) {
+            return redirect()->route('student.classlist')->withErrors(['error' => 'Lớp không tồn tại']);
+        }
+
+        $tests = $class->baiKiemTra;
+
+        return view('student.view.tests', compact('class', 'tests'));
     }
 
     public function viewLecture($malop)
@@ -109,7 +121,7 @@ class StudentController extends Controller
     {
         $class = LopHoc::where('malop', $malop)
             ->with([
-                'quanLyHS',
+                'quanLyHS',  // Liên kết với QuanLyHS để lấy sinh viên
                 'quanLyGV',
                 'baiGiang',
                 'baiKiemTra'
@@ -120,8 +132,15 @@ class StudentController extends Controller
             return redirect()->route('student.classlist')->withErrors(['error' => 'Lớp không tồn tại']);
         }
 
-        return view('student.view.members', compact('class'));
+        // Lấy danh sách sinh viên qua QuanLyHS và với mối quan hệ sinhVien
+        $members = QuanLyHS::where('malop', $malop)
+            ->with('sinhVien')  // Liên kết với bảng SinhVien
+            ->get();
+
+        return view('student.view.members', compact('class', 'members'));
     }
+
+
 
     public function viewScore($malop)
     {
@@ -139,5 +158,14 @@ class StudentController extends Controller
         }
 
         return view('student.view.scores', compact('class'));
+    }
+
+    public function show($id)
+    {
+        // Tìm bài giảng theo ID
+        $lecture = BaiGiang::findOrFail($id);
+
+        // Trả về view chi tiết bài giảng
+        return view('student.detail.lecture', compact('lecture'));
     }
 }

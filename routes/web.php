@@ -29,6 +29,7 @@ Route::middleware('check.login')->group(function () {
     Route::get('student/view/tests/{malop}', [StudentController::class, 'viewTest'])->name('student.class.tests');
 
     Route::get('student/view/lectures/{malop}', [StudentController::class, 'viewLecture'])->name('student.class.lectures');
+    Route::get('student/detail/lecture/{id}', [StudentController::class, 'show'])->name('student.lecture.detail');
 
     Route::get('student/view/members/{malop}', [StudentController::class, 'viewMember'])->name('student.class.members');
 

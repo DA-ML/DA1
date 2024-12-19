@@ -15,4 +15,9 @@ class QuanLyHS extends Model
         'mssv',
         'malop',
     ];
+
+    public function sinhVien()
+    {
+        return $this->belongsTo(SinhVien::class, 'mssv', 'mssv'); // Liên kết với bảng sinhvien
+    }
 }
