@@ -33,7 +33,7 @@
                                 <td>{{ $class->so_bai_giang }}</td>
                                 <td>{{ $class->so_bai_kiem_tra }}</td>
                                 <td>
-                                    <a href="{{ route('class.details', $class->malop) }}" class="btn btn-primary"
+                                    <a href="{{ route('student.class.details', $class->malop) }}" class="btn btn-primary"
                                         style="color: #208ce4; text-decoration: none">
                                         View</a>
                                 </td>

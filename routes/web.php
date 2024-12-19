@@ -24,7 +24,15 @@ Route::middleware('check.login')->group(function () {
 
     Route::get('student/dashboard', [StudentController::class, 'studentDashboard'])->name('student.dashboard');
 
-    Route::get('student/view/classes/{malop}', [StudentController::class, 'viewClass'])->name('class.details');
+    Route::get('student/view/classes/{malop}', [StudentController::class, 'viewClass'])->name('student.class.details');
+
+    Route::get('student/view/tests/{malop}', [StudentController::class, 'viewTest'])->name('student.class.tests');
+
+    Route::get('student/view/lectures/{malop}', [StudentController::class, 'viewLecture'])->name('student.class.lectures');
+
+    Route::get('student/view/members/{malop}', [StudentController::class, 'viewMember'])->name('student.class.members');
+
+    Route::get('student/view/scores/{malop}', [StudentController::class, 'viewScore'])->name('student.class.scores');
 });
 
 // Route nhóm cho giáo viên

@@ -59,4 +59,85 @@ class StudentController extends Controller
 
         return view('student.view.classes', compact('class'));
     }
+
+    public function viewTest($malop)
+    {
+        $class = LopHoc::where('malop', $malop)
+            ->with([
+                'quanLyHS',
+                'quanLyGV',
+                'baiGiang',
+                'baiKiemTra'
+            ])
+            ->first();
+
+        if (!$class) {
+            return redirect()->route('student.classlist')->withErrors(['error' => 'Lớp không tồn tại']);
+        }
+
+        return view('student.view.tests', compact('class'));
+    }
+
+    public function viewLecture($malop)
+    {
+        $class = LopHoc::where('malop', $malop)
+            ->with([
+                'quanLyHS',
+                'quanLyGV',
+                'baiGiang',
+                'baiKiemTra'
+            ])
+            ->first();
+
+        if (!$class) {
+            return redirect()->route('student.classlist')->withErrors(['error' => 'Lớp không tồn tại']);
+        }
+
+        // Lấy danh sách bài giảng từ lớp học
+        $class = LopHoc::where('malop', $malop)->with('baiGiang')->first();
+
+        if (!$class) {
+            return redirect()->route('student.classlist')->withErrors(['error' => 'Lớp không tồn tại']);
+        }
+
+        $lectures = $class->baiGiang;
+
+        return view('student.view.lectures', compact('class', 'lectures'));
+    }
+
+    public function viewMember($malop)
+    {
+        $class = LopHoc::where('malop', $malop)
+            ->with([
+                'quanLyHS',
+                'quanLyGV',
+                'baiGiang',
+                'baiKiemTra'
+            ])
+            ->first();
+
+        if (!$class) {
+            return redirect()->route('student.classlist')->withErrors(['error' => 'Lớp không tồn tại']);
+        }
+
+        return view('student.view.members', compact('class'));
+    }
+
+    public function viewScore($malop)
+    {
+        $class = LopHoc::where('malop', $malop)
+            ->with([
+                'quanLyHS',
+                'quanLyGV',
+                'baiGiang',
+                'baiKiemTra'
+            ])
+            ->first();
+
+        if (!$class) {
+            return redirect()->route('student.classlist')->withErrors(['error' => 'Lớp không tồn tại']);
+        }
+
+        return view('student.view.scores', compact('class'));
+    }
 }
