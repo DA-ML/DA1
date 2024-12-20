@@ -7,6 +7,8 @@ use App\Models\BaiGiang;
 use App\Models\QuanLyHS;
 use App\Models\SinhVien;
 use App\Models\BaiKiemTra;
+use App\Models\LichSuLamBaiKiemTra;
+use App\Models\KetQuaBaiKiemTra;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 
@@ -99,34 +101,40 @@ class StudentController extends Controller
 
     public function viewTest($malop)
     {
+        // Lấy thông tin người dùng từ session
         $user = Session::get('user');
 
+        // Lấy thông tin lớp học
         $class = LopHoc::where('malop', $malop)
             ->with([
                 'quanLyHS',
                 'quanLyGV',
                 'baiGiang',
-                'baiKiemTra'
+                'baiKiemTra' // Lấy danh sách bài kiểm tra liên quan
             ])
             ->first();
+
         if (!$class) {
             return redirect()->route('student.classlist')->withErrors(['error' => 'Lớp không tồn tại']);
         }
 
-        // Lấy danh sách bài tập từ lớp học
-        $class = LopHoc::where('malop', $malop)->with('baiKiemTra')->first();
-        if (!$class) {
-            return redirect()->route('student.classlist')->withErrors(['error' => 'Lớp không tồn tại']);
-        }
-
+        // Lấy danh sách bài kiểm tra cho lớp học
         $tests = $class->baiKiemTra;
+
+        // Lặp qua từng bài kiểm tra để lấy số lần làm bài của sinh viên
+        foreach ($tests as $test) {
+            // Lấy số lần làm bài của sinh viên cho từng bài kiểm tra
+            $test->numAttempts = LichSuLamBaiKiemTra::where('msbkt', $test->msbkt)
+                ->where('mssv', $user['id']) // Lọc theo mã sinh viên, dùng id từ session
+                ->sum('solanlam'); // Tính tổng số lần làm bài
+        }
 
         return view('student.view.tests', [
             'class' => $class,
-            'tests' => $class->baiKiemTra,
+            'tests' => $tests,
+            'malop' => $malop,
         ]);
     }
-
 
     public function viewLecture($malop)
     {
@@ -205,30 +213,62 @@ class StudentController extends Controller
         return view('student.detail.lecture', compact('lecture'));
     }
 
-    // Chuyển hướng đến đúng dạng bài kiểm tra
+    // Chuyển hướng đến đúng dạng bài kiểm tra, kiểm tra số lần đã làm của sinh viên
     public function redirectToTest($malop, $msbkt)
     {
+        // Lấy thông tin người dùng từ session
+        $user = Session::get('user');
+
+        // Kiểm tra mảng có thông tin mssv không
+        if (!isset($user['id'])) {
+            return redirect()->route('login')->with('error', 'Bạn cần đăng nhập trước khi làm bài.');
+        }
+
+        // Lấy mssv từ session
+        $mssv = $user['id'];  // Thay vì auth()->user()->mssv
+
+        // Lấy thông tin bài kiểm tra từ bảng BaiKiemTra
         $test = BaiKiemTra::find($msbkt);
-
         if (!$test) {
-            return redirect()->back()->with('error', 'Bài kiểm tra không tồn tại');
+            return redirect()->back()->with('error', 'Bài kiểm tra không tồn tại.');
         }
 
-        // Lấy tất cả bài kiểm tra của lớp để truyền vào session
-        $class = LopHoc::where('malop', $malop)->with('baiKiemTra')->first();
-        if ($class) {
-            session(['tests' => $class->baiKiemTra]); // Lưu danh sách bài kiểm tra vào session
-        }
-
-        // Kiểm tra loại bài kiểm tra và chuyển hướng
+        // Kiểm tra thể loại bài kiểm tra
         if ($test->loai_bkt == 'TuLuan') {
+            // Nếu là bài tự luận, chuyển hướng đến trang essay
             return redirect()->route('student.test.essay', ['malop' => $malop, 'msbkt' => $msbkt]);
         } elseif ($test->loai_bkt == 'TracNghiem') {
+            // Nếu là bài trắc nghiệm, kiểm tra số lần làm bài
+            $lichSuLamBai = LichSuLamBaiKiemTra::where('msbkt', $msbkt)
+                ->where('mssv', $mssv)
+                ->first();
+
+            if ($lichSuLamBai && $lichSuLamBai->solanlam >= $test->solanlam) {
+                // Nếu số lần làm bài đã đạt giới hạn, hiển thị thông báo lỗi
+                return redirect()->back()->with('error', 'Số lần làm bài đã hết!');
+            }
+
+            // Nếu chưa đạt giới hạn số lần làm bài, chuyển đến trang làm bài trắc nghiệm
+            if ($lichSuLamBai) {
+                $lichSuLamBai->solanlam += 1;
+                $lichSuLamBai->save();
+            } else {
+                // Nếu chưa có lịch sử làm bài, tạo mới
+                LichSuLamBaiKiemTra::create([
+                    'msbkt' => $msbkt,
+                    'mssv' => $mssv,
+                    'solanlam' => 1,
+                ]);
+            }
+
+            // Chuyển hướng đến trang làm bài trắc nghiệm
             return redirect()->route('student.test.form', ['malop' => $malop, 'msbkt' => $msbkt]);
-        } else {
-            return redirect()->back()->with('error', 'Loại bài kiểm tra không hợp lệ');
         }
+
+        // Nếu thể loại không phải là TuLuan hay TracNghiem, trả về lỗi hoặc thông báo khác
+        return redirect()->back()->with('error', 'Loại bài kiểm tra không hợp lệ.');
     }
+
 
     public function takeTestForm($malop, $msbkt)
     {
@@ -248,7 +288,9 @@ class StudentController extends Controller
             return redirect()->route('student.classlist')->withErrors(['error' => 'Bài kiểm tra không tồn tại']);
         }
 
-        return view('student.test.form', compact('class', 'test', 'msbkt'));
+        $mssv = session('user.id');
+
+        return view('student.test.form', compact('class', 'test', 'msbkt', 'malop', 'mssv'));
     }
 
     public function takeTestEssay($malop, $msbkt)
@@ -267,5 +309,43 @@ class StudentController extends Controller
         }
 
         return view('student.test.essay', compact('class', 'msbkt'));
+    }
+
+    public function storeStudentTest(Request $request, $malop)
+    {
+        // Lấy thông tin từ form
+        $answers = $request->input('answers', []); // Lấy danh sách câu trả lời
+        $msbkt = $request->input('msbkt'); // Lấy mã bài kiểm tra
+        $mssv = $request->input('mssv'); // Lấy mã sinh viên
+
+        // Xử lý câu trả lời
+        $finalAnswers = [];
+        foreach ($answers as $questionId => $answer) {
+            $finalAnswers[$questionId] = $answer ?: " "; // Nếu chưa trả lời, lưu là " "
+        }
+
+        // Lưu bài kiểm tra vào cơ sở dữ liệu
+        KetQuaBaiKiemTra::create([
+            'msbkt' => $msbkt,
+            'mssv' => $mssv,
+            'diem' => 0,
+            'trangthai' => 'ChuaThi',
+            'cau_tra_loi' => $finalAnswers,
+        ]);
+
+        // Chuyển hướng lại trang `student.class.tests` với thông báo thành công
+        return redirect()->route('student.class.tests', ['malop' => $malop])
+            ->with('success', 'Lưu bài kiểm tra thành công!');
+    }
+
+    public function viewTestDetail($malop, $msbkt)
+    {
+        // Lấy thông tin bài kiểm tra từ bảng LichSuLamBaiKiemTra
+        $test = LichSuLamBaiKiemTra::where('msbkt', $msbkt)
+            ->where('malop', $malop)
+            ->first();
+
+        // Nếu có bài kiểm tra hợp lệ, trả về trang chi tiết
+        return view('student.detail.test', ['test' => $test, 'malop' => $malop]);
     }
 }

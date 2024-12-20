@@ -68,7 +68,7 @@
                                 <div class="detail">
                                     <div class="detail-id">
                                         <p style="font-weight:400">Số lần làm bài:
-                                            {{ $test->solanlam ?? 'Không' }}</p>
+                                            {{ $test->numAttempts }}/{{ $test->solanlam ?? 'Không' }}</p>
                                     </div>
                                 </div>
                                 <div class="detail">
@@ -83,13 +83,21 @@
                                             {{ $test->danhgia_id ?? 'Không có thông tin' }}</p>
                                     </div>
                                 </div>
+                                <div class="detail">
+                                    <div class="detail-id">
+                                        @if ($test->numAttempts > 0)
+                                            <a style="font-family: Inter; text-decoration:none; color: #208CE4"
+                                                href="{{ route('student.detail.test', ['malop' => $malop, 'msbkt' => $test->msbkt]) }}"
+                                                class="btn btn-primary">Xem chi tiết</a>
+                                        @endif
+                                    </div>
+                                </div>
                                 <div style="width: 200px; height: 40px; margin-left: 10px; margin-top: 10px">
                                     <button class="primary"
                                         onclick="window.location.href='{{ route('student.test.redirect', ['malop' => $test->malop, 'msbkt' => $test->msbkt]) }}'">
                                         Làm bài
                                     </button>
                                 </div>
-
                             </div>
                         @endforeach
                     @endif
@@ -260,33 +268,22 @@
 
     .class-btn {
         display: flex;
-        /* Sử dụng flexbox để sắp xếp các nút bấm */
         align-items: center;
-        /* Căn giữa các nút bấm theo chiều dọc */
         justify-content: flex-start;
-        /* Căn lề trái cho các nút bấm */
         gap: 10px;
-        /* Khoảng cách giữa các nút */
         width: 100%;
-        /* Chiếm toàn bộ chiều rộng của container */
         box-sizing: border-box;
-        /* Đảm bảo padding không làm tăng chiều rộng */
         border: none;
     }
 
     .search-bar {
         flex: 1;
-        /* Cho phép nó chiếm không gian còn lại trong class-btn */
-
     }
 
     .filter-search {
         display: flex;
-        /* Sử dụng flexbox để căn chỉnh các thành phần bên trong */
         align-items: center;
-        /* Căn giữa theo chiều dọc */
         gap: 10px;
-        /* Khoảng cách giữa các phần tử con */
     }
 
     .test-list {

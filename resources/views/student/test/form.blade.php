@@ -4,7 +4,6 @@
             <div class="content">
                 @if ($test->file_path)
                     @php
-                        // Lấy đường dẫn file từ cột 'file_path' trong bảng BaiKiemTra
                         $filePath = $test->file_path;
                         $extension = pathinfo($filePath, PATHINFO_EXTENSION); // Lấy đuôi file
                     @endphp
@@ -31,35 +30,37 @@
                 <div class="class-name">
                     <div class="time">
                         <p>Thời gian còn lại: <span id="countdown"
-                                style="font-weight: 700">{{ $test->thoigianlambai }}</span></p>
+                                style="font-weight: 700">{{ $test->thoigianlambai }}</span> phút</p>
                     </div>
+
                 </div>
             </div>
-            <form method="POST" action="" style="padding: 20px">
+            <form method="POST" action="{{ route('student.storeTest', ['malop' => $malop]) }}">
                 @csrf
+                <input type="hidden" name="msbkt" value="{{ $test->msbkt }}">
+                <input type="hidden" name="mssv" value="{{ $mssv }}">
                 <div class="class-list-2">
                     <div class="class-name-2">
                         <div class="test-name">
                             <p>{{ $test->tenbkt }}</p>
                         </div>
-
-                        <div class="answer-container">
-                            <!-- Tạo hàng ngang cho các ô trả lời -->
-                            @foreach ($test->cauHoi as $index => $cauHoi)
-                                <div class="answer-box" id="box-{{ $index }}"
-                                    onclick="showAnswerBox({{ $index }})">
-                                    {{ $index + 1 }}
-                                </div>
-                            @endforeach
-                        </div>
-
                         <!-- Hiển thị câu trả lời cho từng câu hỏi -->
                         <div class="question-container">
+                            <div class="answer-container">
+                                <!-- Tạo hàng ngang cho các ô trả lời -->
+                                @foreach ($test->cauHoi as $index => $cauHoi)
+                                    <div class="answer-box" id="box-{{ $index }}"
+                                        onclick="showAnswerBox({{ $index }})">
+                                        {{ $index + 1 }}
+                                    </div>
+                                @endforeach
+                            </div>
                             @foreach ($test->cauHoi as $index => $cauHoi)
                                 <div class="question-box" id="question-{{ $index }}" style="display: none;">
-                                    <p style="font-weight: 700">Câu {{ $index + 1 }} ({{ $cauHoi->diem }} điểm):</p>
+                                    <p style="font-weight: 700; margin-bottom: 10px">Câu {{ $index + 1 }}
+                                        ({{ $cauHoi->diem }} điểm)
+                                        :</p>
                                     <p class="answer-instruction">Nhập đáp án để trả lời</p>
-
                                     <div class="answer-card">
                                         <p>Phiếu trả lời</p>
                                     </div>
@@ -76,11 +77,9 @@
                 </div>
 
                 <div class="button-group">
-                    <button class="exit-btn" type="button">EXIT</button>
                     <button class="submit-btn" type="submit">SUBMIT</button>
                 </div>
             </form>
-
         </div>
     </div>
 </div>
@@ -238,17 +237,16 @@
 
     .answer-card p {
         font-weight: 700;
-        margin-bottom: 5px;
+        margin-bottom: 10px;
         text-align: center;
     }
 
     .answer-container {
         display: flex;
-        /* Sử dụng flexbox */
         justify-content: flex-start;
-        /* Căn lề trái (hoặc dùng center/right) */
         gap: 10px;
-        /* Khoảng cách giữa các phần tử */
+        flex-wrap: wrap;
+        margin-bottom: 10px;
     }
 
     .answer-box {
@@ -264,12 +262,13 @@
         cursor: pointer;
         transition: background-color 0.3s;
         background-color: #fff;
+        width: calc(20% - 10px);
     }
 
     .answer-box.selected {
-        background-color: #E3F2FD;
+        background-color: #E3F2FD !important;
         /* Thêm một lớp mới để thay đổi màu nền */
-        border-color: #007bff;
+        border-color: #007bff !important;
         /* Đổi màu border nếu cần */
     }
 
@@ -428,20 +427,19 @@
 
         // Kiểm tra xem câu trả lời đã nhập chưa
         if (inputField.value.trim() !== "") {
-            box.classList.add('selected'); // Thêm lớp 'selected' để thay đổi màu nền
+            box.classList.add('selected');
             console.log(`Câu ${questionIndex + 1}: Đã trả lời - ${inputField.value}`);
         } else {
-            box.classList.remove('selected'); // Xóa lớp 'selected' nếu không có câu trả lời
+            box.classList.remove('selected');
             console.log(`Câu ${questionIndex + 1}: Chưa có câu trả lời`);
         }
     }
 
-    // Khi load trang, mặc định sẽ hiển thị câu hỏi đầu tiên và tô màu ô trả lời nếu có giá trị
+
     document.addEventListener('DOMContentLoaded', function() {
         // Hiển thị câu hỏi đầu tiên
         showAnswerBox(0);
 
-        // Lắng nghe sự kiện 'input' trên tất cả các ô input câu trả lời
         const allAnswerInputs = document.querySelectorAll('.answer-input');
         allAnswerInputs.forEach((input, index) => {
             input.addEventListener('input', function() {
@@ -451,8 +449,34 @@
             // Kiểm tra xem câu trả lời có sẵn không khi trang tải và tô màu ô trả lời nếu đã có giá trị
             const box = document.getElementById(`box-${index}`);
             if (input.value.trim() !== "") {
-                box.style.backgroundColor = "#E3F2FD"; // tô màu ô câu trả lời đã trả lời
+                box.style.backgroundColor = "#E3F2FD";
+                box.classList.add('selected');
             }
         });
     });
+
+
+    // Lấy thời gian còn lại từ server (ở dạng phút)
+    let timeRemaining = parseInt("{{ $test->thoigianlambai }}") * 60; // Chuyển đổi sang giây
+    let malop = "{{ $malop }}";
+
+    // Hàm để cập nhật đồng hồ đếm ngược
+    function updateCountdown() {
+        let minutes = Math.floor(timeRemaining / 60);
+        let seconds = timeRemaining % 60;
+
+        document.getElementById("countdown").innerText = `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+
+        // Giảm thời gian còn lại mỗi giây
+        timeRemaining--;
+
+        // Kiểm tra nếu hết thời gian
+        if (timeRemaining < 0) {
+            clearInterval(countdownInterval); // Dừng đồng hồ đếm ngược
+            alert("Bạn đã hết thời gian làm bài!"); // Thông báo hết thời gian
+            window.location.href = "{{ route('student.class.tests', ['malop' => $malop]) }}";
+        }
+    }
+    // Bắt đầu đồng hồ đếm ngược sau khi tải trang
+    let countdownInterval = setInterval(updateCountdown, 1000);
 </script>

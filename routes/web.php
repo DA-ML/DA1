@@ -33,7 +33,8 @@ Route::middleware('check.login')->group(function () {
     Route::get('student/test/{malop}/{msbkt}/redirect', [StudentController::class, 'redirectToTest'])->name('student.test.redirect');
     Route::get('student/test/{malop}/{msbkt}/form', [StudentController::class, 'takeTestForm'])->name('student.test.form');
     Route::get('student/test/{malop}/{msbkt}/essay', [StudentController::class, 'takeTestEssay'])->name('student.test.essay');
-
+    Route::post('student/store-test/{malop}', [StudentController::class, 'storeStudentTest'])->name('student.storeTest');
+    Route::get('student/detail/test/{malop}/{msbkt}', [StudentController::class, 'viewTestDetail'])->name('student.detail.test');
 
     Route::get('student/view/lectures/{malop}', [StudentController::class, 'viewLecture'])->name('student.class.lectures');
     Route::get('student/detail/lecture/{id}', [StudentController::class, 'show'])->name('student.lecture.detail');

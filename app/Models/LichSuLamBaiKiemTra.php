@@ -19,6 +19,7 @@ class LichSuLamBaiKiemTra extends Model
     protected $fillable = [
         'msbkt',
         'mssv',
+        'malop',
         'solanlam',
     ];
 
@@ -32,5 +33,10 @@ class LichSuLamBaiKiemTra extends Model
     public function sinhVien()
     {
         return $this->belongsTo(SinhVien::class, 'mssv', 'mssv');
+    }
+    // Quan hệ với bảng LopHoc
+    public function lopHoc()
+    {
+        return $this->belongsTo(LopHoc::class, 'malop', 'malop');
     }
 }
