@@ -24,9 +24,12 @@
                     </div>
                 </div>
             </div>
+            @php
+                $tests = session('tests');
+            @endphp
             <div style="width: 100%; background-color: #fff; border-radius: 5px; padding: 10px">
                 <div style="width: 100%">
-                    @if ($tests->isEmpty())
+                    @if ($tests && $tests->isEmpty())
                         <p class="text-center" style="font-family: Inter">Bạn chưa có bài tập nào.</p>
                     @else
                         @foreach ($tests as $key => $test)
@@ -67,6 +70,12 @@
                                 </div>
                                 <div class="detail">
                                     <div class="detail-id">
+                                        <p style="font-weight:400">Số lần làm bài:
+                                            {{ $test->solanlam ?? 'Không' }}</p>
+                                    </div>
+                                </div>
+                                <div class="detail">
+                                    <div class="detail-id">
                                         <p style="font-weight:400">Loại bài:
                                             {{ $test->loai_bkt ?? 'Không có thông tin' }}</p>
                                     </div>
@@ -78,8 +87,12 @@
                                     </div>
                                 </div>
                                 <div style="width: 200px; height: 40px; margin-left: 10px; margin-top: 10px">
-                                    <button class="primary">Làm bài</button>
+                                    <button class="primary"
+                                        onclick="window.location.href='{{ route('student.test.redirect', ['malop' => $test->malop, 'msbkt' => $test->msbkt]) }}'">
+                                        Làm bài
+                                    </button>
                                 </div>
+
                             </div>
                         @endforeach
                     @endif

@@ -6,9 +6,9 @@ use App\Models\LopHoc;
 use App\Models\BaiGiang;
 use App\Models\QuanLyHS;
 use App\Models\SinhVien;
+use App\Models\BaiKiemTra;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
-use Psy\Readline\Hoa\Console;
 
 class StudentController extends Controller
 {
@@ -112,16 +112,12 @@ class StudentController extends Controller
             return redirect()->route('student.classlist')->withErrors(['error' => 'Lớp không tồn tại']);
         }
 
-        // Lấy danh sách bài tập từ lớp học
-        $class = LopHoc::where('malop', $malop)->with('baiKiemTra')->first();
-        if (!$class) {
-            return redirect()->route('student.classlist')->withErrors(['error' => 'Lớp không tồn tại']);
-        }
-
+        // Lấy danh sách bài kiểm tra từ lớp học
         $tests = $class->baiKiemTra;
 
         return view('student.view.tests', compact('class', 'tests'));
     }
+
 
     public function viewLecture($malop)
     {
@@ -198,5 +194,66 @@ class StudentController extends Controller
 
         // Trả về view chi tiết bài giảng
         return view('student.detail.lecture', compact('lecture'));
+    }
+
+    // Chuyển hướng đến đúng dạng bài kiểm tra
+    public function redirectToTest($malop, $msbkt)
+    {
+        $test = BaiKiemTra::find($msbkt);
+
+        if (!$test) {
+            return redirect()->back()->with('error', 'Bài kiểm tra không tồn tại');
+        }
+
+        // Lấy tất cả bài kiểm tra của lớp để truyền vào session
+        $class = LopHoc::where('malop', $malop)->with('baiKiemTra')->first();
+        if ($class) {
+            session(['tests' => $class->baiKiemTra]); // Lưu danh sách bài kiểm tra vào session
+        }
+
+        // Kiểm tra loại bài kiểm tra và chuyển hướng
+        if ($test->loai_bkt == 'TuLuan') {
+            return redirect()->route('student.test.essay', ['malop' => $malop, 'msbkt' => $msbkt]);
+        } elseif ($test->loai_bkt == 'TracNghiem') {
+            return redirect()->route('student.test.form', ['malop' => $malop, 'msbkt' => $msbkt]);
+        } else {
+            return redirect()->back()->with('error', 'Loại bài kiểm tra không hợp lệ');
+        }
+    }
+
+    public function takeTestForm($malop, $msbkt)
+    {
+        $class = LopHoc::where('malop', $malop)
+            ->with([
+                'quanLyHS',
+                'quanLyGV',
+                'baiGiang',
+                'baiKiemTra'
+            ])
+            ->first();
+
+        if (!$class) {
+            return redirect()->route('student.classlist')->withErrors(['error' => 'Lớp không tồn tại']);
+        }
+
+        return view('student.test.form', compact('class', 'msbkt'));
+    }
+
+    public function takeTestEssay($malop, $msbkt)
+    {
+        $class = LopHoc::where('malop', $malop)
+            ->with([
+                'quanLyHS',
+                'quanLyGV',
+                'baiGiang',
+                'baiKiemTra'
+            ])
+            ->first();
+
+        if (!$class) {
+            return redirect()->route('student.classlist')->withErrors(['error' => 'Lớp không tồn tại']);
+        }
+
+        return view('student.test.essay', compact('class', 'msbkt'));
     }
 }

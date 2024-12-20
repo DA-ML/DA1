@@ -13,7 +13,7 @@
                         </div>
                         <div class="combine-text">
                             <h1>Trắc nghiệm</h1>
-                            <p>Đề bài đa dạng, phong phú câu hỏi</p>
+                            <p>Chỉ hỗ trợ file PDF, PNG</p>
                         </div>
                     </div>
                     <button class="decor"

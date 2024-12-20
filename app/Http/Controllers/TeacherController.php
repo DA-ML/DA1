@@ -380,6 +380,7 @@ class TeacherController extends Controller
             'date-start' => 'required|date',
             'date-end' => 'required|date|after_or_equal:date-start',
             'time-doing' => 'required|integer|min:1',
+            'times-allow' => 'required|integer|min:1',
             'file-input' => 'nullable|file|mimes:jpg,jpeg,png,pdf,docx,doc|max:10240', // Tệp có thể lên đến 10MB
             'num-questions' => 'required|integer|min:1',
             'tpdg' => 'required|string',
@@ -419,9 +420,8 @@ class TeacherController extends Controller
                 'malop' => $malop,
                 'loai_bkt' => 'TracNghiem',  // Mặc định là trắc nghiệm
                 'num_ques' => $request->input('num-questions'),
+                'solanlam' => $request->input('times-allow'),
                 'file_path' => $filePath, // Lưu đường dẫn file
-                'diem' => null, // Bạn có thể thêm logic tính điểm nếu cần
-                'loinhanxet' => null, // Nếu có thông tin nhận xét thì thêm vào đây
             ]);
 
             // Lưu bài kiểm tra

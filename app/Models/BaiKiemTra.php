@@ -20,9 +20,8 @@ class BaiKiemTra extends Model
         'loai_bkt',
         'num_ques',
         'thoigianlambai',
+        'solanlam',
         'file_path',
-        'diem',
-        'loinhanxet',
         'malop',
     ];
 
