@@ -556,6 +556,7 @@ class TeacherController extends Controller
                 'malop' => $malop,
                 'loai_bkt' => 'TuLuan',  // Mặc định là tự luận
                 'num_ques' => null,
+                'solanlam' => null,
                 'file_path' => $filePath, // Lưu đường dẫn file
                 'diem' => null, // Bạn có thể thêm logic tính điểm nếu cần
                 'loinhanxet' => null, // Nếu có thông tin nhận xét thì thêm vào đây

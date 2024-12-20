@@ -99,6 +99,8 @@ class StudentController extends Controller
 
     public function viewTest($malop)
     {
+        $user = Session::get('user');
+
         $class = LopHoc::where('malop', $malop)
             ->with([
                 'quanLyHS',
@@ -107,15 +109,22 @@ class StudentController extends Controller
                 'baiKiemTra'
             ])
             ->first();
-
         if (!$class) {
             return redirect()->route('student.classlist')->withErrors(['error' => 'Lớp không tồn tại']);
         }
 
-        // Lấy danh sách bài kiểm tra từ lớp học
+        // Lấy danh sách bài tập từ lớp học
+        $class = LopHoc::where('malop', $malop)->with('baiKiemTra')->first();
+        if (!$class) {
+            return redirect()->route('student.classlist')->withErrors(['error' => 'Lớp không tồn tại']);
+        }
+
         $tests = $class->baiKiemTra;
 
-        return view('student.view.tests', compact('class', 'tests'));
+        return view('student.view.tests', [
+            'class' => $class,
+            'tests' => $class->baiKiemTra,
+        ]);
     }
 
 
@@ -229,14 +238,17 @@ class StudentController extends Controller
                 'quanLyGV',
                 'baiGiang',
                 'baiKiemTra'
-            ])
-            ->first();
-
+            ])->first();
         if (!$class) {
             return redirect()->route('student.classlist')->withErrors(['error' => 'Lớp không tồn tại']);
         }
 
-        return view('student.test.form', compact('class', 'msbkt'));
+        $test = BaiKiemTra::where('msbkt', $msbkt)->with('cauHoi')->first();
+        if (!$test) {
+            return redirect()->route('student.classlist')->withErrors(['error' => 'Bài kiểm tra không tồn tại']);
+        }
+
+        return view('student.test.form', compact('class', 'test', 'msbkt'));
     }
 
     public function takeTestEssay($malop, $msbkt)

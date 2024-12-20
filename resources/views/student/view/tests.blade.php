@@ -24,12 +24,9 @@
                     </div>
                 </div>
             </div>
-            @php
-                $tests = session('tests');
-            @endphp
             <div style="width: 100%; background-color: #fff; border-radius: 5px; padding: 10px">
                 <div style="width: 100%">
-                    @if ($tests && $tests->isEmpty())
+                    @if (!$tests || $tests->isEmpty())
                         <p class="text-center" style="font-family: Inter">Bạn chưa có bài tập nào.</p>
                     @else
                         @foreach ($tests as $key => $test)
