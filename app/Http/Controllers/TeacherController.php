@@ -8,13 +8,13 @@ use App\Models\CauHoi;
 use App\Models\BaiKiemTra;
 use App\Models\ThanhPhanDanhGia;
 use App\Models\ChuanDauRa;
-use Illuminate\Support\Facades\Storage;
+use App\Models\GiaoVien;
+use App\Models\QuanLyHS;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Carbon\Carbon;
 use Exception;
-use App\Http\Controllers\Log;
 
 class TeacherController extends Controller
 {
@@ -50,6 +50,40 @@ class TeacherController extends Controller
     {
         $user = Session::get('user');
         return view('teacher.profile', compact('user'));
+    }
+
+    public function teacherPassword()
+    {
+        $user = Session::get('user');
+        return view('teacher.password', compact('user'));
+    }
+
+    public function changePassword(Request $request)
+    {
+        $user = Session::get('user');
+        $user = GiaoVien::find($user['id']);
+
+        if (!$user) {
+            return back()->with('error', 'Không tìm thấy người dùng.');
+        }
+
+        // Validate input từ form
+        $request->validate([
+            'pass_old' => 'required',
+            'pass_new' => 'required|min:8',
+            'pass_newcf' => 'required|same:pass_new',
+        ]);
+
+        // Kiểm tra có trùng mật khẩu cũ không
+        if ($request->pass_old !== $user->password_gv) {
+            return back()->with('error', 'Mật khẩu cũ không đúng.');
+        }
+
+        // Cập nhật mật khẩu mới
+        $user->password_gv = $request->pass_new;
+        $user->save();
+
+        return redirect()->route('teacher.password')->with('success', 'Mật khẩu đã được thay đổi thành công.');
     }
 
     public function viewClass($malop)
@@ -130,7 +164,6 @@ class TeacherController extends Controller
     public function classMember($malop)
     {
         $user = Session::get('user');
-
         $class = LopHoc::where('malop', $malop)
             ->with([
                 'quanLyHS',
@@ -143,7 +176,12 @@ class TeacherController extends Controller
             return redirect()->route('teacher.classlist')->withErrors(['error' => 'Lớp không tồn tại']);
         }
 
-        return view('teacher.view.members', compact('class'));
+        // Lấy danh sách sinh viên qua QuanLyHS
+        $members = QuanLyHS::where('malop', $malop)
+            ->with('sinhVien')
+            ->get();
+
+        return view('teacher.view.members', compact('class', 'members'));
     }
 
     public function classStatics($malop)

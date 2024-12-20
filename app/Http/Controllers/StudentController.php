@@ -23,6 +23,39 @@ class StudentController extends Controller
         return view('student.profile', compact('user'));
     }
 
+    public function studentPassword()
+    {
+        $user = Session::get('user');
+        return view('student.password', compact('user'));
+    }
+
+    public function changeStudentPassword(Request $request)
+    {
+        $user = Session::get('user');
+        $user = SinhVien::find($user['id']);
+
+        if (!$user) {
+            return back()->with('error', 'Không tìm thấy người dùng.');
+        }
+
+        $request->validate([
+            'pass_old' => 'required',
+            'pass_new' => 'required|min:8',
+            'pass_newcf' => 'required|same:pass_new',
+        ]);
+
+        // Kiểm tra có trùng mật khẩu cũ không
+        if ($request->pass_old !== $user->password_sv) {
+            return back()->with('error', 'Mật khẩu cũ không đúng.');
+        }
+
+        // Cập nhật mật khẩu mới
+        $user->password_sv = $request->pass_new;
+        $user->save();
+
+        return redirect()->route('student.password')->with('success', 'Mật khẩu đã được thay đổi thành công.');
+    }
+
     public function classList()
     {
         $user = Session::get('user');
@@ -139,8 +172,6 @@ class StudentController extends Controller
 
         return view('student.view.members', compact('class', 'members'));
     }
-
-
 
     public function viewScore($malop)
     {

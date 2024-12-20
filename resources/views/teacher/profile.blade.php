@@ -83,7 +83,8 @@
                                     <div class="cell-content">******</div>
                                 </div>
                                 <div class="cell-2">
-                                    <div class="cell-content-2">Chỉnh sửa</div>
+                                    <a style="text-decoration: none" href="{{ route('teacher.password') }}"
+                                        class="cell-content-2">Chỉnh sửa</a>
                                 </div>
                             </div>
                         </div>
@@ -133,7 +134,7 @@
                                     <div class="cell-content">Ngày sinh</div>
                                 </div>
                                 <div class="cell-2">
-                                    <div class="cell-content">11-05-2004</div>
+                                    <div class="cell-content">{{ $user['date'] }}</div>
                                 </div>
                                 <div class="cell-2">
                                     <div classcell-content></div>

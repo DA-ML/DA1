@@ -15,6 +15,9 @@
                                 fill="black" />
                         </svg>
                         Mã lớp: {{ $class->malop }}
+                        @foreach ($class->quanLyGV as $quanLyGV)
+                            <p>Giáo viên: <strong>{{ $quanLyGV->giaoVien->tengv }}</strong></p>
+                        @endforeach
                     </div>
                 </div>
             </div>
