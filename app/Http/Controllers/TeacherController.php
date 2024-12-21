@@ -309,7 +309,9 @@ class TeacherController extends Controller
         if (!$class) {
             return redirect()->route('teacher.classlist')->withErrors(['error' => 'Lớp không tồn tại']);
         }
-        return view('teacher.add.test.percent', compact('class'));
+        $tests = $class->baiKiemTra;
+
+        return view('teacher.add.test.percent', compact('class', 'tests'));
     }
 
     public function testForm($malop)
@@ -614,4 +616,6 @@ class TeacherController extends Controller
         // Trả về view chi tiết bài giảng
         return view('teacher.detail.lecture', compact('lecture'));
     }
+
+    public function savePercent(Request $request) {}
 }

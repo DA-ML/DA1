@@ -12,8 +12,8 @@
                             {{-- File hiển thị ở đây --}}
                             <div class="custom-file-upload">
                                 <label for="file-input" class="custom-button">Chọn tệp</label>
-                                <input type="file" id="file-input" name="file-input"
-                                    accept=".jpg, .jpeg, .png, .pdf, .docx, .doc" onchange="handleFileUpload(event)">
+                                <input type="file" id="file-input" name="file-input" accept=".jpg, .jpeg, .png, .pdf"
+                                    onchange="handleFileUpload(event)">
                             </div>
 
                         </div>
