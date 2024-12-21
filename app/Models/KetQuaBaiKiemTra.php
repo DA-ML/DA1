@@ -19,6 +19,7 @@ class KetQuaBaiKiemTra extends Model
         'diem',
         'cau_tra_loi',
         'files_path',
+        'lich_su_id',
     ];
 
     protected $casts = [
@@ -41,5 +42,10 @@ class KetQuaBaiKiemTra extends Model
     public function nhanXetBaiKiemTra()
     {
         return $this->hasMany(NhanXetBaiKiemTra::class, 'ketqua_id', 'id');
+    }
+
+    public function lichSuLamBaiKiemTra()
+    {
+        return $this->belongsTo(LichSuLamBaiKiemTra::class, 'lich_su_id', 'id');
     }
 }

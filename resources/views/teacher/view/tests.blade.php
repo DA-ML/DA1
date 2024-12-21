@@ -37,7 +37,7 @@
                             Thêm bài tập
                         </button>
                         <button class="add-tile"
-                            onclick="window.location.href='{{ url('teacher/add/test/percent/' . $class->malop) }}'">
+                            onclick="handleClick('{{ url('teacher/add/test/percent/' . $class->malop) }}')">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                 fill="none">
                                 <path
@@ -320,3 +320,11 @@
         background-color: #208CE4;
     }
 </style>
+<script>
+    function handleClick(url) {
+        const confirmed = confirm("Bạn chỉ được nhập 1 lần duy nhất. Bạn chắc chưa?");
+        if (confirmed) {
+            window.location.href = url;
+        }
+    }
+</script>

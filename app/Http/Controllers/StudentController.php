@@ -7,6 +7,8 @@ use App\Models\BaiGiang;
 use App\Models\QuanLyHS;
 use App\Models\SinhVien;
 use App\Models\BaiKiemTra;
+use App\Models\CauHoi;
+use App\Models\ChuanDauRa;
 use App\Models\LichSuLamBaiKiemTra;
 use App\Models\KetQuaBaiKiemTra;
 use Illuminate\Http\Request;
@@ -253,6 +255,7 @@ class StudentController extends Controller
                 LichSuLamBaiKiemTra::create([
                     'msbkt' => $msbkt,
                     'mssv' => $mssv,
+                    'malop' => $malop,
                     'solanlam' => 1,
                 ]);
             }
@@ -327,28 +330,93 @@ class StudentController extends Controller
             $finalAnswers[$questionId] = $answer ?: " "; // Nếu chưa trả lời, lưu là " "
         }
 
-        // Lưu bài kiểm tra vào cơ sở dữ liệu
+        // Lấy lịch sử làm bài từ bảng LichSuLamBaiKiemTra
+        $lichSuLamBai = LichSuLamBaiKiemTra::where('msbkt', $msbkt)
+            ->where('mssv', $mssv)
+            ->where('malop', $malop)
+            ->first();
+
+        // Kiểm tra xem lịch sử có tồn tại không
+        if (!$lichSuLamBai) {
+            return redirect()->route('student.class.tests', ['malop' => $malop])
+                ->with('error', 'Không tìm thấy lịch sử làm bài!'); // Nếu không tìm thấy lịch sử làm bài, trả về thông báo lỗi
+        }
+
+        // Lưu bài kiểm tra vào cơ sở dữ liệu và liên kết với lịch sử làm bài
         KetQuaBaiKiemTra::create([
             'msbkt' => $msbkt,
             'mssv' => $mssv,
             'diem' => 0,
             'cau_tra_loi' => $finalAnswers,
+            'lich_su_id' => $lichSuLamBai->id, // Lưu lich_su_id từ lịch sử làm bài
         ]);
+
 
         // Chuyển hướng lại trang `student.class.tests` với thông báo thành công
         return redirect()->route('student.class.tests', ['malop' => $malop])
             ->with('success', 'Lưu bài kiểm tra thành công!');
     }
 
+
     public function viewTestDetail($malop, $msbkt)
     {
-        // Lấy thông tin bài kiểm tra từ bảng LichSuLamBaiKiemTra
-        $test = LichSuLamBaiKiemTra::where('msbkt', $msbkt)
-            ->where('malop', $malop)
-            ->first();
+        $test = BaiKiemTra::where('msbkt', $msbkt)->with('cauHoi')->first();
+        if (!$test) {
+            return redirect()->route('student.classlist')->withErrors(['error' => 'Bài kiểm tra không tồn tại']);
+        }
 
-        // Nếu có bài kiểm tra hợp lệ, trả về trang chi tiết
-        return view('student.detail.test', ['test' => $test, 'malop' => $malop]);
+        // Lấy thông tin các lần làm bài
+        $attempts = LichSuLamBaiKiemTra::where('msbkt', $msbkt)
+            ->where('malop', $malop)
+            ->get();
+
+        // Lấy thông tin kết quả của mỗi lần làm bài
+        $attemptResults = [];
+        foreach ($attempts as $attempt) {
+            $result = KetQuaBaiKiemTra::where('lich_su_id', $attempt->id)->first();
+
+            if ($result) {
+                // Lấy danh sách câu hỏi của bài kiểm tra
+                $questions = CauHoi::where('msbkt', $msbkt)->get();
+
+                // Tính số câu đúng cho từng lần làm bài
+                $correctAnswers = 0;
+                $correctByOutcome = [];
+
+                foreach ($questions as $question) {
+                    // Kiểm tra câu trả lời của sinh viên
+                    $answer = $result->cau_tra_loi[$question->msch] ?? null;
+                    if ($answer && $answer === $question->dapan) {
+                        $correctAnswers++;
+
+                        // Kiểm tra chuẩn đầu ra cho câu hỏi này
+                        $outcome = ChuanDauRa::find($question->chuan_id);
+                        if ($outcome) {
+                            if (!isset($correctByOutcome[$outcome->id])) {
+                                $correctByOutcome[$outcome->id] = 0;
+                            }
+                            $correctByOutcome[$outcome->id]++;
+                        }
+                    }
+                }
+
+                // Lưu kết quả vào mảng
+                $attemptResults[] = [
+                    'attempt' => $attempt,
+                    'correctAnswers' => $correctAnswers,
+                    'correctByOutcome' => $correctByOutcome,
+                    'result' => $result
+                ];
+            }
+        }
+
+        // Trả về view với dữ liệu
+        return view('student.detail.test', [
+            'attemptResults' => $attemptResults,
+            'malop' => $malop,
+            'msbkt' => $msbkt,
+            'test' => $test,
+        ]);
     }
 
     // Lưu bài kiểm tra tự luận

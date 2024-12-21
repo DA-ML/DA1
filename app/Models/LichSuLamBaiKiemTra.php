@@ -34,9 +34,16 @@ class LichSuLamBaiKiemTra extends Model
     {
         return $this->belongsTo(SinhVien::class, 'mssv', 'mssv');
     }
+
     // Quan hệ với bảng LopHoc
     public function lopHoc()
     {
         return $this->belongsTo(LopHoc::class, 'malop', 'malop');
+    }
+
+    // Quan hệ với bảng KetQuaBaiKiemTra
+    public function ketQuaBaiKiemTra()
+    {
+        return $this->hasOne(KetQuaBaiKiemTra::class, 'lich_su_id', 'id');
     }
 }
