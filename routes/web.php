@@ -35,6 +35,9 @@ Route::middleware('check.login')->group(function () {
     Route::get('student/test/{malop}/{msbkt}/essay', [StudentController::class, 'takeTestEssay'])->name('student.test.essay');
     Route::post('student/store-test/{malop}', [StudentController::class, 'storeStudentTest'])->name('student.storeTest');
     Route::get('student/detail/test/{malop}/{msbkt}', [StudentController::class, 'viewTestDetail'])->name('student.detail.test');
+    Route::get('student/detail/essay/{malop}/{msbkt}', [StudentController::class, 'viewEssayDetail'])->name('student.detail.essay');
+    Route::post('student/test/{malop}/store-essay', [StudentController::class, 'storeEssayTest'])->name('student.test.storeEssay');
+
 
     Route::get('student/view/lectures/{malop}', [StudentController::class, 'viewLecture'])->name('student.class.lectures');
     Route::get('student/detail/lecture/{id}', [StudentController::class, 'show'])->name('student.lecture.detail');
@@ -71,6 +74,7 @@ Route::middleware('check.login')->group(function () {
     Route::post('teacher/add/lecture/{malop}', [TeacherController::class, 'addLecture'])->name('add.lecture');
 
     Route::get('teacher/add/test/type/{malop}', [TeacherController::class, 'testType'])->name('test.type');
+    Route::get('teacher/add/test/percent/{malop}', [TeacherController::class, 'testPercent'])->name('test.percent');
 
     Route::get('teacher/add/test/form/{malop}', [TeacherController::class, 'testForm'])->name('test.form');
     Route::post('teacher/add/test/store/{malop}', [TeacherController::class, 'storeTest'])->name('test.store');

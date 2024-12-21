@@ -216,16 +216,12 @@ class StudentController extends Controller
     // Chuyển hướng đến đúng dạng bài kiểm tra, kiểm tra số lần đã làm của sinh viên
     public function redirectToTest($malop, $msbkt)
     {
-        // Lấy thông tin người dùng từ session
         $user = Session::get('user');
-
-        // Kiểm tra mảng có thông tin mssv không
         if (!isset($user['id'])) {
             return redirect()->route('login')->with('error', 'Bạn cần đăng nhập trước khi làm bài.');
         }
 
-        // Lấy mssv từ session
-        $mssv = $user['id'];  // Thay vì auth()->user()->mssv
+        $mssv = $user['id'];
 
         // Lấy thông tin bài kiểm tra từ bảng BaiKiemTra
         $test = BaiKiemTra::find($msbkt);
@@ -233,10 +229,10 @@ class StudentController extends Controller
             return redirect()->back()->with('error', 'Bài kiểm tra không tồn tại.');
         }
 
-        // Kiểm tra thể loại bài kiểm tra
+        // Kiểm tra thể loại
         if ($test->loai_bkt == 'TuLuan') {
             // Nếu là bài tự luận, chuyển hướng đến trang essay
-            return redirect()->route('student.test.essay', ['malop' => $malop, 'msbkt' => $msbkt]);
+            return redirect()->route('student.test.essay', ['malop' => $malop, 'msbkt' => $msbkt, 'test' => $test]);
         } elseif ($test->loai_bkt == 'TracNghiem') {
             // Nếu là bài trắc nghiệm, kiểm tra số lần làm bài
             $lichSuLamBai = LichSuLamBaiKiemTra::where('msbkt', $msbkt)
@@ -308,7 +304,14 @@ class StudentController extends Controller
             return redirect()->route('student.classlist')->withErrors(['error' => 'Lớp không tồn tại']);
         }
 
-        return view('student.test.essay', compact('class', 'msbkt'));
+        $test = BaiKiemTra::where('msbkt', $msbkt)->with('cauHoi')->first();
+        if (!$test) {
+            return redirect()->route('student.classlist')->withErrors(['error' => 'Bài kiểm tra không tồn tại']);
+        }
+
+        $mssv = session('user.id');
+
+        return view('student.test.essay', compact('class', 'msbkt', 'malop', 'mssv', 'test'));
     }
 
     public function storeStudentTest(Request $request, $malop)
@@ -329,7 +332,6 @@ class StudentController extends Controller
             'msbkt' => $msbkt,
             'mssv' => $mssv,
             'diem' => 0,
-            'trangthai' => 'ChuaThi',
             'cau_tra_loi' => $finalAnswers,
         ]);
 
@@ -347,5 +349,51 @@ class StudentController extends Controller
 
         // Nếu có bài kiểm tra hợp lệ, trả về trang chi tiết
         return view('student.detail.test', ['test' => $test, 'malop' => $malop]);
+    }
+
+    // Lưu bài kiểm tra tự luận
+    public function storeEssayTest(Request $request, $malop)
+    {
+        // Lấy thông tin từ form
+        $msbkt = $request->input('msbkt');
+        $mssv = $request->input('mssv');
+
+        // Kiểm tra xem file có được tải lên hay không
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+
+            // Định nghĩa đường dẫn lưu file
+            $filePath = "essay/{$msbkt}/{$mssv}";
+            $fileName = $file->getClientOriginalName(); // Lấy tên gốc của file
+
+            // Lưu file vào thư mục public/essay/{msbkt}/{mssv}
+            $file->move(public_path($filePath), $fileName);
+
+            // Lưu bài kiểm tra vào cơ sở dữ liệu
+            KetQuaBaiKiemTra::create([
+                'msbkt' => $msbkt,
+                'mssv' => $mssv,
+                'diem' => 0,
+                'files_path' => "{$filePath}/{$fileName}",
+            ]);
+
+            return redirect()->route('student.class.tests', ['malop' => $malop])
+                ->with('success', 'Bài tự luận đã được nộp thành công!');
+        }
+
+        // Trường hợp không có file
+        return redirect()->route('student.class.tests', ['malop' => $malop])
+            ->withErrors(['error' => 'Vui lòng tải lên file trước khi nộp!']);
+    }
+
+    public function viewEssayDetail($malop, $msbkt)
+    {
+        // Lấy thông tin bài kiểm tra từ bảng LichSuLamBaiKiemTra
+        $test = LichSuLamBaiKiemTra::where('msbkt', $msbkt)
+            ->where('malop', $malop)
+            ->first();
+
+        // Nếu có bài kiểm tra hợp lệ, trả về trang chi tiết
+        return view('student.detail.essay', ['test' => $test, 'malop' => $malop]);
     }
 }

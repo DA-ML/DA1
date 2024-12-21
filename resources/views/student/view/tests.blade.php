@@ -65,12 +65,17 @@
                                             {{ $test->ngayketthuc ?? 'Không có thông tin' }}</p>
                                     </div>
                                 </div>
-                                <div class="detail">
-                                    <div class="detail-id">
-                                        <p style="font-weight:400">Số lần làm bài:
-                                            {{ $test->numAttempts }}/{{ $test->solanlam ?? 'Không' }}</p>
+                                @if ($test->loai_bkt === 'TracNghiem')
+                                    <div class="detail">
+                                        <div class="detail-id">
+                                            <p style="font-weight:400">
+                                                Số lần làm bài:
+                                                {{ $test->numAttempts }}/{{ $test->solanlam ?? 'Không' }}
+                                            </p>
+                                        </div>
                                     </div>
-                                </div>
+                                @endif
+
                                 <div class="detail">
                                     <div class="detail-id">
                                         <p style="font-weight:400">Loại bài:
@@ -85,10 +90,14 @@
                                 </div>
                                 <div class="detail">
                                     <div class="detail-id">
-                                        @if ($test->numAttempts > 0)
+                                        @if ($test->numAttempts > 0 && $test->loai_bkt === 'TracNghiem')
                                             <a style="font-family: Inter; text-decoration:none; color: #208CE4"
                                                 href="{{ route('student.detail.test', ['malop' => $malop, 'msbkt' => $test->msbkt]) }}"
                                                 class="btn btn-primary">Xem chi tiết</a>
+                                        @elseif ($test->loai_bkt === 'TuLuan')
+                                            <a style="font-family: Inter; text-decoration:none; color: #208CE4"
+                                                href="{{ route('student.detail.essay', ['malop' => $malop, 'msbkt' => $test->msbkt]) }}"
+                                                class="btn btn-primary">Xem chi tiết bài tự luận</a>
                                         @endif
                                     </div>
                                 </div>

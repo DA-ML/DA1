@@ -295,6 +295,23 @@ class TeacherController extends Controller
         return view('teacher.add.test.type', compact('class'));
     }
 
+    public function testPercent($malop)
+    {
+        $user = Session::get('user');
+        $class = LopHoc::where('malop', $malop)
+            ->with([
+                'quanLyHS',
+                'quanLyGV',
+                'baiGiang',
+                'baiKiemTra'
+            ])
+            ->first();
+        if (!$class) {
+            return redirect()->route('teacher.classlist')->withErrors(['error' => 'Lớp không tồn tại']);
+        }
+        return view('teacher.add.test.percent', compact('class'));
+    }
+
     public function testForm($malop)
     {
         $user = Session::get('user');

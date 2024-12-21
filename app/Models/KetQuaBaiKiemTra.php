@@ -17,8 +17,8 @@ class KetQuaBaiKiemTra extends Model
         'msbkt',
         'mssv',
         'diem',
-        'trangthai',
         'cau_tra_loi',
+        'files_path',
     ];
 
     protected $casts = [

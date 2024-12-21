@@ -389,7 +389,7 @@
             </div>
             <div class="row-1">
                 Điểm
-                <input type="text" name="points-${i + 1}" style="width: 90px" value="${pointsPerQuestion}">
+                <input readOnly type="text" name="points-${i + 1}" style="width: 90px" value="${pointsPerQuestion}">
             </div>
         `;
             questionContainer.appendChild(questionInfo);
