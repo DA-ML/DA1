@@ -32,23 +32,6 @@
                 </div>
             </div>
             <h3>Danh sách thông tin lần làm bài:</h3>
-            @foreach ($attemptResults as $attemptResult)
-                <div class="attempt">
-                    <h4>Thử nghiệm {{ $attemptResult['attempt']->solanlam }}:</h4>
-                    <p>Số câu đúng: {{ $attemptResult['correctAnswers'] }} / {{ $attemptResult['attempt']->num_ques }}
-                    </p>
-
-                    <h5>Câu đúng theo chuẩn đầu ra:</h5>
-                    @foreach ($attemptResult['correctByOutcome'] as $outcomeId => $correctCount)
-                        @php
-                            $outcome = App\Models\ChuanDauRa::find($outcomeId);
-                        @endphp
-                        <p>{{ $outcome->tenchuan }}: {{ $correctCount }} câu đúng</p>
-                    @endforeach
-
-                    <h5>Chi tiết kết quả:</h5>
-                </div>
-            @endforeach
 
         </div>
     </div>

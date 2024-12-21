@@ -365,54 +365,8 @@ class StudentController extends Controller
             return redirect()->route('student.classlist')->withErrors(['error' => 'Bài kiểm tra không tồn tại']);
         }
 
-        // Lấy thông tin các lần làm bài
-        $attempts = LichSuLamBaiKiemTra::where('msbkt', $msbkt)
-            ->where('malop', $malop)
-            ->get();
-
-        // Lấy thông tin kết quả của mỗi lần làm bài
-        $attemptResults = [];
-        foreach ($attempts as $attempt) {
-            $result = KetQuaBaiKiemTra::where('lich_su_id', $attempt->id)->first();
-
-            if ($result) {
-                // Lấy danh sách câu hỏi của bài kiểm tra
-                $questions = CauHoi::where('msbkt', $msbkt)->get();
-
-                // Tính số câu đúng cho từng lần làm bài
-                $correctAnswers = 0;
-                $correctByOutcome = [];
-
-                foreach ($questions as $question) {
-                    // Kiểm tra câu trả lời của sinh viên
-                    $answer = $result->cau_tra_loi[$question->msch] ?? null;
-                    if ($answer && $answer === $question->dapan) {
-                        $correctAnswers++;
-
-                        // Kiểm tra chuẩn đầu ra cho câu hỏi này
-                        $outcome = ChuanDauRa::find($question->chuan_id);
-                        if ($outcome) {
-                            if (!isset($correctByOutcome[$outcome->id])) {
-                                $correctByOutcome[$outcome->id] = 0;
-                            }
-                            $correctByOutcome[$outcome->id]++;
-                        }
-                    }
-                }
-
-                // Lưu kết quả vào mảng
-                $attemptResults[] = [
-                    'attempt' => $attempt,
-                    'correctAnswers' => $correctAnswers,
-                    'correctByOutcome' => $correctByOutcome,
-                    'result' => $result
-                ];
-            }
-        }
-
         // Trả về view với dữ liệu
         return view('student.detail.test', [
-            'attemptResults' => $attemptResults,
             'malop' => $malop,
             'msbkt' => $msbkt,
             'test' => $test,
