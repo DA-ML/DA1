@@ -12,11 +12,13 @@ class SinhVienKetQua extends Model
     protected $table = 'SinhVienKetQua';
     public $incrementing = true;
     protected $keyType = 'int';
-
+    public $timestamps = true;
     protected $fillable = [
         'mssv',
         'msbkt',
         'malop',
+        'updated_at',
+        'created_at',
     ];
 
     // Định nghĩa quan hệ với bảng `KetQuaChuans`

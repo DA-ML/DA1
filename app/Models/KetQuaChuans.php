@@ -8,12 +8,15 @@ use Illuminate\Database\Eloquent\Model;
 class KetQuaChuans extends Model
 {
     use HasFactory;
+    public $timestamps = true;
 
     protected $table = 'KetQuaChuans';
     protected $fillable = [
         'sinhvien_ketqua_id',
         'chuan_id',
         'so_cau_dung',
+        'updated_at',
+        'created_at',
     ];
 
     public $incrementing = true;

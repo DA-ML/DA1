@@ -11,8 +11,11 @@ use App\Models\CauHoi;
 use App\Models\ChuanDauRa;
 use App\Models\LichSuLamBaiKiemTra;
 use App\Models\KetQuaBaiKiemTra;
+use App\Models\SinhVienKetQua;
+use App\Models\KetQuaChuans;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\DB;
 
 class StudentController extends Controller
 {
@@ -319,44 +322,85 @@ class StudentController extends Controller
 
     public function storeStudentTest(Request $request, $malop)
     {
-        // Lấy thông tin từ form
-        $answers = $request->input('answers', []); // Lấy danh sách câu trả lời
-        $msbkt = $request->input('msbkt'); // Lấy mã bài kiểm tra
-        $mssv = $request->input('mssv'); // Lấy mã sinh viên
+        $answers = $request->input('answers', []);
+        $msbkt = $request->input('msbkt');
+        $mssv = $request->input('mssv');
 
-        // Xử lý câu trả lời
         $finalAnswers = [];
-        foreach ($answers as $questionId => $answer) {
-            $finalAnswers[$questionId] = $answer ?: " "; // Nếu chưa trả lời, lưu là " "
+        $cauHoi = DB::table('CauHoi')->where('msbkt', $msbkt)->get();
+
+        foreach ($cauHoi as $index => $cau) {
+            $finalAnswers[$cau->msch] = $answers[$index] ?? null;
         }
 
-        // Lấy lịch sử làm bài từ bảng LichSuLamBaiKiemTra
         $lichSuLamBai = LichSuLamBaiKiemTra::where('msbkt', $msbkt)
             ->where('mssv', $mssv)
             ->where('malop', $malop)
             ->first();
 
-        // Kiểm tra xem lịch sử có tồn tại không
         if (!$lichSuLamBai) {
             return redirect()->route('student.class.tests', ['malop' => $malop])
                 ->with('error', 'Không tìm thấy lịch sử làm bài!'); // Nếu không tìm thấy lịch sử làm bài, trả về thông báo lỗi
         }
 
-        // Lưu bài kiểm tra vào cơ sở dữ liệu và liên kết với lịch sử làm bài
-        KetQuaBaiKiemTra::create([
+        $cauHoi = DB::table('CauHoi')
+            ->where('msbkt', $msbkt)
+            ->get();
+
+        $soCauDungTheoChuan = [];
+        $tongDiem = 0;
+        logger()->info("Mảng answers từ request: " . json_encode($answers));
+
+        // Chấm điểm
+        foreach ($cauHoi as $cau) {
+            $answer = isset($finalAnswers[$cau->msch]) ? $finalAnswers[$cau->msch] : null;
+            logger()->info("Câu hỏi {$cau->msch}: câu trả lời = " . json_encode($answer));
+
+            if ($answer === null || trim($answer) === "") {
+                $answer = null; // Câu trả lời trống được xem là sai
+                continue;
+            }
+
+            if (trim((string) $answer) === trim((string) $cau->dapan)) {
+                $tongDiem += $cau->diem;
+                if (!isset($soCauDungTheoChuan[$cau->chuan_id])) {
+                    $soCauDungTheoChuan[$cau->chuan_id] = 0;
+                }
+                $soCauDungTheoChuan[$cau->chuan_id]++;
+            }
+        }
+
+        $ketQuaBaiKiemTra = KetQuaBaiKiemTra::create([
             'msbkt' => $msbkt,
             'mssv' => $mssv,
-            'diem' => 0,
-            'cau_tra_loi' => $finalAnswers,
-            'lich_su_id' => $lichSuLamBai->id, // Lưu lich_su_id từ lịch sử làm bài
+            'diem' => $tongDiem,
+            'cau_tra_loi' => json_encode($finalAnswers, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+            'lich_su_id' => $lichSuLamBai->id,
         ]);
 
+        $sinhVienKetQua = SinhVienKetQua::firstOrCreate(
+            [
+                'mssv' => $mssv,
+                'msbkt' => $msbkt,
+                'malop' => $malop,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        );
 
-        // Chuyển hướng lại trang `student.class.tests` với thông báo thành công
+        foreach ($soCauDungTheoChuan as $chuanId => $soCauDung) {
+            KetQuaChuans::updateOrCreate(
+                [
+                    'sinhvien_ketqua_id' => $sinhVienKetQua->id,
+                    'chuan_id' => $chuanId,
+                ],
+                ['so_cau_dung' => $soCauDung]
+            );
+        }
+
         return redirect()->route('student.class.tests', ['malop' => $malop])
-            ->with('success', 'Lưu bài kiểm tra thành công!');
+            ->with('success', 'Lưu bài kiểm tra và chấm điểm thành công!');
     }
-
 
     public function viewTestDetail($malop, $msbkt)
     {
