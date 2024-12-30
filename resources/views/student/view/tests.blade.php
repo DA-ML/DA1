@@ -1,5 +1,9 @@
 <link rel="stylesheet" href="{{ asset('css/global.css') }}">
 
+@php
+    $currentTime = now();
+@endphp
+
 <div class="student-viewclass">
     @include('components.heading')
     <div class="body">
@@ -97,15 +101,17 @@
                                         @elseif ($test->loai_bkt === 'TuLuan')
                                             <a style="font-family: Inter; text-decoration:none; color: #208CE4"
                                                 href="{{ route('student.detail.essay', ['malop' => $malop, 'msbkt' => $test->msbkt]) }}"
-                                                class="btn btn-primary">Xem chi tiết bài tự luận</a>
+                                                class="btn btn-primary">Xem chi tiết</a>
                                         @endif
                                     </div>
                                 </div>
                                 <div style="width: 200px; height: 40px; margin-left: 10px; margin-top: 10px">
-                                    <button class="primary"
-                                        onclick="window.location.href='{{ route('student.test.redirect', ['malop' => $test->malop, 'msbkt' => $test->msbkt]) }}'">
-                                        Làm bài
-                                    </button>
+                                    @if ($test->ngayketthuc > $currentTime)
+                                        <button class="primary"
+                                            onclick="window.location.href='{{ route('student.test.redirect', ['malop' => $test->malop, 'msbkt' => $test->msbkt]) }}'">
+                                            Làm bài
+                                        </button>
+                                    @endif
                                 </div>
                             </div>
                         @endforeach

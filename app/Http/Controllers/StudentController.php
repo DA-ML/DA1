@@ -193,6 +193,10 @@ class StudentController extends Controller
 
     public function viewScore($malop)
     {
+        $user = Session::get('user'); // Lấy dữ liệu user từ session
+        $studentId = $user['id']; // Truy cập mssv từ mảng
+
+        // Kiểm tra lớp học tồn tại
         $class = LopHoc::where('malop', $malop)
             ->with([
                 'quanLyHS',
@@ -206,7 +210,27 @@ class StudentController extends Controller
             return redirect()->route('student.classlist')->withErrors(['error' => 'Lớp không tồn tại']);
         }
 
-        return view('student.view.scores', compact('class'));
+        // Lấy danh sách các bài kiểm tra của lớp
+        $baiKiemTras = BaiKiemTra::where('malop', $malop)->get();
+
+        // Lấy điểm cao nhất của sinh viên cho mỗi bài kiểm tra
+        $scores = $baiKiemTras->map(function ($baiKiemTra) use ($studentId) {
+            $ketQua = KetQuaBaiKiemTra::where('msbkt', $baiKiemTra->msbkt)
+                ->where('mssv', $studentId)
+                ->orderByDesc('diem') // Sắp xếp điểm theo thứ tự giảm dần
+                ->first(); // Lấy điểm cao nhất
+
+            return [
+                'tenbkt' => $baiKiemTra->tenbkt,
+                'diem' => $ketQua ? $ketQua->diem : '-' // Dấu '-' nếu không có điểm
+            ];
+        });
+
+        // Tính điểm trung bình, chỉ tính với các bài có điểm hợp lệ
+        $averageScore = $scores->filter(fn($score) => is_numeric($score['diem']))
+            ->avg(fn($score) => $score['diem']);
+
+        return view('student.view.scores', compact('class', 'scores', 'averageScore'));
     }
 
     public function show($id)
@@ -420,34 +444,46 @@ class StudentController extends Controller
     // Lưu bài kiểm tra tự luận
     public function storeEssayTest(Request $request, $malop)
     {
-        // Lấy thông tin từ form
         $msbkt = $request->input('msbkt');
         $mssv = $request->input('mssv');
 
-        // Kiểm tra xem file có được tải lên hay không
         if ($request->hasFile('file')) {
             $file = $request->file('file');
 
-            // Định nghĩa đường dẫn lưu file
             $filePath = "essay/{$msbkt}/{$mssv}";
-            $fileName = $file->getClientOriginalName(); // Lấy tên gốc của file
+            $fileName = $file->getClientOriginalName();
+            $fullPath = public_path("{$filePath}/{$fileName}");
 
-            // Lưu file vào thư mục public/essay/{msbkt}/{mssv}
+            // Kiểm tra xem bài làm đã tồn tại
+            $existingEntry = KetQuaBaiKiemTra::where('msbkt', $msbkt)->where('mssv', $mssv)->first();
+
+            if ($existingEntry) {
+                // Xóa file cũ nếu tồn tại
+                if (file_exists(public_path($existingEntry->files_path))) {
+                    unlink(public_path($existingEntry->files_path));
+                }
+
+                // Cập nhật đường dẫn file mới
+                $existingEntry->update([
+                    'files_path' => "{$filePath}/{$fileName}",
+                ]);
+            } else {
+                // Tạo mới nếu chưa tồn tại
+                KetQuaBaiKiemTra::create([
+                    'msbkt' => $msbkt,
+                    'mssv' => $mssv,
+                    'diem' => null,
+                    'files_path' => "{$filePath}/{$fileName}",
+                ]);
+            }
+
+            // Lưu file vào thư mục
             $file->move(public_path($filePath), $fileName);
-
-            // Lưu bài kiểm tra vào cơ sở dữ liệu
-            KetQuaBaiKiemTra::create([
-                'msbkt' => $msbkt,
-                'mssv' => $mssv,
-                'diem' => 0,
-                'files_path' => "{$filePath}/{$fileName}",
-            ]);
 
             return redirect()->route('student.class.tests', ['malop' => $malop])
                 ->with('success', 'Bài tự luận đã được nộp thành công!');
         }
 
-        // Trường hợp không có file
         return redirect()->route('student.class.tests', ['malop' => $malop])
             ->withErrors(['error' => 'Vui lòng tải lên file trước khi nộp!']);
     }

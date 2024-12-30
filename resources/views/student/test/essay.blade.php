@@ -46,7 +46,7 @@
                             <label for="file-upload" style="display: block; font-weight: bold; margin-bottom: 10px;">
                                 Chỉ hỗ trợ tệp dưới dạng PDF hoặc ảnh (jpg, jpeg, png)
                             </label>
-                            <input type="file" name="file" id="file" accept=".pdf,.doc,.docx,.txt" required>
+                            <input type="file" name="file" id="file" accept=".pdf,image/*" required>
                         </div>
                     </div>
                 </div>

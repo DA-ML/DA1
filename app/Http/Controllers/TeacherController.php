@@ -10,6 +10,7 @@ use App\Models\ThanhPhanDanhGia;
 use App\Models\ChuanDauRa;
 use App\Models\GiaoVien;
 use App\Models\QuanLyHS;
+use App\Models\KetQuaBaiKiemTra;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -219,8 +220,38 @@ class TeacherController extends Controller
             return redirect()->route('teacher.classlist')->withErrors(['error' => 'Lớp không tồn tại']);
         }
 
-        return view('teacher.view.scores', compact('class'));
+        // Lấy danh sách sinh viên qua QuanLyHS
+        $members = QuanLyHS::where('malop', $malop)
+            ->with('sinhVien')
+            ->get();
+
+        // Lấy thông tin bài kiểm tra trong lớp
+        $baiKiemTras = BaiKiemTra::where('malop', $malop)->get();
+
+        // Tạo danh sách sinh viên kèm điểm cao nhất từng bài kiểm tra
+        $studentsWithResults = $members->map(function ($member) use ($baiKiemTras) {
+            $student = $member->sinhVien;
+
+            $results = $baiKiemTras->map(function ($baiKiemTra) use ($student) {
+                $highestScore = KetQuaBaiKiemTra::where('msbkt', $baiKiemTra->msbkt)
+                    ->where('mssv', $student->mssv)
+                    ->max('diem'); // Lấy điểm cao nhất
+
+                return [
+                    'bai_kiem_tra' => $baiKiemTra->tenbkt,
+                    'diem' => $highestScore !== null ? $highestScore : '-'
+                ];
+            });
+
+            return [
+                'sinh_vien' => $student,
+                'ket_qua' => $results
+            ];
+        });
+
+        return view('teacher.view.scores', compact('class', 'studentsWithResults', 'baiKiemTras'));
     }
+
 
     public function addLecture(Request $request, $malop)
     {
@@ -616,6 +647,4 @@ class TeacherController extends Controller
         // Trả về view chi tiết bài giảng
         return view('teacher.detail.lecture', compact('lecture'));
     }
-
-    public function savePercent(Request $request) {}
 }
