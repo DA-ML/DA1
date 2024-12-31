@@ -13,7 +13,7 @@
                         <embed src="{{ asset($filePath) }}" width="100%" height="650px" type="application/pdf">
                     @elseif(in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'bmp']))
                         <!-- Hiển thị ảnh -->
-                        <img src="{{ asset('test/' . $msbkt . '/' . $filePath) }}" alt="Image"
+                        <img src="{{ asset($filePath) }}" alt="Image"
                             style="width: 100%; max-height: 650px; object-fit: contain;">
                     @else
                         <p>Không hỗ trợ hiển thị file này.</p>
@@ -22,7 +22,6 @@
                     <p>Không có file để hiển thị.</p>
                 @endif
             </div>
-
         </div>
 
         <div class="right">

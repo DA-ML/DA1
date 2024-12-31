@@ -527,5 +527,37 @@
         // Thêm class active vào nút hiện tại
         button.classList.add('active');
     }
+
+    const startDateInput = document.getElementById("date-start");
+    const endDateInput = document.getElementById("date-end");
+
+    function validateStartDate() {
+        const now = new Date();
+        const startDate = new Date(startDateInput.value);
+
+        if (startDate <= now) {
+            alert("Ngày bắt đầu phải lớn hơn thời gian hiện tại.");
+            startDateInput.value = ""; // Reset giá trị không hợp lệ
+        }
+    }
+
+    function validateEndDate() {
+        const startDate = new Date(startDateInput.value);
+        const endDate = new Date(endDateInput.value);
+
+        if (!startDateInput.value) {
+            alert("Vui lòng chọn ngày bắt đầu trước.");
+            endDateInput.value = ""; // Reset giá trị không hợp lệ
+            return;
+        }
+
+        if (endDate <= startDate) {
+            alert("Ngày kết thúc phải lớn hơn ngày bắt đầu.");
+            endDateInput.value = ""; // Reset giá trị không hợp lệ
+        }
+    }
+
+    startDateInput.addEventListener("change", validateStartDate);
+    endDateInput.addEventListener("change", validateEndDate);
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>

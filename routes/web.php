@@ -86,4 +86,7 @@ Route::middleware('check.login')->group(function () {
     Route::get('teacher/update/lecture/{malop}', [TeacherController::class, 'updateLecture'])->name('update.lecture');
     Route::delete('teacher/delete/lecture/{malop}/{id}', [TeacherController::class, 'deleteLecture'])->name('class.delete.lecture');
     Route::get('teacher/detail/lecture/{id}', [TeacherController::class, 'show'])->name('lecture.detail');
+
+    Route::get('teacher/grading/list/{malop}/{msbkt}', [TeacherController::class, 'gradingList'])->name('grading.list');
+    Route::get('teacher/grading/student/{malop}/{msbkt}/{mssv}', [TeacherController::class, 'gradingStudent'])->name('grading.student');
 });

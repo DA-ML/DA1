@@ -11,6 +11,7 @@ use App\Models\ChuanDauRa;
 use App\Models\GiaoVien;
 use App\Models\QuanLyHS;
 use App\Models\KetQuaBaiKiemTra;
+use App\Models\SinhVien;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -571,13 +572,12 @@ class TeacherController extends Controller
             'file-input' => 'nullable|file|mimes:jpg,jpeg,png,pdf,docx,doc|max:10240', // Tệp có thể lên đến 10MB
             'tpdg' => 'required|string',
             // Kiểm tra câu trả lời và chuẩn đầu ra cho các câu hỏi
-            'answer-*' => 'required|string', // Kiểm tra câu trả lời cho tất cả các câu hỏi
-            'cdr-*' => 'required|string',    // Kiểm tra chuẩn đầu ra cho tất cả các câu hỏi
-            'points-*' => 'required|numeric|min:0', // Kiểm tra điểm cho các câu hỏi
+            'answer-*' => 'required|string',
+            'cdr-*' => 'required|string',
+            'points-*' => 'required|numeric|min:0',
         ]);
 
         try {
-            // Lưu file vào thư mục public/test/{msbkt}
             $filePath = null;
 
             $msbkt = BaiKiemTra::max('msbkt') ?? 0; // Trả về 0 nếu không có bản ghi nào
@@ -585,18 +585,15 @@ class TeacherController extends Controller
 
             if ($request->hasFile('file-input')) {
                 $file = $request->file('file-input');
-                // Tạo msbkt (có thể sử dụng msbkt tự động từ database sau)
                 $folderPath = public_path('test/' . $msbkt);
                 if (!File::exists($folderPath)) {
                     File::makeDirectory($folderPath, 0777, true);
                 }
 
-                // Lưu tệp vào thư mục tương ứng
                 $filePath = 'test/' . $msbkt . '/' . $file->getClientOriginalName();
                 $file->move($folderPath, $file->getClientOriginalName());
             }
 
-            // Tạo mới bài kiểm tra
             $baiKiemTra = new BaiKiemTra([
                 'tenbkt' => $request->input('tenbkt'),
                 'ngaybatdau' => $request->input('date-start'),
@@ -646,5 +643,57 @@ class TeacherController extends Controller
 
         // Trả về view chi tiết bài giảng
         return view('teacher.detail.lecture', compact('lecture'));
+    }
+
+    public function gradingList($malop, $msbkt)
+    {
+        $class = LopHoc::where('malop', $malop)
+            ->with(['quanLyHS.sinhVien']) // Lấy danh sách sinh viên trong lớp
+            ->first();
+
+        if (!$class) {
+            return redirect()->route('teacher.classlist')->withErrors(['error' => 'Lớp không tồn tại']);
+        }
+
+        // Tìm bài kiểm tra dựa trên mã số bài kiểm tra
+        $test = BaiKiemTra::where('msbkt', $msbkt)->first();
+
+        if (!$test) {
+            return redirect()->route('teacher.classlist')->withErrors(['error' => 'Bài kiểm tra không tồn tại']);
+        }
+
+        // Lấy danh sách sinh viên trong lớp
+        $students = $class->quanLyHS->map(function ($qlhs) use ($msbkt) {
+            $student = $qlhs->sinhVien;
+            $result = KetQuaBaiKiemTra::where('msbkt', $msbkt)
+                ->where('mssv', $student->mssv)
+                ->first();
+
+            return [
+                'name' => $student->tensv,
+                'id' => $student->mssv,
+                'status' => $result && $result->files_path ? 'Đã làm' : 'Chưa làm',
+                'score' => $result ? $result->diem : '-',
+            ];
+        });
+
+        return view('teacher.grading.list', compact('test', 'class', 'students'));
+    }
+
+    public function gradingStudent($malop, $msbkt, $mssv)
+    {
+        // Tìm lớp
+        $class = LopHoc::where('malop', $malop)->first();
+        if (!$class) {
+            return redirect()->route('teacher.classlist')->withErrors(['error' => 'Lớp không tồn tại']);
+        }
+
+        // Tìm bài kiểm tra
+        $test = BaiKiemTra::where('msbkt', $msbkt)->first();
+        if (!$test) {
+            return redirect()->route('teacher.classlist')->withErrors(['error' => 'Bài kiểm tra không tồn tại']);
+        }
+
+        return view('teacher.grading.student', compact('class', 'test'));
     }
 }

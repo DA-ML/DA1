@@ -1,7 +1,8 @@
 <link rel="stylesheet" href="{{ asset('css/global.css') }}">
 
 @php
-    $currentTime = now();
+    use Carbon\Carbon;
+    $currentTime = Carbon::now('Asia/Ho_Chi_Minh');
 @endphp
 
 <div class="student-viewclass">
@@ -106,7 +107,7 @@
                                     </div>
                                 </div>
                                 <div style="width: 200px; height: 40px; margin-left: 10px; margin-top: 10px">
-                                    @if ($test->ngayketthuc > $currentTime)
+                                    @if ($test->ngayketthuc > $currentTime && $test->ngaybatdau < $currentTime)
                                         <button class="primary"
                                             onclick="window.location.href='{{ route('student.test.redirect', ['malop' => $test->malop, 'msbkt' => $test->msbkt]) }}'">
                                             Làm bài
