@@ -723,20 +723,40 @@ class TeacherController extends Controller
             'comment' => 'nullable|string|max:500',
         ]);
 
+        // Tìm hoặc tạo bản ghi trong bảng SinhVienKetQua
+        $sinhvienKetQua = SinhVienKetQua::firstOrCreate(
+            [
+                'msbkt' => $validated['msbkt'],
+                'mssv' => $validated['mssv'],
+                'malop' => $request->input('malop'),
+            ],
+            [
+                'updated_at' => now(),
+            ]
+        );
+
+        // Lấy ID của sinh viên kết quả
+        $sinhvien_ketqua_id = $sinhvienKetQua->id;
+
         // Biến lưu tổng điểm
         $totalPoints = 0;
 
-        // Lặp qua các điểm và câu hỏi
+        // Lặp qua các điểm của câu hỏi
         foreach ($validated['points'] as $question_id => $point) {
-            // Lấy thông tin chuẩn đầu ra từ câu hỏi
+            // Lấy thông tin câu hỏi để xác định chuẩn đầu ra
             $cauHoi = CauHoi::find($question_id);
+            if (!$cauHoi) {
+                return redirect()->back()->withErrors("Không tìm thấy câu hỏi với ID: $question_id");
+            }
+
+            // Lấy chuẩn đầu ra
             $chuan_id = $cauHoi->chuan_id;
 
-            // Tạo hoặc cập nhật bản ghi trong bảng KetQuaChuans bằng sinhvien_ketqua_id và chuan_id
+            // Tạo hoặc cập nhật bản ghi trong bảng KetQuaChuans
             KetQuaChuans::updateOrCreate(
                 [
-                    'sinhvien_ketqua_id' => $request->input('sinhvien_ketqua_id'),
-                    'chuan_id' => $chuan_id, // Lưu chuan_id thay vì question_id
+                    'sinhvien_ketqua_id' => $sinhvien_ketqua_id,
+                    'chuan_id' => $chuan_id,
                 ],
                 [
                     'so_cau_dung' => $point,
@@ -744,7 +764,7 @@ class TeacherController extends Controller
                 ]
             );
 
-            // Cộng điểm vào tổng điểm
+            // Tính tổng điểm
             $totalPoints += $point;
         }
 
@@ -760,12 +780,10 @@ class TeacherController extends Controller
             ]
         );
 
-        // Lấy thông tin lớp học (malop) từ request, nếu có
-        $malop = $request->input('malop'); // Hoặc lấy từ bất kỳ nguồn nào thích hợp
-        $msbkt = $validated['msbkt']; // Lấy msbkt đã validate
-
-        // Chuyển hướng về trang danh sách chấm điểm sau khi thành công
-        return redirect()->route('grading.list', ['malop' => $malop, 'msbkt' => $msbkt])
-            ->with('success', 'Điểm đã được cập nhật thành công!');
+        // Chuyển hướng về route grading.list
+        return redirect()->route('grading.list', [
+            'malop' => $request->input('malop'),
+            'msbkt' => $validated['msbkt'],
+        ])->with('success', 'Điểm đã được cập nhật thành công!');
     }
 }
