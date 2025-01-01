@@ -14,11 +14,14 @@ use App\Models\KetQuaBaiKiemTra;
 use App\Models\KetQuaChuans;
 use App\Models\SinhVien;
 use App\Models\SinhVienKetQua;
+use App\Models\NhanXetBaiKiemTra;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class TeacherController extends Controller
 {
@@ -709,7 +712,14 @@ class TeacherController extends Controller
             )
             ->get();
 
-        return view('teacher.grading.student', compact('class', 'test', 'student', 'outcomes'));
+        // Lấy ra file_path từ bảng KetQuaBaiKiemTra cho mssv và msbkt
+        $result = KetQuaBaiKiemTra::where('msbkt', $msbkt)
+            ->where('mssv', $mssv)
+            ->first();
+
+        // Nếu có file_path, truyền vào view
+        $filePath = $result ? $result->files_path : null;
+        return view('teacher.grading.student', compact('class', 'test', 'student', 'outcomes', 'filePath'));
     }
 
     public function submitGrading(Request $request)
@@ -768,8 +778,8 @@ class TeacherController extends Controller
             $totalPoints += $point;
         }
 
-        // Cập nhật điểm tổng vào bảng KetQuaBaiKiemTra
-        KetQuaBaiKiemTra::updateOrCreate(
+        // Tạo hoặc cập nhật điểm tổng trong bảng KetQuaBaiKiemTra
+        $ketqua = KetQuaBaiKiemTra::updateOrCreate(
             [
                 'msbkt' => $validated['msbkt'],
                 'mssv' => $validated['mssv'],
@@ -780,10 +790,32 @@ class TeacherController extends Controller
             ]
         );
 
-        // Chuyển hướng về route grading.list
+        // Lưu nhận xét vào bảng NhanXetBaiKiemTra
+        $nhanXet = NhanXetBaiKiemTra::where('ketqua_id', $ketqua->id)
+            ->where('msgv', Session::get('user.id'))
+            ->first();
+
+        if ($nhanXet) {
+            // Nếu có bản ghi, chỉ cập nhật nhận xét
+            $nhanXet->update([
+                'nhanxet' => $request->input('comment'),
+                'thoigian' => now(), // Cập nhật lại thời gian
+            ]);
+        } else {
+            // Nếu không có bản ghi, tạo mới
+            NhanXetBaiKiemTra::create([
+                'ketqua_id' => $ketqua->id, // ID từ KetQuaBaiKiemTra
+                'msgv' => Session::get('user.id'),
+                'nhanxet' => $request->input('comment'),
+                'thoigian' => now(), // Thời gian hiện tại
+            ]);
+        }
+
         return redirect()->route('grading.list', [
             'malop' => $request->input('malop'),
             'msbkt' => $validated['msbkt'],
-        ])->with('success', 'Điểm đã được cập nhật thành công!');
+        ])->with([
+            'success' => 'Điểm đã được cập nhật thành công!',  // Truyền thông báo thành công
+        ]);
     }
 }

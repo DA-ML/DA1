@@ -19,8 +19,34 @@
     </div>
     <div class="body">
         <div class="left">
-            {{-- Hiển thị file của sinh viên --}}
+            @if ($filePath)
+                @php
+                    $extension = pathinfo($filePath, PATHINFO_EXTENSION); // Lấy đuôi file
+                @endphp
+
+                @if ($extension == 'pdf')
+                    <!-- Hiển thị file PDF -->
+                    <embed src="{{ asset($filePath) }}" width="100%" height="650px" type="application/pdf">
+                    <a href="{{ asset($filePath) }}" target="_blank" style="text-decoration: none; color: #208CE4;">
+                        Mở hoặc tải file
+                    </a>
+                @elseif(in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'bmp']))
+                    <!-- Hiển thị ảnh -->
+                    <img src="{{ asset('test/' . $msbkt . '/' . $filePath) }}" alt="Image"
+                        style="width: 100%; max-height: 650px; object-fit: contain;">
+                @else
+                    <!-- Hiển thị link tải file -->
+                    <p>Tệp đính kèm không hiển thị được. Bạn có thể tải xuống:</p>
+                    <a href="{{ asset($filePath) }}" download style="text-decoration: none; color: #208CE4;">
+                        Tải file về
+                    </a>
+                @endif
+            @else
+                <p>Không có file để hiển thị.</p>
+            @endif
         </div>
+
+
         <div class="right">
             <div style="display: flex; justify-content: center; align-self: stretch; align-items: center">
                 <h1>KẾT QUẢ LÀM</h1>
@@ -51,7 +77,8 @@
                                     <td>{{ $outcome->outcome_name }}</td>
                                     <td>({{ $outcome->predefined_point }})</td>
                                     <td>
-                                        <input type="number" name="points[{{ $outcome->question_id }}]" min="0"
+                                        <input class="input-grade" type="number"
+                                            name="points[{{ $outcome->question_id }}]" min="0"
                                             max="{{ $outcome->predefined_point }}" step="0.1" required>
                                     </td>
                                 </tr>
@@ -207,4 +234,55 @@
         padding: 10px 20px;
         font-weight: 700;
     }
+
+    .grading-table {
+        width: 100%;
+    }
+
+    .grading-table table {
+        width: 100%;
+        border-collapse: collapse;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .grading-table th {
+        font-size: 16px;
+        font-weight: bold;
+        text-align: left;
+        background-color: #208CE4;
+        padding: 8px;
+        color: white;
+    }
+
+    .grading-table td {
+        font-size: 16px;
+        font-weight: normal;
+        text-align: left;
+        padding: 8px;
+    }
+
+    .input-grade {
+        height: 30px;
+        border-radius: 5px;
+        border: 1px solid rgba(0, 60, 60, 0.2);
+        font-family: "Inter";
+        font-size: 16px;
+        padding: 10px;
+    }
 </style>
+
+<script>
+    // Kiểm tra khi người dùng nhập điểm
+    document.querySelectorAll('input[type="number"]').forEach(function(input) {
+        input.addEventListener('input', function() {
+            let maxPoint = parseFloat(input.getAttribute('data-max'));
+            let enteredPoint = parseFloat(input.value);
+
+            if (enteredPoint > maxPoint) {
+                input.setCustomValidity('Điểm không được lớn hơn điểm quy định!');
+            } else {
+                input.setCustomValidity('');
+            }
+        });
+    });
+</script>

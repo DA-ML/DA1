@@ -139,3 +139,9 @@ form input[type="password"] {
     width: 100%;
     color: #000;
 }
+
+form input[type="text"]:focus,
+form input[type="number"]:focus {
+    border-color: var(--primary-color);
+    outline: none;
+}
