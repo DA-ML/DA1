@@ -17,6 +17,58 @@
             </svg>
         </div>
     </div>
+    <div class="body">
+        <div class="left">
+            {{-- Hiển thị file của sinh viên --}}
+        </div>
+        <div class="right">
+            <div style="display: flex; justify-content: center; align-self: stretch; align-items: center">
+                <h1>KẾT QUẢ LÀM</h1>
+            </div>
+            <div class="result-text">
+                <p><strong>Họ tên sinh viên:</strong></p>
+                <p>{{ $student->tensv }}</p>
+            </div>
+            <div class="result-text">
+                <p><strong>Mã số sinh viên:</strong></p>
+                <p>{{ $student->mssv }}</p>
+            </div>
+            <form method="POST"
+                action="{{ route('teacher.grading.submit', ['malop' => $class->malop, 'msbkt' => $test->msbkt, 'mssv' => $student->mssv]) }}">
+                @csrf
+                <div class="grading-form">
+                    <table class="grading-table">
+                        <thead>
+                            <tr>
+                                <th>Chuẩn đầu ra</th>
+                                <th>Điểm quy định</th>
+                                <th>Điểm nhập</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($outcomes as $outcome)
+                                <tr>
+                                    <td>{{ $outcome->outcome_name }}</td>
+                                    <td>({{ $outcome->predefined_point }})</td>
+                                    <td>
+                                        <input type="number" name="points[{{ $outcome->question_id }}]" min="0"
+                                            max="{{ $outcome->predefined_point }}" step="0.1" required>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    <div class="grading-comment">
+                        <p>Nhận xét:</p>
+                        <textarea name="comment" id="comment" rows="4" maxlength="500" class="comment-box"></textarea>
+                    </div>
+                    <div class="grading-button">
+                        <button type="submit">CHẤM ĐIỂM</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 <style>
@@ -49,5 +101,110 @@
         font-style: normal;
         font-weight: 400;
         line-height: normal;
+    }
+
+    .body {
+        display: flex;
+        align-items: flex-start;
+        flex: 1 0 0;
+        align-self: stretch;
+    }
+
+    .left {
+        display: flex;
+        width: 60%;
+        padding: 10px;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+        gap: 10px;
+        align-self: stretch;
+    }
+
+    .right {
+        display: flex;
+        padding: 20px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        flex: 1 0 0;
+        align-self: stretch;
+    }
+
+    .right h1 {
+        color: #208ce4;
+        font-family: Inter;
+        font-size: 24px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: normal;
+        align-items: center;
+    }
+
+    .result-text {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        align-self: stretch;
+        width: 100%;
+        margin-left: 10px;
+        margin-top: 10px;
+    }
+
+    .result-text p {
+        color: #000;
+        font-family: Inter;
+        font-size: 18px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: normal;
+    }
+
+    .grading-point p {
+        font-family: "Inter";
+        font-size: 18;
+        font-weight: 700;
+    }
+
+    .grading-comment p {
+        font-family: "Inter";
+        font-size: 18;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .grading-comment {
+        width: 100%;
+        gap: 10px;
+    }
+
+    .grading-form {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+        gap: 20px;
+        margin-bottom: 10px;
+    }
+
+    .comment-box {
+        width: 100%;
+        height: 200px;
+        resize: none;
+    }
+
+    .grading-button {
+        width: 100%;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        align-self: stretch;
+    }
+
+    .grading-button button {
+        background-color: #208ce4;
+        color: #FFF;
+        padding: 10px 20px;
+        font-weight: 700;
     }
 </style>

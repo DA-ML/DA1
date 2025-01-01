@@ -477,6 +477,18 @@ class StudentController extends Controller
                 ]);
             }
 
+            SinhVienKetQua::firstOrCreate(
+                [
+                    'msbkt' => $msbkt,
+                    'mssv' => $mssv,
+                    'malop' => $malop,
+                ],
+                [
+                    'updated_at' => now(),
+                ]
+            );
+
+
             // Lưu file vào thư mục
             $file->move(public_path($filePath), $fileName);
 

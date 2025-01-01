@@ -52,7 +52,7 @@
                                                 'msbkt' => $test->msbkt,
                                                 'mssv' => $student['id'],
                                             ]) }}"
-                                                class="btn btn-primary">
+                                                style="text-decoration:none; color: #208CE4; font-weight:700">
                                                 Chấm điểm
                                             </a>
                                         @endif

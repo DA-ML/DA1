@@ -11,7 +11,9 @@ use App\Models\ChuanDauRa;
 use App\Models\GiaoVien;
 use App\Models\QuanLyHS;
 use App\Models\KetQuaBaiKiemTra;
+use App\Models\KetQuaChuans;
 use App\Models\SinhVien;
+use App\Models\SinhVienKetQua;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -682,18 +684,88 @@ class TeacherController extends Controller
 
     public function gradingStudent($malop, $msbkt, $mssv)
     {
-        // Tìm lớp
         $class = LopHoc::where('malop', $malop)->first();
         if (!$class) {
             return redirect()->route('teacher.classlist')->withErrors(['error' => 'Lớp không tồn tại']);
         }
 
-        // Tìm bài kiểm tra
         $test = BaiKiemTra::where('msbkt', $msbkt)->first();
         if (!$test) {
             return redirect()->route('teacher.classlist')->withErrors(['error' => 'Bài kiểm tra không tồn tại']);
         }
 
-        return view('teacher.grading.student', compact('class', 'test'));
+        $student = SinhVien::where('mssv', $mssv)->first();
+        if (!$student) {
+            return redirect()->route('teacher.classlist')->withErrors(['error' => 'Sinh viên không tồn tại']);
+        }
+
+        // Lấy danh sách chuẩn đầu ra của bài kiểm tra và điểm đã quy định
+        $outcomes = CauHoi::join('ChuanDauRa', 'CauHoi.chuan_id', '=', 'ChuanDauRa.id')
+            ->where('CauHoi.msbkt', $msbkt)
+            ->select(
+                'ChuanDauRa.chuan as outcome_name',
+                'CauHoi.diem as predefined_point',
+                'CauHoi.msch as question_id'
+            )
+            ->get();
+
+        return view('teacher.grading.student', compact('class', 'test', 'student', 'outcomes'));
+    }
+
+    public function submitGrading(Request $request)
+    {
+        // Validate các thông tin đầu vào
+        $validated = $request->validate([
+            'msbkt' => 'required|exists:BaiKiemTra,msbkt',
+            'mssv' => 'required|exists:SinhVien,mssv',
+            'points' => 'array|required',
+            'points.*' => 'numeric|min:0|max:10', // Giới hạn điểm từ 0-10
+            'comment' => 'nullable|string|max:500',
+        ]);
+
+        // Biến lưu tổng điểm
+        $totalPoints = 0;
+
+        // Lặp qua các điểm và câu hỏi
+        foreach ($validated['points'] as $question_id => $point) {
+            // Lấy thông tin chuẩn đầu ra từ câu hỏi
+            $cauHoi = CauHoi::find($question_id);
+            $chuan_id = $cauHoi->chuan_id;
+
+            // Tạo hoặc cập nhật bản ghi trong bảng KetQuaChuans bằng sinhvien_ketqua_id và chuan_id
+            KetQuaChuans::updateOrCreate(
+                [
+                    'sinhvien_ketqua_id' => $request->input('sinhvien_ketqua_id'),
+                    'chuan_id' => $chuan_id, // Lưu chuan_id thay vì question_id
+                ],
+                [
+                    'so_cau_dung' => $point,
+                    'updated_at' => now(),
+                ]
+            );
+
+            // Cộng điểm vào tổng điểm
+            $totalPoints += $point;
+        }
+
+        // Cập nhật điểm tổng vào bảng KetQuaBaiKiemTra
+        KetQuaBaiKiemTra::updateOrCreate(
+            [
+                'msbkt' => $validated['msbkt'],
+                'mssv' => $validated['mssv'],
+            ],
+            [
+                'diem' => $totalPoints,
+                'updated_at' => now(),
+            ]
+        );
+
+        // Lấy thông tin lớp học (malop) từ request, nếu có
+        $malop = $request->input('malop'); // Hoặc lấy từ bất kỳ nguồn nào thích hợp
+        $msbkt = $validated['msbkt']; // Lấy msbkt đã validate
+
+        // Chuyển hướng về trang danh sách chấm điểm sau khi thành công
+        return redirect()->route('grading.list', ['malop' => $malop, 'msbkt' => $msbkt])
+            ->with('success', 'Điểm đã được cập nhật thành công!');
     }
 }
