@@ -49,7 +49,7 @@
                                             <td>{{ $key + 1 }}</td>
                                             <td>
                                                 <a style="text-decoration: none; color: #000"
-                                                    href="{{ route('student.lecture.detail', ['id' => $lecture->msbg]) }}">
+                                                    href="{{ route('student.lecture.detail', ['malop' => $lecture->malop, 'id' => $lecture->msbg]) }}">
                                                     {{ $lecture->tenbg }}
                                                 </a>
                                             </td>

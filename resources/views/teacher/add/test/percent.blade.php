@@ -22,11 +22,11 @@
                 </div>
             </div>
             <!-- Đặt tỉ lệ cho danh sách các bài kiểm tra-->
-            <form method="POST" action=""
+            <form method="POST" action="{{ route('test.percent.store', ['malop' => $class->malop]) }}"
                 style="width:100%; flex-direction: column; background-color:#FFF; border-radius: 10px">
+                @csrf
                 <div class="test-list">
                     @if ($tests->isEmpty())
-                        <!-- Hiển thị nếu không có bài kiểm tra -->
                         <p class="text-center">Bạn chưa có bài kiểm tra nào.</p>
                     @else
                         @foreach ($tests as $key => $test)
@@ -34,7 +34,7 @@
                                 <label for="tile-{{ $key }}">{{ $test->tenbkt }}
                                     ({{ $test->danhgia_id }})
                                 </label>
-                                <input type="number" id="tile-{{ $key }}" name="tile[{{ $key }}]"
+                                <input type="number" id="tile-{{ $key }}" name="tile[{{ $test->msbkt }}]"
                                     min="0" max="100" step="0.01" placeholder="Nhập tỉ lệ">
                             </div>
                         @endforeach
@@ -261,3 +261,9 @@
         display: flex;
     }
 </style>
+
+<script>
+    @if (session('alert'))
+        alert("{{ session('alert') }}");
+    @endif
+</script>

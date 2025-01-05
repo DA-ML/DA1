@@ -23,14 +23,35 @@
             <div class="class-statics">
                 <div class="statics-body">
                     Thống kê
-                    <div class="statics-test">
-                        <div class="list-test">
-                        </div>
-                        <div class="list-test">
-                            <div class="statics-btn">
-                            </div>
-                        </div>
-                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Tên sinh viên</th>
+                                <th>MSSV</th>
+                                <th>Thành phần đánh giá</th>
+                                <th>Chuẩn đầu ra</th>
+                                <th>Tỷ lệ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if ($result->isEmpty())
+                                <tr>
+                                    <td colspan="5" class="text-center">Hiện tại hệ thống chưa có dữ liệu</td>
+                                </tr>
+                            @else
+                                @foreach ($result as $row)
+                                    <tr>
+                                        <td>{{ $row->tensv }}</td>
+                                        <td>{{ $row->mssv }}</td>
+                                        <td>{{ $row->thanhphan_id }}</td>
+                                        <td>{{ $row->chuan_id }}</td>
+                                        <td>{{ $row->tyle }}%</td>
+                                    </tr>
+                                @endforeach
+                            @endif
+                        </tbody>
+                    </table>
+
                 </div>
             </div>
         </div>
@@ -70,6 +91,7 @@
         flex: 1 0 0;
         align-self: stretch;
         background: #F0F2F5;
+        overflow: hidden;
     }
 
     .right {
@@ -80,6 +102,7 @@
         gap: 20px;
         flex: 1 0 0;
         align-self: stretch;
+        overflow-y: auto;
     }
 
     .class-list {
@@ -172,5 +195,31 @@
 
     .statics-chart {
         width: 50%;
+    }
+
+    .statics-body p {
+        font-weight: 400;
+    }
+
+    .statics-body table {
+        width: 100%;
+        border-collapse: collapse;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .statics-body td {
+        font-size: 16px;
+        font-weight: normal;
+        text-align: left;
+        padding: 8px;
+    }
+
+    .statics-body th {
+        font-size: 16px;
+        font-weight: bold;
+        text-align: left;
+        background-color: #208CE4;
+        padding: 8px;
+        color: white;
     }
 </style>

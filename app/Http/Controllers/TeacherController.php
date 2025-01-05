@@ -15,6 +15,8 @@ use App\Models\KetQuaChuans;
 use App\Models\SinhVien;
 use App\Models\SinhVienKetQua;
 use App\Models\NhanXetBaiKiemTra;
+use App\Models\BaiKiemTraTile;
+use App\Models\KetQuaThanhPhan;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -110,8 +112,22 @@ class TeacherController extends Controller
             return redirect()->route('teacher.classlist')->withErrors(['error' => 'Lớp không tồn tại']);
         }
 
-        return view('teacher.view.classes', compact('class'));
+        // Lấy danh sách sinh viên qua QuanLyHS
+        $members = QuanLyHS::where('malop', $malop)
+            ->with('sinhVien')
+            ->get();
+
+        // Lấy kết quả thành phần cho lớp và tên sinh viên
+        $result = DB::table('KetQuaThanhPhan')
+            ->join('SinhVien', 'KetQuaThanhPhan.mssv', '=', 'SinhVien.mssv')
+            ->where('malop', $malop)
+            ->select('KetQuaThanhPhan.*', 'SinhVien.tensv', 'SinhVien.mssv')
+            ->get();
+
+        // Chuyển kết quả vào view
+        return view('teacher.view.classes', compact('class', 'members', 'result'));
     }
+
 
     public function classTest($malop)
     {
@@ -136,8 +152,9 @@ class TeacherController extends Controller
         }
 
         $tests = $class->baiKiemTra;
+        $hasTestPercent = BaiKiemTraTiLe::where('malop', $malop)->exists();
 
-        return view('teacher.view.tests', compact('class', 'tests'));
+        return view('teacher.view.tests', compact('class', 'tests', 'hasTestPercent'));
     }
 
     public function classLecture($malop)
@@ -195,6 +212,7 @@ class TeacherController extends Controller
     {
         $user = Session::get('user');
 
+        // Lấy thông tin lớp
         $class = LopHoc::where('malop', $malop)
             ->with([
                 'quanLyHS',
@@ -203,11 +221,189 @@ class TeacherController extends Controller
                 'baiKiemTra'
             ])
             ->first();
+
         if (!$class) {
             return redirect()->route('teacher.classlist')->withErrors(['error' => 'Lớp không tồn tại']);
         }
 
-        return view('teacher.view.statics', compact('class'));
+        // Thống kê điểm số
+        $scoreStatistics = DB::select("
+        SELECT
+            category,
+            COUNT(*) AS count
+        FROM (
+            SELECT
+                CASE
+                    WHEN avg_score >= 8 THEN 'Giỏi'
+                    WHEN avg_score >= 7 THEN 'Khá'
+                    WHEN avg_score >= 5 THEN 'Trung bình'
+                    ELSE 'Yếu'
+                END AS category
+            FROM (
+                SELECT
+                    kq.mssv,
+                    AVG(kq.diem) AS avg_score
+                FROM KetQuaBaiKiemTra kq
+                JOIN QuanLyHS qlhs ON kq.mssv = qlhs.mssv
+                WHERE qlhs.malop = ?
+                GROUP BY kq.mssv
+            ) AS avg_scores
+        ) AS categorized
+        GROUP BY category
+    ", [$malop]);
+
+        // Lấy danh sách top 5 sinh viên
+        $leaderboard = DB::select("
+        SELECT
+            ROW_NUMBER() OVER (ORDER BY avg_score DESC) AS stt,
+            sv.tensv,
+            sv.mssv,
+            avg_scores.avg_score AS diem_tb
+        FROM (
+            SELECT
+                kq.mssv,
+                AVG(kq.diem) AS avg_score
+            FROM KetQuaBaiKiemTra kq
+            JOIN QuanLyHS qlhs ON kq.mssv = qlhs.mssv
+            WHERE qlhs.malop = ?
+            GROUP BY kq.mssv
+        ) AS avg_scores
+        JOIN SinhVien sv ON avg_scores.mssv = sv.mssv
+        ORDER BY avg_scores.avg_score DESC
+        LIMIT 5
+    ", [$malop]);
+
+        // Thống kê kết quả thành phần A1 và chuẩn đầu ra G2.2, G3.1
+        $resultStatistics = KetQuaThanhPhan::where('malop', $malop)
+            ->where('thanhphan_id', 'A1')  // Lọc theo thành phần A1
+            ->whereIn('chuan_id', ['G2.2', 'G3.1'])  // Lọc theo các chuẩn đầu ra
+            ->get();
+
+        // Khởi tạo mảng thống kê cho kết quả
+        $resultStats = [
+            'G2.2' => ['gioi' => 0, 'kha' => 0, 'trungbinh' => 0, 'yeu' => 0],
+            'G3.1' => ['gioi' => 0, 'kha' => 0, 'trungbinh' => 0, 'yeu' => 0],
+        ];
+
+        // Phân loại sinh viên theo tỷ lệ
+        foreach ($resultStatistics as $result) {
+            $tyle = $result->tyle;
+            $chuan = $result->chuan_id;
+
+            // Xác định loại
+            if ($tyle >= 80) {
+                $category = 'gioi';
+            } elseif ($tyle >= 70) {
+                $category = 'kha';
+            } elseif ($tyle >= 50) {
+                $category = 'trungbinh';
+            } else {
+                $category = 'yeu';
+            }
+
+            // Cập nhật thống kê theo chuẩn đầu ra và loại
+            if (isset($resultStats[$chuan])) {
+                $resultStats[$chuan][$category]++;
+            }
+        }
+
+        // Dữ liệu cho biểu đồ
+        $chartData = [
+            ['Chuan Dau Ra', 'Giỏi', 'Khá', 'Trung Bình', 'Yếu'],
+            ['G2.2', $resultStats['G2.2']['gioi'], $resultStats['G2.2']['kha'], $resultStats['G2.2']['trungbinh'], $resultStats['G2.2']['yeu']],
+            ['G3.1', $resultStats['G3.1']['gioi'], $resultStats['G3.1']['kha'], $resultStats['G3.1']['trungbinh'], $resultStats['G3.1']['yeu']],
+        ];
+
+        // Thống kê kết quả thành phần A3 và chuẩn đầu ra G2.2, G3.1, G3.2
+        $resultStatisticsA3 = KetQuaThanhPhan::where('malop', $malop)
+            ->where('thanhphan_id', 'A3')  // Lọc theo thành phần A3
+            ->whereIn('chuan_id', ['G2.2', 'G3.1', 'G3.2'])  // Lọc theo các chuẩn đầu ra
+            ->get();
+
+        // Khởi tạo mảng thống kê cho kết quả A3
+        $resultStatsA3 = [
+            'G2.2' => ['gioi' => 0, 'kha' => 0, 'trungbinh' => 0, 'yeu' => 0],
+            'G3.1' => ['gioi' => 0, 'kha' => 0, 'trungbinh' => 0, 'yeu' => 0],
+            'G3.2' => ['gioi' => 0, 'kha' => 0, 'trungbinh' => 0, 'yeu' => 0],
+        ];
+
+        // Phân loại sinh viên theo tỷ lệ cho A3
+        foreach ($resultStatisticsA3 as $result) {
+            $tyle = $result->tyle;
+            $chuan = $result->chuan_id;
+
+            // Xác định loại
+            if ($tyle >= 80) {
+                $category = 'gioi';
+            } elseif ($tyle >= 70) {
+                $category = 'kha';
+            } elseif ($tyle >= 50) {
+                $category = 'trungbinh';
+            } else {
+                $category = 'yeu';
+            }
+
+            // Cập nhật thống kê theo chuẩn đầu ra và loại
+            if (isset($resultStatsA3[$chuan])) {
+                $resultStatsA3[$chuan][$category]++;
+            }
+        }
+
+        // Dữ liệu cho biểu đồ A3
+        $chartDataA3 = [
+            ['Chuan Dau Ra', 'Giỏi', 'Khá', 'Trung Bình', 'Yếu'],
+            ['G2.2', $resultStatsA3['G2.2']['gioi'], $resultStatsA3['G2.2']['kha'], $resultStatsA3['G2.2']['trungbinh'], $resultStatsA3['G2.2']['yeu']],
+            ['G3.1', $resultStatsA3['G3.1']['gioi'], $resultStatsA3['G3.1']['kha'], $resultStatsA3['G3.1']['trungbinh'], $resultStatsA3['G3.1']['yeu']],
+            ['G3.2', $resultStatsA3['G3.2']['gioi'], $resultStatsA3['G3.2']['kha'], $resultStatsA3['G3.2']['trungbinh'], $resultStatsA3['G3.2']['yeu']],
+        ];
+
+        // Thống kê kết quả thành phần A3 và chuẩn đầu ra G2.2, G3.1, G3.2, G6.1
+        $resultStatisticsA4 = KetQuaThanhPhan::where('malop', $malop)
+            ->where('thanhphan_id', 'A4')  // Lọc theo thành phần A4
+            ->whereIn('chuan_id', ['G2.2', 'G3.1', 'G3.2', 'G6.1'])  // Lọc theo các chuẩn đầu ra
+            ->get();
+
+        // Khởi tạo mảng thống kê cho kết quả A4
+        $resultStatsA4 = [
+            'G2.2' => ['gioi' => 0, 'kha' => 0, 'trungbinh' => 0, 'yeu' => 0],
+            'G3.1' => ['gioi' => 0, 'kha' => 0, 'trungbinh' => 0, 'yeu' => 0],
+            'G3.2' => ['gioi' => 0, 'kha' => 0, 'trungbinh' => 0, 'yeu' => 0],
+            'G6.1' => ['gioi' => 0, 'kha' => 0, 'trungbinh' => 0, 'yeu' => 0],
+        ];
+
+        // Phân loại sinh viên theo tỷ lệ cho A4
+        foreach ($resultStatisticsA4 as $result) {
+            $tyle = $result->tyle;
+            $chuan = $result->chuan_id;
+
+            // Xác định loại
+            if ($tyle >= 80) {
+                $category = 'gioi';
+            } elseif ($tyle >= 70) {
+                $category = 'kha';
+            } elseif ($tyle >= 50) {
+                $category = 'trungbinh';
+            } else {
+                $category = 'yeu';
+            }
+
+            // Cập nhật thống kê theo chuẩn đầu ra và loại
+            if (isset($resultStatsA4[$chuan])) {
+                $resultStatsA4[$chuan][$category]++;
+            }
+        }
+
+        // Dữ liệu cho biểu đồ A4
+        $chartDataA4 = [
+            ['Chuan Dau Ra', 'Giỏi', 'Khá', 'Trung Bình', 'Yếu'],
+            ['G2.2', $resultStatsA4['G2.2']['gioi'], $resultStatsA4['G2.2']['kha'], $resultStatsA4['G2.2']['trungbinh'], $resultStatsA4['G2.2']['yeu']],
+            ['G3.1', $resultStatsA4['G3.1']['gioi'], $resultStatsA4['G3.1']['kha'], $resultStatsA4['G3.1']['trungbinh'], $resultStatsA4['G3.1']['yeu']],
+            ['G3.2', $resultStatsA4['G3.2']['gioi'], $resultStatsA4['G3.2']['kha'], $resultStatsA4['G3.2']['trungbinh'], $resultStatsA4['G3.2']['yeu']],
+            ['G6.1', $resultStatsA4['G6.1']['gioi'], $resultStatsA4['G6.1']['kha'], $resultStatsA4['G6.1']['trungbinh'], $resultStatsA4['G6.1']['yeu']],
+        ];
+
+        // Trả về view với dữ liệu thống kê
+        return view('teacher.view.statics', compact('class', 'scoreStatistics', 'leaderboard', 'chartData', 'chartDataA3', 'chartDataA4'));
     }
 
     public function classScores($malop)
@@ -385,23 +581,6 @@ class TeacherController extends Controller
         return view('teacher.add.test.essay', compact('class', 'malop'));
     }
 
-    public function updateLecture($malop)
-    {
-        $user = Session::get('user');
-        $class = LopHoc::where('malop', $malop)
-            ->with([
-                'quanLyHS',
-                'quanLyGV',
-                'baiGiang',
-                'baiKiemTra'
-            ])
-            ->first();
-        if (!$class) {
-            return redirect()->route('teacher.classlist')->withErrors(['error' => 'Lớp không tồn tại']);
-        }
-        return view('teacher.update.lecture', compact('class'));
-    }
-
     public function deleteLecture($malop, $id)
     {
         $lecture = BaiGiang::where('malop', $malop)->where('msbg', $id)->first();
@@ -447,7 +626,6 @@ class TeacherController extends Controller
         ]);
 
         try {
-            // Lưu file vào thư mục public/test/{msbkt}
             $filePath = null;
 
             $msbkt = BaiKiemTra::max('msbkt') ?? 0; // Trả về 0 nếu không có bản ghi nào
@@ -455,18 +633,15 @@ class TeacherController extends Controller
 
             if ($request->hasFile('file-input')) {
                 $file = $request->file('file-input');
-                // Tạo msbkt (có thể sử dụng msbkt tự động từ database sau)
                 $folderPath = public_path('test/' . $msbkt);
                 if (!File::exists($folderPath)) {
                     File::makeDirectory($folderPath, 0777, true);
                 }
 
-                // Lưu tệp vào thư mục tương ứng
                 $filePath = 'test/' . $msbkt . '/' . $file->getClientOriginalName();
                 $file->move($folderPath, $file->getClientOriginalName());
             }
 
-            // Tạo mới bài kiểm tra
             $baiKiemTra = new BaiKiemTra([
                 'tenbkt' => $request->input('tenbkt'),
                 'ngaybatdau' => $request->input('date-start'),
@@ -474,20 +649,17 @@ class TeacherController extends Controller
                 'thoigianlambai' => $request->input('time-doing'),
                 'danhgia_id' => ThanhPhanDanhGia::where('thanhphan', $request->input('tpdg'))->first()->id,
                 'malop' => $malop,
-                'loai_bkt' => 'TracNghiem',  // Mặc định là trắc nghiệm
+                'loai_bkt' => 'TracNghiem',
                 'num_ques' => $request->input('num-questions'),
                 'solanlam' => $request->input('times-allow'),
-                'file_path' => $filePath, // Lưu đường dẫn file
+                'file_path' => $filePath,
             ]);
 
-            // Lưu bài kiểm tra
             $baiKiemTra->save();
             $msbkt = $baiKiemTra->msbkt;
 
-            // Lưu danh sách câu hỏi
             $numQuestions = $request->input('num-questions');
             for ($i = 1; $i <= $numQuestions; $i++) {
-                // Lưu câu hỏi
                 $cauHoi = new CauHoi([
                     'chuan_id' => $request->input("cdr-$i"), // Chuẩn đầu ra
                     'dapan' => $request->input("answer-$i"), // Câu trả lời
@@ -495,14 +667,11 @@ class TeacherController extends Controller
                     'msbkt' => $msbkt,
                 ]);
 
-                // Lưu câu hỏi
                 $cauHoi->save();
             }
 
-            // Thông báo thành công
             return redirect()->route('class.tests', ['malop' => $malop])->with('success', 'Thêm bài tập thành công');
         } catch (Exception $e) {
-            // Nếu có lỗi, hiện thông báo lỗi
             return redirect()->back()->with('error', 'Đã có lỗi xảy ra khi lưu bài kiểm tra. Vui lòng thử lại sau.')->withInput();
         }
     }
@@ -514,7 +683,6 @@ class TeacherController extends Controller
             // Tìm bài kiểm tra theo mã lớp và mã bài kiểm tra
             $baiKiemTra = BaiKiemTra::where('malop', $malop)->where('msbkt', $msbkt)->first();
 
-            // Nếu không tìm thấy bài kiểm tra, trả về lỗi
             if (!$baiKiemTra) {
                 return redirect()->route('class.tests', ['malop' => $malop])->with('error', 'Bài kiểm tra không tồn tại.');
             }
@@ -606,68 +774,105 @@ class TeacherController extends Controller
                 'thoigianlambai' => null,
                 'danhgia_id' => ThanhPhanDanhGia::where('thanhphan', $request->input('tpdg'))->first()->id,
                 'malop' => $malop,
-                'loai_bkt' => 'TuLuan',  // Mặc định là tự luận
+                'loai_bkt' => 'TuLuan',
                 'num_ques' => null,
                 'solanlam' => null,
-                'file_path' => $filePath, // Lưu đường dẫn file
-                'diem' => null, // Bạn có thể thêm logic tính điểm nếu cần
-                'loinhanxet' => null, // Nếu có thông tin nhận xét thì thêm vào đây
+                'file_path' => $filePath,
+                'diem' => null,
+                'loinhanxet' => null,
             ]);
 
-            // Lưu bài kiểm tra
             $baiKiemTra->save();
             $msbkt = $baiKiemTra->msbkt;
 
-            // Lưu danh sách câu hỏi
             $numQuestions = $request->input('num-questions');
             for ($i = 1; $i <= $numQuestions; $i++) {
-                // Lưu câu hỏi
                 $cauHoi = new CauHoi([
-                    'chuan_id' => $request->input(key: "cdr-$i"), // Chuẩn đầu ra
-                    'dapan' => null, // Câu trả lời
-                    'diem' => $request->input("points-$i"), // Điểm cho câu hỏi
+                    'chuan_id' => $request->input(key: "cdr-$i"),
+                    'dapan' => null,
+                    'diem' => $request->input("points-$i"),
                     'msbkt' => $msbkt,
                 ]);
-
-                // Lưu câu hỏi
                 $cauHoi->save();
             }
 
-            // Thông báo thành công
             return redirect()->route('class.tests', ['malop' => $malop])->with('success', 'Thêm bài tập thành công');
         } catch (Exception $e) {
-            // Nếu có lỗi, hiện thông báo lỗi
             return redirect()->back()->with('error', 'Đã có lỗi xảy ra khi lưu bài kiểm tra. Vui lòng thử lại sau.')->withInput();
         }
     }
 
-    public function show($id)
+    public function showUpdateLectureForm($id, $malop)
     {
-        // Tìm bài giảng theo ID
-        $lecture = BaiGiang::findOrFail($id);
+        $lecture = BaiGiang::where('msbg', $id)->first();
+        $class = LopHoc::where('malop', $malop)->first();
 
-        // Trả về view chi tiết bài giảng
-        return view('teacher.detail.lecture', compact('lecture'));
+        return view('teacher.update.lecture', compact('lecture', 'class'));
+    }
+
+    public function updateLecture(Request $request, $id, $malop)
+    {
+        // Lấy thông tin lớp học
+        $class = LopHoc::where('malop', $malop)->first();
+        if (!$class) {
+            return redirect()->route('teacher.classlist')->withErrors(['error' => 'Lớp không tồn tại']);
+        }
+
+        // Lấy bài giảng cần cập nhật
+        $lecture = BaiGiang::where('msbg', $id)->first();
+        if (!$lecture) {
+            return redirect()->route('teacher.classlist')->withErrors(['error' => 'Bài giảng không tồn tại']);
+        }
+
+        if ($request->isMethod('post')) {
+            $linkPaths = $request->input('link_paths') ?? null;
+            $filePaths = [];
+
+            // Xử lý upload file
+            if ($request->hasFile('file_paths')) {
+                $files = $request->file('file_paths');
+                $folderPath = public_path('uploads/' . $lecture->msbg);
+                if (!File::exists($folderPath)) {
+                    File::makeDirectory($folderPath, 0777, true);
+                }
+
+                foreach ($files as $file) {
+                    $fileName = time() . '_' . $file->getClientOriginalName();
+                    $filePath = $file->move($folderPath, $fileName);
+                    $filePaths[] = 'uploads/' . $lecture->msbg . '/' . $fileName;
+                }
+            }
+
+            // Cập nhật thông tin bài giảng
+            $lecture->update([
+                'tenbg' => $request->input('tenbg'),
+                'noidungbg' => $request->input('noidungbg'),
+                'link_paths' => $linkPaths, // Lưu link nếu có
+                'file_paths' => !empty($filePaths) ? json_encode($filePaths) : $lecture->file_paths, // If no file is uploaded, keep the existing value
+            ]);
+
+            return redirect()->route('class.lectures', ['malop' => $malop])->with('success', 'Cập nhật bài giảng thành công');
+        }
+
+        return view('teacher.update.lecture', compact('lecture', 'class'));
     }
 
     public function gradingList($malop, $msbkt)
     {
         $class = LopHoc::where('malop', $malop)
-            ->with(['quanLyHS.sinhVien']) // Lấy danh sách sinh viên trong lớp
+            ->with(['quanLyHS.sinhVien'])
             ->first();
 
         if (!$class) {
             return redirect()->route('teacher.classlist')->withErrors(['error' => 'Lớp không tồn tại']);
         }
 
-        // Tìm bài kiểm tra dựa trên mã số bài kiểm tra
         $test = BaiKiemTra::where('msbkt', $msbkt)->first();
 
         if (!$test) {
             return redirect()->route('teacher.classlist')->withErrors(['error' => 'Bài kiểm tra không tồn tại']);
         }
 
-        // Lấy danh sách sinh viên trong lớp
         $students = $class->quanLyHS->map(function ($qlhs) use ($msbkt) {
             $student = $qlhs->sinhVien;
             $result = KetQuaBaiKiemTra::where('msbkt', $msbkt)
@@ -702,7 +907,6 @@ class TeacherController extends Controller
             return redirect()->route('teacher.classlist')->withErrors(['error' => 'Sinh viên không tồn tại']);
         }
 
-        // Lấy danh sách chuẩn đầu ra của bài kiểm tra và điểm đã quy định
         $outcomes = CauHoi::join('ChuanDauRa', 'CauHoi.chuan_id', '=', 'ChuanDauRa.id')
             ->where('CauHoi.msbkt', $msbkt)
             ->select(
@@ -719,7 +923,7 @@ class TeacherController extends Controller
 
         // Nếu có file_path, truyền vào view
         $filePath = $result ? $result->files_path : null;
-        return view('teacher.grading.student', compact('class', 'test', 'student', 'outcomes', 'filePath'));
+        return view('teacher.grading.student', compact('class', 'test', 'student', 'outcomes', 'filePath', 'msbkt'));
     }
 
     public function submitGrading(Request $request)
@@ -729,7 +933,7 @@ class TeacherController extends Controller
             'msbkt' => 'required|exists:BaiKiemTra,msbkt',
             'mssv' => 'required|exists:SinhVien,mssv',
             'points' => 'array|required',
-            'points.*' => 'numeric|min:0|max:10', // Giới hạn điểm từ 0-10
+            'points.*' => 'numeric|min:0|max:10',
             'comment' => 'nullable|string|max:500',
         ]);
 
@@ -745,24 +949,17 @@ class TeacherController extends Controller
             ]
         );
 
-        // Lấy ID của sinh viên kết quả
         $sinhvien_ketqua_id = $sinhvienKetQua->id;
-
-        // Biến lưu tổng điểm
         $totalPoints = 0;
 
-        // Lặp qua các điểm của câu hỏi
         foreach ($validated['points'] as $question_id => $point) {
-            // Lấy thông tin câu hỏi để xác định chuẩn đầu ra
             $cauHoi = CauHoi::find($question_id);
             if (!$cauHoi) {
                 return redirect()->back()->withErrors("Không tìm thấy câu hỏi với ID: $question_id");
             }
 
-            // Lấy chuẩn đầu ra
             $chuan_id = $cauHoi->chuan_id;
 
-            // Tạo hoặc cập nhật bản ghi trong bảng KetQuaChuans
             KetQuaChuans::updateOrCreate(
                 [
                     'sinhvien_ketqua_id' => $sinhvien_ketqua_id,
@@ -773,12 +970,9 @@ class TeacherController extends Controller
                     'updated_at' => now(),
                 ]
             );
-
-            // Tính tổng điểm
             $totalPoints += $point;
         }
 
-        // Tạo hoặc cập nhật điểm tổng trong bảng KetQuaBaiKiemTra
         $ketqua = KetQuaBaiKiemTra::updateOrCreate(
             [
                 'msbkt' => $validated['msbkt'],
@@ -790,24 +984,21 @@ class TeacherController extends Controller
             ]
         );
 
-        // Lưu nhận xét vào bảng NhanXetBaiKiemTra
         $nhanXet = NhanXetBaiKiemTra::where('ketqua_id', $ketqua->id)
             ->where('msgv', Session::get('user.id'))
             ->first();
 
         if ($nhanXet) {
-            // Nếu có bản ghi, chỉ cập nhật nhận xét
             $nhanXet->update([
                 'nhanxet' => $request->input('comment'),
-                'thoigian' => now(), // Cập nhật lại thời gian
+                'thoigian' => now(),
             ]);
         } else {
-            // Nếu không có bản ghi, tạo mới
             NhanXetBaiKiemTra::create([
-                'ketqua_id' => $ketqua->id, // ID từ KetQuaBaiKiemTra
+                'ketqua_id' => $ketqua->id,
                 'msgv' => Session::get('user.id'),
                 'nhanxet' => $request->input('comment'),
-                'thoigian' => now(), // Thời gian hiện tại
+                'thoigian' => now(),
             ]);
         }
 
@@ -815,7 +1006,54 @@ class TeacherController extends Controller
             'malop' => $request->input('malop'),
             'msbkt' => $validated['msbkt'],
         ])->with([
-            'success' => 'Điểm đã được cập nhật thành công!',  // Truyền thông báo thành công
+            'success' => 'Điểm đã được cập nhật thành công!',
         ]);
+    }
+
+    public function storeTestPercent(Request $request, $malop)
+    {
+        $request->validate([
+            'tile.*' => 'required|numeric|min:0|max:100',
+        ], [
+            'tile.*.required' => 'Vui lòng nhập tỉ lệ.',
+            'tile.*.numeric' => 'Tỉ lệ phải là một số.',
+            'tile.*.min' => 'Tỉ lệ không được nhỏ hơn 0.',
+            'tile.*.max' => 'Tỉ lệ không được lớn hơn 100.',
+        ]);
+
+        $tiles = $request->input('tile');
+
+        $class = LopHoc::where('malop', $malop)->with('baiKiemTra')->first();
+        if (!$class) {
+            return redirect()->route('teacher.classlist')->withErrors(['error' => 'Lớp không tồn tại']);
+        }
+
+        $tests = $class->baiKiemTra;
+
+        // Kiểm tra tổng tỉ lệ theo từng TPDG
+        $groupedByDanhGia = [];
+        foreach ($tests as $test) {
+            $groupedByDanhGia[$test->danhgia_id][] = $test->msbkt;
+        }
+
+        foreach ($groupedByDanhGia as $danhgiaId => $testIds) {
+            $totalPercent = 0;
+            foreach ($testIds as $testId) {
+                $totalPercent += $tiles[$testId] ?? 0;
+            }
+            if ($totalPercent !== 100) {
+                return redirect()->back()->withInput()->with('alert', "Tổng tỉ lệ của thành phần đánh giá $danhgiaId phải bằng 100%.");
+            }
+        }
+
+        foreach ($tiles as $key => $tile) {
+            $bkt = BaiKiemTra::findOrFail($key);
+            BaiKiemTraTiLe::updateOrCreate(
+                ['msbkt' => $bkt->msbkt, 'malop' => $malop],
+                ['tile' => $tile]
+            );
+        }
+
+        return redirect()->route('class.tests', ['malop' => $malop])->with('alert', 'Lưu tỉ lệ thành công.');
     }
 }

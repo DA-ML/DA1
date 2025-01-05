@@ -13,7 +13,7 @@
                         <embed src="{{ asset($filePath) }}" width="100%" height="650px" type="application/pdf">
                     @elseif(in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'bmp']))
                         <!-- Hiển thị ảnh -->
-                        <img src="{{ asset('test/' . $msbkt . '/' . $filePath) }}" alt="Image"
+                        <img src="{{ asset($filePath) }}" alt="Image"
                             style="width: 100%; max-height: 650px; object-fit: contain;">
                     @else
                         <p>Không hỗ trợ hiển thị file này.</p>
@@ -31,8 +31,18 @@
                     <p>{{ $test->tenbkt }}</p>
                 </div>
             </div>
-            <h3>Danh sách thông tin lần làm bài:</h3>
-
+            <div style="padding: 20px">
+                <h3>Danh sách thông tin lần làm bài:</h3>
+                <ul>
+                    @foreach ($testResults as $result)
+                        <li>
+                            <h4>Sinh viên: {{ $result->tensv }} (MSSV: {{ $result->mssv }})</h4>
+                            <p>Số lần làm bài: {{ $result->solanlam }}</p>
+                            <p>Điểm: {{ $result->diem }}</p>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
         </div>
     </div>
 </div>
@@ -344,6 +354,24 @@
 
     .exit-btn:hover {
         background-color: #f0f2f5;
+    }
+
+    ul {
+        list-style-type: none;
+    }
+
+    ul li {
+        gap: 20px;
+    }
+
+    ul li h4 {
+        font-weight: 400;
+        margin-bottom: 20px;
+        margin-top: 20px;
+    }
+
+    ul li p {
+        margin-bottom: 20px;
     }
 </style>
 

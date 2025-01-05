@@ -4,20 +4,30 @@
         <div class="right">
             <div class="class_list">
                 <p>Lớp học:</p>
-                <div class="container"></div>
+                <div class="container">
+                    <p>Khoa: CNPM</p>
+                    <p>Học kỳ 1: 2023 - 2024</p>
+                </div>
             </div>
             <div class="class_list">
                 <p>Bài giảng:</p>
-                <div class="container"></div>
+                <div class="container">
+                    <p>Bạn chưa có bài giảng nào</p>
+                </div>
             </div>
             <div class="class_list">
                 <p>Bài tập:</p>
-                <div class="container"></div>
+                <div class="container">
+                    <p>Chương 1</p>
+                    <p>Chương 2</p>
+                    <p>Chương 3</p>
+                    <p>Chương 4</p>
+                </div>
             </div>
-            <div class="class_list">
+            {{-- <div class="class_list">
                 <p>Thống kê:</p>
                 <div class="container"></div>
-            </div>
+            </div> --}}
         </div>
     </div>
 </div>
@@ -75,12 +85,20 @@
 
     .container {
         display: flex;
-        height: 54px;
-        padding: 10px;
-        align-items: flex-start;
+        height: auto;
         gap: 10px;
-        align-self: stretch;
         border-radius: 10px;
         background: #FFF;
+        padding: 20px;
+        flex-direction: column;
+        align-items: flex-start;
+        flex: 1 0 0;
+        align-self: stretch;
+    }
+
+    .container p {
+        font-family: "Inter";
+        font-weight: 400;
+        font-size: 16px;
     }
 </style>

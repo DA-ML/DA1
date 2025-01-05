@@ -40,7 +40,7 @@ Route::middleware('check.login')->group(function () {
 
 
     Route::get('student/view/lectures/{malop}', [StudentController::class, 'viewLecture'])->name('student.class.lectures');
-    Route::get('student/detail/lecture/{id}', [StudentController::class, 'show'])->name('student.lecture.detail');
+    Route::get('student/detail/lecture/{malop}/{id}', [StudentController::class, 'show'])->name('student.lecture.detail');
 
     Route::get('student/view/members/{malop}', [StudentController::class, 'viewMember'])->name('student.class.members');
 
@@ -72,9 +72,14 @@ Route::middleware('check.login')->group(function () {
 
     Route::get('teacher/add/lecture/{malop}', [TeacherController::class, 'addLecture'])->name('add.lecture');
     Route::post('teacher/add/lecture/{malop}', [TeacherController::class, 'addLecture'])->name('add.lecture');
+    Route::get('teacher/update/lecture/{id}/{malop}', [TeacherController::class, 'showUpdateLectureForm'])->name('lecture.edit');
+    Route::delete('teacher/delete/lecture/{malop}/{id}', [TeacherController::class, 'deleteLecture'])->name('class.delete.lecture');
+    Route::post('teacher/update/lecture/{id}/{malop}', [TeacherController::class, 'updateLecture'])->name('lecture.update');
+    Route::get('teacher/detail/lecture/{id}', [TeacherController::class, 'show'])->name('lecture.detail');
 
     Route::get('teacher/add/test/type/{malop}', [TeacherController::class, 'testType'])->name('test.type');
     Route::get('teacher/add/test/percent/{malop}', [TeacherController::class, 'testPercent'])->name('test.percent');
+    Route::post('teacher/add/test/percent/{malop}', [TeacherController::class, 'storeTestPercent'])->name('test.percent.store');
 
     Route::get('teacher/add/test/form/{malop}', [TeacherController::class, 'testForm'])->name('test.form');
     Route::post('teacher/add/test/store/{malop}', [TeacherController::class, 'storeTest'])->name('test.store');
@@ -82,10 +87,6 @@ Route::middleware('check.login')->group(function () {
     Route::delete('teacher/delete/test/{malop}/{msbkt}', [TeacherController::class, 'deleteTest'])->name('class.delete.test');
 
     Route::get('teacher/add/test/essay/{malop}', [TeacherController::class, 'testEssay'])->name('test.essay');
-
-    Route::get('teacher/update/lecture/{malop}', [TeacherController::class, 'updateLecture'])->name('update.lecture');
-    Route::delete('teacher/delete/lecture/{malop}/{id}', [TeacherController::class, 'deleteLecture'])->name('class.delete.lecture');
-    Route::get('teacher/detail/lecture/{id}', [TeacherController::class, 'show'])->name('lecture.detail');
 
     Route::get('teacher/grading/list/{malop}/{msbkt}', [TeacherController::class, 'gradingList'])->name('grading.list');
     Route::get('teacher/grading/student/{malop}/{msbkt}/{mssv}', [TeacherController::class, 'gradingStudent'])->name('grading.student');

@@ -21,7 +21,7 @@
         <div class="left">
             @if ($filePath)
                 @php
-                    $extension = pathinfo($filePath, PATHINFO_EXTENSION); // Lấy đuôi file
+                    $extension = pathinfo($filePath, PATHINFO_EXTENSION);
                 @endphp
 
                 @if ($extension == 'pdf')
@@ -32,14 +32,8 @@
                     </a>
                 @elseif(in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'bmp']))
                     <!-- Hiển thị ảnh -->
-                    <img src="{{ asset('test/' . $msbkt . '/' . $filePath) }}" alt="Image"
+                    <img src="{{ asset($filePath) }}" alt="Image"
                         style="width: 100%; max-height: 650px; object-fit: contain;">
-                @else
-                    <!-- Hiển thị link tải file -->
-                    <p>Tệp đính kèm không hiển thị được. Bạn có thể tải xuống:</p>
-                    <a href="{{ asset($filePath) }}" download style="text-decoration: none; color: #208CE4;">
-                        Tải file về
-                    </a>
                 @endif
             @else
                 <p>Không có file để hiển thị.</p>
@@ -105,6 +99,7 @@
         height: 100%;
         flex-direction: column;
         align-items: flex-start;
+        overflow: hidden;
     }
 
     .grading-heading {
@@ -135,6 +130,7 @@
         align-items: flex-start;
         flex: 1 0 0;
         align-self: stretch;
+        overflow-y: auto;
     }
 
     .left {

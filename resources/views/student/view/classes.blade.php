@@ -23,14 +23,18 @@
             <div class="class-statics">
                 <div class="statics-body">
                     Thống kê
-                    <div class="statics-test">
-                        <div class="list-test">
-                        </div>
-                        <div class="list-test">
-                            <div class="statics-btn">
-                            </div>
-                        </div>
-                    </div>
+                    <h1>Thành phần đánh giá A1</h1>
+                    <h3>Tổng tỷ lệ điểm G2.2 của bạn: {{ $totalPercentage }}%</h3>
+                    <h3>Tổng tỷ lệ điểm G3.1 của bạn: {{ $totalPercentage2 }}%</h3>
+                    <h1>Thành phần đánh giá A3</h1>
+                    <h3>Tổng tỷ lệ điểm G2.2 của bạn: {{ $totalPercentage3 }}%</h3>
+                    <h3>Tổng tỷ lệ điểm G3.1 của bạn: {{ $totalPercentage4 }}%</h3>
+                    <h3>Tổng tỷ lệ điểm G3.2 của bạn: {{ $totalPercentage5 }}%</h3>
+                    <h1>Thành phần đánh giá A4</h1>
+                    <h3>Tổng tỷ lệ điểm G2.2 của bạn: {{ $totalPercentage6 }}%</h3>
+                    <h3>Tổng tỷ lệ điểm G3.1 của bạn: {{ $totalPercentage7 }}%</h3>
+                    <h3>Tổng tỷ lệ điểm G3.2 của bạn: {{ $totalPercentage8 }}%</h3>
+                    <h3>Tổng tỷ lệ điểm G6.1 của bạn: 100%</h3>
                 </div>
             </div>
         </div>
@@ -70,6 +74,7 @@
         flex: 1 0 0;
         align-self: stretch;
         background: #F0F2F5;
+        overflow: hidden;
     }
 
     .right {
@@ -80,6 +85,7 @@
         gap: 20px;
         flex: 1 0 0;
         align-self: stretch;
+        overflow-y: auto;
     }
 
     .class-list {
@@ -172,5 +178,28 @@
 
     .statics-chart {
         width: 50%;
+    }
+
+    .statics-body h3 {
+        color: #000;
+        font-family: Inter;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: normal;
+    }
+
+    .statics-body h1 {
+        color: #000;
+        font-family: Inter;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: normal;
+    }
+
+    #classLink {
+        font-weight: 700;
+        color: #208CE4;
     }
 </style>

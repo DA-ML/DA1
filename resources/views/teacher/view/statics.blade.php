@@ -22,11 +22,62 @@
             </div>
             <div class="class-statics">
                 <div class="statics-body">
-                    Thống kê
+                    Báo cáo
+                    <div class="test-setting">
+                        <div style="display:flex">
+                            <button type="button" onclick="openCity('London', this)" data-tab-button class="active">
+                                Bài kiểm tra
+                            </button>
+                            <button type="button" onclick="openCity('Paris', this)" data-tab-button>
+                                Thành phần đánh giá
+                            </button>
+                        </div>
+
+                        <div id="London" data-city="true" style="width: 100%">
+                            <div style="display: flex; width:100%">
+                                <div id="piechart" style="width: 900px; height: 500px;"></div>
+                                <div class="statics-rank">
+                                    <h1>BẢNG XẾP HẠNG</h1>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>STT</th>
+                                                <th>Tên</th>
+                                                <th>MSSV</th>
+                                                <th>Điểm trung bình</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($leaderboard as $student)
+                                                <tr>
+                                                    <td>{{ $student->stt }}</td>
+                                                    <td>{{ $student->tensv }}</td>
+                                                    <td>{{ $student->mssv }}</td>
+                                                    <td>{{ number_format($student->diem_tb, 2) }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="Paris" data-city="true" style="display:none; width: 100%">
+                        <div style="width: 100%">
+                            <h1 style="font-size:16">Thành phần đánh giá: A1</h1>
+                            <div id="columnchart_material" style="width: 100%; height: auto"></div>
+                            <h1 style="font-size:16">Thành phần đánh giá: A3</h1>
+                            <div id="columnchart_materialA3" style="width: 100%; height: auto"></div>
+                            <h1 style="font-size:16">Thành phần đánh giá: A4</h1>
+                            <div id="columnchart_materialA4" style="width: 100%; height: auto"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 </Div>
 
 <style>
@@ -37,6 +88,7 @@
         flex-direction: column;
         align-items: flex-start;
         background: #FFF;
+        overflow: hidden;
     }
 
     .statics {
@@ -62,6 +114,7 @@
         flex: 1 0 0;
         align-self: stretch;
         background: #F0F2F5;
+        overflow-y: auto;
     }
 
     .right {
@@ -165,4 +218,214 @@
     .statics-chart {
         width: 50%;
     }
+
+    .test-setting {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        flex: 1 0 0;
+        align-self: stretch;
+        background: #FFF;
+        width: 100%;
+    }
+
+    .test-setting button {
+        color: #000;
+        font-family: Inter;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: normal;
+    }
+
+    [data-tab-button] {
+        background-color: #fafafa;
+        color: #000;
+        border-radius: 0;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+    }
+
+    [data-tab-button].active {
+        background-color: #208ce4;
+        color: #fff;
+    }
+
+    .statics-rank {
+        display: flex;
+        padding: 20px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        align-self: stretch;
+    }
+
+    .statics-rank h1 {
+        color: #000;
+        text-align: center;
+        font-family: Inter;
+        font-size: 24px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: normal;
+    }
+
+    .statics-rank table {
+        width: 100%;
+        border-collapse: collapse;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .statics-rank th {
+        font-size: 16px;
+        font-weight: bold;
+        text-align: left;
+        background-color: #208CE4;
+        padding: 8px;
+        color: white;
+    }
+
+    .statics-rank td {
+        font-size: 16px;
+        font-weight: normal;
+        text-align: left;
+        padding: 8px;
+    }
 </style>
+
+<script>
+    function openCity(cityName, button) {
+        // Ẩn tất cả các tab
+        var tabs = document.querySelectorAll('[data-city="true"]');
+        for (var i = 0; i < tabs.length; i++) {
+            tabs[i].style.display = "none";
+        }
+        // Hiển thị tab được chọn
+        document.getElementById(cityName).style.display = "block";
+
+        // Loại bỏ class active khỏi tất cả các nút
+        var buttons = document.querySelectorAll('[data-tab-button]');
+        buttons.forEach(btn => btn.classList.remove('active'));
+
+        // Thêm class active vào nút hiện tại
+        button.classList.add('active');
+    }
+</script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+    google.charts.load('current', {
+        'packages': ['corechart']
+    });
+    google.charts.setOnLoadCallback(drawChart);
+
+    function drawChart() {
+        var data = google.visualization.arrayToDataTable([
+            ['Loại', 'Số lượng'],
+            @foreach ($scoreStatistics as $stat)
+                ['{{ $stat->category }}', {{ $stat->count }}],
+            @endforeach
+        ]);
+
+        var options = {
+            title: 'Học lực sinh viên'
+        };
+
+        var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+        chart.draw(data, options);
+    }
+</script>
+
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+    google.charts.load('current', {
+        packages: ['corechart', 'bar']
+    });
+
+    google.charts.setOnLoadCallback(drawChart);
+
+    function drawChart() {
+        const chartData = @json($chartData);
+
+        const data = google.visualization.arrayToDataTable(chartData);
+
+        const options = {
+            chart: {
+                title: 'Thống Kê Thành Phần A1',
+                subtitle: 'Giới, Khá, Trung Bình, Yếu'
+            },
+            bars: 'vertical',
+            hAxis: {
+                title: 'Chuẩn Đầu Ra'
+            },
+            vAxis: {
+                title: 'Số lượng'
+            }
+        };
+
+        const chart = new google.visualization.ColumnChart(document.getElementById('columnchart_material'));
+        chart.draw(data, options);
+    }
+</script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+    google.charts.load('current', {
+        packages: ['corechart', 'bar']
+    });
+
+    google.charts.setOnLoadCallback(drawChart);
+
+    function drawChart() {
+        const chartData = @json($chartDataA3);
+
+        const data = google.visualization.arrayToDataTable(chartData);
+
+        const options = {
+            chart: {
+                title: 'Thống Kê Thành Phần A3',
+                subtitle: 'Giới, Khá, Trung Bình, Yếu'
+            },
+            bars: 'vertical',
+            hAxis: {
+                title: 'Chuẩn Đầu Ra'
+            },
+            vAxis: {
+                title: 'Số lượng'
+            }
+        };
+
+        const chart = new google.visualization.ColumnChart(document.getElementById('columnchart_materialA3'));
+        chart.draw(data, options);
+    }
+</script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+    google.charts.load('current', {
+        packages: ['corechart', 'bar']
+    });
+
+    google.charts.setOnLoadCallback(drawChart);
+
+    function drawChart() {
+        const chartData = @json($chartDataA4);
+
+        const data = google.visualization.arrayToDataTable(chartData);
+
+        const options = {
+            chart: {
+                title: 'Thống Kê Thành Phần A4',
+                subtitle: 'Giới, Khá, Trung Bình, Yếu'
+            },
+            bars: 'vertical',
+            hAxis: {
+                title: 'Chuẩn Đầu Ra'
+            },
+            vAxis: {
+                title: 'Số lượng'
+            }
+        };
+
+        const chart = new google.visualization.ColumnChart(document.getElementById('columnchart_materialA4'));
+        chart.draw(data, options);
+    }
+</script>
