@@ -38,7 +38,6 @@ Route::middleware('check.login')->group(function () {
     Route::get('student/detail/essay/{malop}/{msbkt}', [StudentController::class, 'viewEssayDetail'])->name('student.detail.essay');
     Route::post('student/test/{malop}/store-essay', [StudentController::class, 'storeEssayTest'])->name('student.test.storeEssay');
 
-
     Route::get('student/view/lectures/{malop}', [StudentController::class, 'viewLecture'])->name('student.class.lectures');
     Route::get('student/detail/lecture/{malop}/{id}', [StudentController::class, 'show'])->name('student.lecture.detail');
 
@@ -75,7 +74,7 @@ Route::middleware('check.login')->group(function () {
     Route::get('teacher/update/lecture/{id}/{malop}', [TeacherController::class, 'showUpdateLectureForm'])->name('lecture.edit');
     Route::delete('teacher/delete/lecture/{malop}/{id}', [TeacherController::class, 'deleteLecture'])->name('class.delete.lecture');
     Route::post('teacher/update/lecture/{id}/{malop}', [TeacherController::class, 'updateLecture'])->name('lecture.update');
-    Route::get('teacher/detail/lecture/{id}', [TeacherController::class, 'show'])->name('lecture.detail');
+    Route::get('teacher/detail/lecture/{id}/{malop}', [TeacherController::class, 'showLecture'])->name('lecture.detail');
 
     Route::get('teacher/add/test/type/{malop}', [TeacherController::class, 'testType'])->name('test.type');
     Route::get('teacher/add/test/percent/{malop}', [TeacherController::class, 'testPercent'])->name('test.percent');

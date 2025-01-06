@@ -802,6 +802,26 @@ class TeacherController extends Controller
         }
     }
 
+    public function showLecture($id, $malop)
+    {
+        // Tìm bài giảng theo ID
+        $lecture = BaiGiang::findOrFail($id);
+        $user = Session::get('user');
+
+        // Kiểm tra lớp học tồn tại
+        $class = LopHoc::where('malop', $malop)
+            ->with([
+                'quanLyHS',
+                'quanLyGV',
+                'baiGiang',
+                'baiKiemTra'
+            ])
+            ->first();
+
+        // Trả về view chi tiết bài giảng
+        return view('teacher.detail.lecture', compact('lecture', 'class'));
+    }
+
     public function showUpdateLectureForm($id, $malop)
     {
         $lecture = BaiGiang::where('msbg', $id)->first();

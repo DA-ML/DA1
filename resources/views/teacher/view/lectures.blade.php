@@ -60,7 +60,8 @@
                                         <tr>
                                             <td>{{ $key + 1 }}</td>
                                             <td>
-                                                <a href="{{ route('lecture.detail', ['id' => $lecture->msbg]) }}">
+                                                <a style="text-decoration: none; color: #000"
+                                                    href="{{ route('lecture.detail', ['malop' => $lecture->malop, 'id' => $lecture->msbg]) }}">
                                                     {{ $lecture->tenbg }}
                                                 </a>
                                             </td>
