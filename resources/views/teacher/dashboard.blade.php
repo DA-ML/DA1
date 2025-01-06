@@ -59,11 +59,11 @@
                                 $hasExam = true;
                             @endphp
                             <div>
-                                <strong>Bài kiểm tra: </strong> {{ $item->tenbkt }} <br>
-                                <strong>Loại: </strong> {{ $item->loai_bkt }} <br>
-                                <strong>Số câu hỏi: </strong> {{ $item->num_ques }} <br>
-                                <strong>Bắt đầu: </strong> {{ $item->ngaybatdau }} <br>
-                                <strong>Kết thúc: </strong> {{ $item->ngayketthuc }} <br>
+                                <p><strong>Bài kiểm tra: </strong> {{ $item->tenbkt }}</p>
+                                <p><strong>Loại: </strong> {{ $item->loai_bkt }}</p>
+                                <p><strong>Số câu hỏi: </strong> {{ $item->num_ques }}</p>
+                                <p><strong>Bắt đầu: </strong> {{ $item->ngaybatdau }}</p>
+                                <p><strong>Kết thúc: </strong> {{ $item->ngayketthuc }}</p>
                             </div>
                         @endif
                     @endforeach
@@ -99,6 +99,7 @@
         flex: 1 0 0;
         align-self: stretch;
         background: #F0F2F5;
+        overflow: hidden;
     }
 
     .right {
@@ -109,6 +110,7 @@
         gap: 20px;
         flex: 1 0 0;
         align-self: stretch;
+        overflow-y: auto;
     }
 
     .class_list {
@@ -164,6 +166,7 @@
         font-family: "Inter";
         font-weight: 400;
         font-size: 16px;
+        margin-bottom: 10px;
     }
 
     .container ul {

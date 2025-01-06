@@ -16,7 +16,7 @@
                         </a>
                     @elseif(in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'bmp']))
                         <!-- Hiển thị ảnh -->
-                        <img src="{{ asset('test/' . $msbkt . '/' . $filePath) }}" alt="Image"
+                        <img src="{{ asset($filePath) }}" alt="Image"
                             style="width: 100%; max-height: 650px; object-fit: contain;">
                     @else
                         <!-- Hiển thị link tải file -->

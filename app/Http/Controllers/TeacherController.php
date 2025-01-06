@@ -1131,4 +1131,167 @@ class TeacherController extends Controller
 
         return redirect()->route('class.tests', ['malop' => $malop])->with('alert', 'Lưu tỉ lệ thành công.');
     }
+
+    public function editEssay($id, $malop)
+    {
+        $baiKiemTra = BaiKiemTra::findOrFail($id);
+        $thanhPhanDanhGia = ThanhPhanDanhGia::all();
+        $cauHoi = CauHoi::where('msbkt', $id)->get();
+
+        return view('teacher.update.test.essay', [
+            'baiKiemTra' => $baiKiemTra,
+            'thanhPhanDanhGia' => $thanhPhanDanhGia,
+            'malop' => $malop,
+            'cauHoi' => $cauHoi
+        ]);
+    }
+
+    public function editForm($id, $malop)
+    {
+        $baiKiemTra = BaiKiemTra::findOrFail($id);
+        $thanhPhanDanhGia = ThanhPhanDanhGia::all();
+        $cauHoi = CauHoi::where('msbkt', $id)->get();
+
+        return view('teacher.update.test.form', [
+            'baiKiemTra' => $baiKiemTra,
+            'thanhPhanDanhGia' => $thanhPhanDanhGia,
+            'malop' => $malop,
+            'cauHoi' => $cauHoi
+        ]);
+    }
+
+    public function updateTest(Request $request, $id, $malop)
+    {
+        $validated = $request->validate([
+            'tenbkt' => 'required|string|max:255',
+            'date-start' => 'required|date',
+            'date-end' => 'required|date|after_or_equal:date-start',
+            'time-doing' => 'required|integer|min:1',
+            'times-allow' => 'required|integer|min:1',
+            'file-input' => 'nullable|file|mimes:jpg,jpeg,png,pdf,docx,doc|max:10240',
+            'tpdg' => 'required|string',
+            // Kiểm tra câu trả lời và chuẩn đầu ra cho các câu hỏi
+            'answer-*' => 'required|string',
+            'cdr-*' => 'required|string',
+            'points-*' => 'required|numeric|min:0',
+        ]);
+
+        try {
+            $baiKiemTra = BaiKiemTra::findOrFail($id);
+            $filePath = $baiKiemTra->file_path; // Giữ nguyên đường dẫn file cũ nếu không cập nhật
+
+            // Xử lý file mới (nếu có)
+            if ($request->hasFile('file-input')) {
+                $file = $request->file('file-input');
+                $folderPath = public_path('test/' . $id);
+                if (!File::exists($folderPath)) {
+                    File::makeDirectory($folderPath, 0777, true);
+                }
+
+                $filePath = 'test/' . $id . '/' . $file->getClientOriginalName();
+                $file->move($folderPath, $file->getClientOriginalName());
+            }
+
+            // Cập nhật thông tin bài kiểm tra
+            $baiKiemTra->update([
+                'tenbkt' => $request->input('tenbkt'),
+                'ngaybatdau' => $request->input('date-start'),
+                'ngayketthuc' => $request->input('date-end'),
+                'thoigianlambai' => $request->input('time-doing'),
+                'danhgia_id' => ThanhPhanDanhGia::where('thanhphan', $request->input('tpdg'))->first()->id,
+                'solanlam' => $request->input('times-allow'),
+                'file_path' => $filePath,
+            ]);
+
+            // Cập nhật lại các câu hỏi của bài kiểm tra
+            $numQuestions = $request->input('num-questions');
+
+            for ($i = 1; $i <= $numQuestions; $i++) {
+                $cauHoi = CauHoi::where('msbkt', $id)
+                    ->where('msch', $i)  // Dùng thứ tự để xác định câu hỏi cần cập nhật
+                    ->first();
+
+                if ($cauHoi) {
+                    // Cập nhật câu hỏi
+                    $cauHoi->chuan_id = $request->input("cdr-$i");
+                    $cauHoi->dapan = $request->input("answer-$i");
+                    $cauHoi->diem = $request->input("points-$i");
+
+                    $cauHoi->save();
+                } else {
+                    // Nếu không tìm thấy câu hỏi, có thể tạo câu hỏi mới
+                    $cauHoi = new CauHoi([
+                        'chuan_id' => $request->input("cdr-$i"),
+                        'dapan' => $request->input("answer-$i"),
+                        'diem' => $request->input("points-$i"),
+                        'msbkt' => $id,
+                    ]);
+                    $cauHoi->save();
+                }
+            }
+
+
+            return redirect()->route('class.tests', ['malop' => $malop])->with('success', 'Cập nhật bài kiểm tra thành công');
+        } catch (Exception $e) {
+            return redirect()->back()->with('error', 'Đã có lỗi xảy ra khi cập nhật bài kiểm tra.')->withInput();
+        }
+    }
+
+    public function updateEssay(Request $request, $id, $malop)
+    {
+        $validated = $request->validate([
+            'tenbkt' => 'required|string|max:255',
+            'date-start' => 'required|date',
+            'date-end' => 'required|date|after_or_equal:date-start',
+            'file-input' => 'nullable|file|mimes:jpg,jpeg,png,pdf,docx,doc|max:10240',
+            // Kiểm tra câu trả lời và chuẩn đầu ra cho các câu hỏi
+            'answer-*' => 'required|string',
+            'cdr-*' => 'required|string',
+            'points-*' => 'required|numeric|min:0',
+        ]);
+
+        try {
+            $baiKiemTra = BaiKiemTra::findOrFail($id);
+            $filePath = $baiKiemTra->file_path; // Giữ nguyên đường dẫn file cũ nếu không cập nhật
+
+            // Xử lý file mới (nếu có)
+            if ($request->hasFile('file-input')) {
+                $file = $request->file('file-input');
+                $folderPath = public_path('test/' . $id);
+                if (!File::exists($folderPath)) {
+                    File::makeDirectory($folderPath, 0777, true);
+                }
+
+                $filePath = 'test/' . $id . '/' . $file->getClientOriginalName();
+                $file->move($folderPath, $file->getClientOriginalName());
+            }
+
+            // Cập nhật thông tin bài kiểm tra
+            $baiKiemTra->update([
+                'tenbkt' => $request->input('tenbkt'),
+                'ngaybatdau' => $request->input('date-start'),
+                'ngayketthuc' => $request->input('date-end'),
+                'file_path' => $filePath,
+            ]);
+
+            $cauHoiList = CauHoi::where('msbkt', $id)->get();
+
+            // Kiểm tra nếu có câu hỏi cần cập nhật
+            foreach ($cauHoiList as $index => $cauHoi) {
+                // Tạo tên cho input điểm dựa trên thứ tự câu hỏi
+                $pointKey = "points-" . ($index + 1);  // Giả sử input sẽ có tên points-1, points-2, ...
+
+                // Kiểm tra nếu có giá trị điểm trong request
+                if ($request->has($pointKey)) {
+                    // Cập nhật điểm cho câu hỏi
+                    $cauHoi->diem = $request->input($pointKey);
+                    $cauHoi->save();  // Lưu lại thay đổi
+                }
+            }
+
+            return redirect()->route('class.tests', ['malop' => $malop])->with('success', 'Cập nhật bài kiểm tra thành công');
+        } catch (Exception $e) {
+            return redirect()->back()->with('error', 'Đã có lỗi xảy ra khi cập nhật bài kiểm tra.')->withInput();
+        }
+    }
 }
