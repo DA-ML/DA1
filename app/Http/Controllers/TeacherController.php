@@ -27,9 +27,64 @@ use Illuminate\Support\Facades\DB;
 
 class TeacherController extends Controller
 {
+    protected $currentSemester;
+    protected $currentYear;
+
+    // Constructor để khởi tạo giá trị
+    public function __construct()
+    {
+        $this->currentSemester = '1';
+        $this->currentYear = '2023-2024';
+    }
     public function teacherDashboard()
     {
-        return view('teacher.dashboard');
+        $user = Session::get('user');
+        $teacher = GiaoVien::find($user['id']);
+
+        if (!$teacher) {
+            return back()->with('error', 'Không tìm thấy người dùng.');
+        }
+
+        $classes = DB::table('QuanLyGV')
+            ->join('LopHoc', 'QuanLyGV.malop', '=', 'LopHoc.malop')
+            ->join('HocKy', 'QuanLyGV.mahk', '=', 'HocKy.mahk')
+            ->join('Khoa', 'LopHoc.makhoa', '=', 'Khoa.makhoa')
+            ->where('QuanLyGV.msgv', $teacher->msgv)
+            ->where('HocKy.tenhk', $this->currentSemester)
+            ->where('HocKy.namhoc', $this->currentYear)
+            ->select(
+                'LopHoc.malop',
+                'LopHoc.tenlop',
+                'Khoa.tenkhoa',
+                'HocKy.tenhk',
+                'HocKy.namhoc'
+            )
+            ->get();
+
+        $lectures = DB::table('QuanLyGV')
+            ->join('LopHoc', 'QuanLyGV.malop', '=', 'LopHoc.malop')
+            ->join('HocKy', 'QuanLyGV.mahk', '=', 'HocKy.mahk')
+            ->leftJoin('BaiGiang', 'LopHoc.malop', '=', 'BaiGiang.malop')
+            ->where('QuanLyGV.msgv', $teacher->msgv)
+            ->where('HocKy.tenhk', $this->currentSemester)
+            ->where('HocKy.namhoc', $this->currentYear)
+            ->select('BaiGiang.tenbg', 'BaiGiang.noidungbg', 'BaiGiang.file_paths', 'BaiGiang.link_paths')
+            ->get();
+
+        $exams = DB::table('QuanLyGV')
+            ->join('LopHoc', 'QuanLyGV.malop', '=', 'LopHoc.malop')
+            ->join('HocKy', 'QuanLyGV.mahk', '=', 'HocKy.mahk')
+            ->leftJoin('BaiKiemTra', 'LopHoc.malop', '=', 'BaiKiemTra.malop')
+            ->where('QuanLyGV.msgv', $teacher->msgv)
+            ->where('HocKy.tenhk', $this->currentSemester)
+            ->where('HocKy.namhoc', $this->currentYear)
+            ->select('BaiKiemTra.tenbkt', 'BaiKiemTra.ngaybatdau', 'BaiKiemTra.ngayketthuc', 'BaiKiemTra.file_path', 'BaiKiemTra.loai_bkt', 'BaiKiemTra.num_ques')
+            ->get();
+
+        return view('teacher.dashboard', compact('teacher', 'classes', 'lectures', 'exams'))->with([
+            'currentSemester' => $this->currentSemester,
+            'currentYear' => $this->currentYear
+        ]);
     }
 
     public function classList()
