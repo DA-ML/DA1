@@ -194,7 +194,6 @@
             cursor: pointer;
         }
     </style>
-    <script src="https://kit.fontawesome.com/42584c603b.js" crossorigin="anonymous"></script>
 </body>
 
 </html>

@@ -1,3 +1,10 @@
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Teacher Page</title>
+</head>
 <link rel="stylesheet" href="{{ asset('css/global.css') }}">
 <Div class="teacher-viewclass">
     @include('components.heading')
@@ -262,64 +269,6 @@
         line-height: normal;
     }
 
-    .class-statics {
-        display: flex;
-        width: 100%;
-        height: auto;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 20px;
-    }
-
-    .list-test {
-        display: flex;
-        width: 500px;
-        flex-direction: column;
-        align-items: flex-start;
-        align-self: stretch;
-    }
-
-    .statics-btn {
-        display: flex;
-        width: 500px;
-        flex-direction: column;
-        align-items: center;
-        align-self: stretch;
-    }
-
-    .statics-chart {
-        width: 50%;
-    }
-
-    .class-btn {
-        display: flex;
-        width: 100%;
-        align-items: flex-start;
-        gap: 20px;
-        flex: 1 0 0;
-    }
-
-    .btn {
-        display: flex;
-        padding: 20px;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 20px;
-        flex: 1 0 0;
-        align-self: stretch;
-        border-radius: 10px;
-        background: #FFF;
-    }
-
-    .lecturelist-btn {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        align-self: stretch;
-        height: 40px;
-        gap: 20px;
-    }
-
     .class-lectures {
         width: 100%;
         display: flex;
@@ -472,13 +421,6 @@
         line-height: normal;
     }
 
-    .do-btn {
-        width: 100%;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
     .hidden {
         display: none;
     }
@@ -514,3 +456,5 @@
         }
     }
 </script>
+
+</html>

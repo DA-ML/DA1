@@ -174,8 +174,6 @@
     </div>
 </div>
 
-<script src="https://kit.fontawesome.com/42584c603b.js" crossorigin="anonymous"></script>
-
 <script>
     const role = "{{ session('user.role') }}";
     // JavaScript to toggle dropdown visibility
