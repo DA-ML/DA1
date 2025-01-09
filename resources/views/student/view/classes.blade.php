@@ -1,4 +1,4 @@
-<Div class="teacher-viewclass">
+<Div class="student-viewclass">
     @include('components.heading')
     <div class="body">
         @include('components.sidebar_2')
@@ -35,7 +35,7 @@
 </Div>
 
 <style>
-    .teacher-viewclass {
+    .student-viewclass {
         display: flex;
         width: 100%;
         height: 100%;

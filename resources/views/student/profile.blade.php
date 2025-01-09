@@ -83,7 +83,11 @@
                                     <div class="cell-content">******</div>
                                 </div>
                                 <div class="cell-2">
-                                    <div class="cell-content-2">Chỉnh sửa</div>
+                                    <div class="cell-content-2">
+                                        <a href="{{ route('student.changepw') }}" style="text-decoration: none;">
+                                            <p>Chỉnh sửa</p>
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -345,7 +349,15 @@
         font-style: normal;
         font-weight: 500;
         line-height: 130%;
-        /* 20.8px */
+    }
+
+    .cell-content-2 p {
+        margin: 0;
+        color: #208CE4; 
+    }
+
+    .cell-content-2 a:hover p {
+        color: #106bb5;
     }
 
     .info-middle {
