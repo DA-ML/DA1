@@ -1,3 +1,11 @@
+<html lang="vi">
+<!DOCTYPE html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Detail Test</title>
+</head>
 <div class="student-dotest">
     <div class="body">
         <div class="left">
@@ -367,3 +375,5 @@
         background-color: #f0f2f5;
     }
 </style>
+
+</html>

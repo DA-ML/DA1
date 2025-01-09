@@ -1,3 +1,11 @@
+<html lang="vi">
+<!DOCTYPE html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>View Members</title>
+</head>
 <link rel="stylesheet" href="{{ asset('css/global.css') }}">
 <Div class="teacher-viewclass">
     @include('components.heading')
@@ -149,35 +157,6 @@
         line-height: normal;
     }
 
-    .class-statics {
-        display: flex;
-        width: 100%;
-        height: auto;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 20px;
-    }
-
-    .list-test {
-        display: flex;
-        width: 500px;
-        flex-direction: column;
-        align-items: flex-start;
-        align-self: stretch;
-    }
-
-    .statics-btn {
-        display: flex;
-        width: 500px;
-        flex-direction: column;
-        align-items: center;
-        align-self: stretch;
-    }
-
-    .statics-chart {
-        width: 50%;
-    }
-
     .class-btn {
         display: flex;
         width: 100%;
@@ -241,4 +220,11 @@
         padding: 8px;
         text-align: left;
     }
+
+    .heading-dashboard p:nth-child(2) {
+        color: #208CE4;
+        font-weight: 700;
+    }
 </style>
+
+</html>

@@ -1,3 +1,11 @@
+<html lang="vi">
+<!DOCTYPE html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>View Tests</title>
+</head>
 <link rel="stylesheet" href="{{ asset('css/global.css') }}">
 
 @php
@@ -245,43 +253,6 @@
         line-height: normal;
     }
 
-    .class-list-2 {
-        flex-grow: 1;
-        display: flex;
-        padding: 20px;
-        flex-direction: row;
-        align-items: flex-start;
-        gap: 20px;
-        flex: 1 0 0;
-        align-self: stretch;
-        border-radius: 10px;
-        background: #FFF;
-    }
-
-    .class-name-2 {
-        display: flex;
-        width: 800px;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 20px;
-        flex-shrink: 0;
-        align-self: stretch;
-        background: #FFF;
-        flex-grow: 2;
-    }
-
-    .search {
-        display: flex;
-        /* Sử dụng flexbox để căn chỉnh theo chiều ngang */
-        align-items: center;
-        /* Căn giữa các phần tử theo chiều dọc */
-        gap: 20px;
-        /* Khoảng cách giữa các phần tử */
-        width: 100%;
-        /* Chiếm toàn bộ chiều rộng của container */
-        border: none;
-    }
-
     .class-btn {
         display: flex;
         align-items: center;
@@ -290,16 +261,6 @@
         width: 100%;
         box-sizing: border-box;
         border: none;
-    }
-
-    .search-bar {
-        flex: 1;
-    }
-
-    .filter-search {
-        display: flex;
-        align-items: center;
-        gap: 10px;
     }
 
     .test-list {
@@ -327,52 +288,6 @@
 
     .test-list:hover {
         background-color: #f0f8ff;
-    }
-
-    .test-list-id {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-    }
-
-    .test-list-id p {
-        color: #208CE4;
-        font-family: Inter;
-        font-size: 20px;
-        font-style: normal;
-        font-weight: 700;
-        line-height: normal;
-    }
-
-    .class-name-3 {
-        display: flex;
-        padding: 10px;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0px;
-        align-self: stretch;
-        background: #FFF;
-        flex: 1 1 auto;
-    }
-
-    .test-name {
-        display: flex;
-        padding: 10px;
-        align-items: flex-start;
-        gap: 20px;
-        align-self: stretch;
-        border-radius: 10px;
-        border: 1px solid #208CE4;
-        background: #FFF;
-    }
-
-    .test-name p {
-        color: #208CE4;
-        font-family: Inter;
-        font-size: 16px;
-        font-style: normal;
-        font-weight: 700;
-        line-height: normal;
     }
 
     .detail {
@@ -434,3 +349,5 @@
         }
     }
 </script>
+
+</html>

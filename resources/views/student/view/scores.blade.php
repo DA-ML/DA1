@@ -1,3 +1,11 @@
+<html lang="vi">
+<!DOCTYPE html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>View Scores</title>
+</head>
 <Div class="teacher-viewclass">
     @include('components.heading')
     <div class="body">
@@ -156,35 +164,6 @@
         line-height: normal;
     }
 
-    .statics-test {
-        display: flex;
-        padding: 0px 20px;
-        justify-content: space-between;
-        align-items: flex-start;
-        align-self: stretch;
-        width: 100%;
-    }
-
-    .list-test {
-        display: flex;
-        width: 500px;
-        flex-direction: column;
-        align-items: flex-start;
-        align-self: stretch;
-    }
-
-    .statics-btn {
-        display: flex;
-        width: 500px;
-        flex-direction: column;
-        align-items: center;
-        align-self: stretch;
-    }
-
-    .statics-chart {
-        width: 50%;
-    }
-
     .statics-body table {
         width: 100%;
         border-collapse: collapse;
@@ -206,4 +185,11 @@
         background-color: #208CE4;
         color: #FFF;
     }
+
+    .heading-dashboard p:nth-child(2) {
+        color: #208CE4;
+        font-weight: 700;
+    }
 </style>
+
+</html>

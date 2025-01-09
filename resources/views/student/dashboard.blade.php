@@ -1,3 +1,11 @@
+<html lang="vi">
+<!DOCTYPE html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Dashboard</title>
+</head>
 <div class="dashboard">
     @include('components.heading')
     <div class="body">
@@ -164,3 +172,5 @@
         margin-bottom: 10px;
     }
 </style>
+
+</html>

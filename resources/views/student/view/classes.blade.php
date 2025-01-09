@@ -34,7 +34,7 @@
                     <h3>Tổng tỷ lệ điểm G2.2 của bạn: {{ $totalPercentage6 }}%</h3>
                     <h3>Tổng tỷ lệ điểm G3.1 của bạn: {{ $totalPercentage7 }}%</h3>
                     <h3>Tổng tỷ lệ điểm G3.2 của bạn: {{ $totalPercentage8 }}%</h3>
-                    <h3>Tổng tỷ lệ điểm G6.1 của bạn: 100%</h3>
+                    <h3>Tổng tỷ lệ điểm G6.1 của bạn: {{ $totalPercentage9 }}%</h3>
                 </div>
             </div>
         </div>

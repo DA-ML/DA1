@@ -1,3 +1,11 @@
+<html lang="vi">
+<!DOCTYPE html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Class List</title>
+</head>
 <div class="class-list">
     @include('components.heading')
 
@@ -33,8 +41,8 @@
                                 <td>{{ $class->so_bai_giang }}</td>
                                 <td>{{ $class->so_bai_kiem_tra }}</td>
                                 <td>
-                                    <a href="{{ route('student.class.details', $class->malop) }}" class="btn btn-primary"
-                                        style="color: #208ce4; text-decoration: none">
+                                    <a href="{{ route('student.class.details', $class->malop) }}"
+                                        class="btn btn-primary" style="color: #208ce4; text-decoration: none">
                                         View</a>
                                 </td>
                             </tr>
@@ -110,7 +118,8 @@
         font-weight: bold;
         padding: 8px;
         text-align: left;
-        background-color: #dedede;
+        background-color: #208CE4;
+        color: #FFF;
     }
 
     .class-table td {
@@ -120,3 +129,5 @@
         text-align: left;
     }
 </style>
+
+</html>

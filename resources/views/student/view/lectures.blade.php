@@ -1,3 +1,11 @@
+<html lang="vi">
+<!DOCTYPE html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>View Lectures</title>
+</head>
 <link rel="stylesheet" href="{{ asset('css/global.css') }}">
 <Div class="teacher-viewclass">
     @include('components.heading')
@@ -240,4 +248,11 @@
         padding: 8px;
         text-align: left;
     }
+
+    .heading-dashboard p:nth-child(2) {
+        color: #208CE4;
+        font-weight: 700;
+    }
 </style>
+
+</html>
