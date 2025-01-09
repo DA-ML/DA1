@@ -737,7 +737,6 @@ class TeacherController extends Controller
         try {
             // Tìm bài kiểm tra theo mã lớp và mã bài kiểm tra
             $baiKiemTra = BaiKiemTra::where('malop', $malop)->where('msbkt', $msbkt)->first();
-
             if (!$baiKiemTra) {
                 return redirect()->route('class.tests', ['malop' => $malop])->with('error', 'Bài kiểm tra không tồn tại.');
             }
@@ -756,7 +755,7 @@ class TeacherController extends Controller
             // Kiểm tra nếu thư mục tồn tại
             if (File::exists($folderPath)) {
                 // Xóa toàn bộ thư mục và các file bên trong
-                File::deleteDirectory($folderPath); // Không cần tham số thứ hai nếu muốn xóa tất cả
+                File::deleteDirectory($folderPath);
             }
 
 

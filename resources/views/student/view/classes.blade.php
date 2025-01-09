@@ -38,10 +38,10 @@
                     <h2>Tổng tỷ lệ điểm G3.1 của bạn: {{ $totalPercentage4 }}%</h2>
                     <h2>Tổng tỷ lệ điểm G3.2 của bạn: {{ $totalPercentage5 }}%</h2>
                     <h1>Thành phần đánh giá A4</h1>
-                    <h2>Tổng tỷ lệ điểm G2.2 của bạn: {{ $totalPercentage6 }}%</h2>
-                    <h2>Tổng tỷ lệ điểm G3.1 của bạn: {{ $totalPercentage7 }}%</h2>
-                    <h2>Tổng tỷ lệ điểm G3.2 của bạn: {{ $totalPercentage8 }}%</h2>
-                    <h2>Tổng tỷ lệ điểm G6.1 của bạn: 100%</h2>
+                    <h3>Tổng tỷ lệ điểm G2.2 của bạn: {{ $totalPercentage6 }}%</h3>
+                    <h3>Tổng tỷ lệ điểm G3.1 của bạn: {{ $totalPercentage7 }}%</h3>
+                    <h3>Tổng tỷ lệ điểm G3.2 của bạn: {{ $totalPercentage8 }}%</h3>
+                    <h3>Tổng tỷ lệ điểm G6.1 của bạn: {{ $totalPercentage9 }}%</h3>
                 </div>
             </div>
         </div>

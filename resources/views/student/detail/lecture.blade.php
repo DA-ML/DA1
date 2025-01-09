@@ -1,10 +1,11 @@
 <html lang="vi">
+<!DOCTYPE html>
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Student Lecture</title>
+    <title>Detail Lecture</title>
 </head>
-
 <Div class="teacher-viewclass">
     @include('components.heading')
     <div class="body">
@@ -261,3 +262,5 @@
         font-weight: 700;
     }
 </style>
+
+</html>

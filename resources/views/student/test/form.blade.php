@@ -1,9 +1,19 @@
 <html lang="vi">
+<<<<<<< HEAD
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Student Do Test</title>
 </head> 
+=======
+<!DOCTYPE html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Detail Test</title>
+</head>
+>>>>>>> 3b50d2eca590c4b83e614dde29c71577a8c08107
 <div class="student-dotest">
     <div class="body">
         <div class="left">
@@ -485,3 +495,5 @@
     // Bắt đầu đồng hồ đếm ngược sau khi tải trang
     let countdownInterval = setInterval(updateCountdown, 1000);
 </script>
+
+</html>
