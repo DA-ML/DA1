@@ -1,3 +1,10 @@
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Teacher Lecture</title>
+</head>
+
 <link rel="stylesheet" href="{{ asset('css/global.css') }}">
 
 <div class="lecture-type">
@@ -32,7 +39,7 @@
                                 <h1>Tạo bài giảng từ File</h1>
                                 <p>Chỉ hỗ trợ dưới dạng PDF, DOCX, EXCEL, PNG</p>
                                 <div>
-                                    <input type="file" name="file_paths[]" multiple>
+                                    <input type="file" name="file_paths[]" multiple title="Tên file được tải lên sẽ hiển thị ở đây">
                                 </div>
                             </div>
                         </div>
@@ -57,7 +64,6 @@
         box-sizing: border-box;
     }
 
-
     .lecture-type {
         display: flex;
         width: 100%;
@@ -67,6 +73,11 @@
         background: #FFF;
     }
 
+    .heading-dashboard p:nth-child(2) {
+        color: #208CE4;
+        font-weight: 700;
+    }
+    
     .lecture {
         border-radius: 10px;
         background: #208CE4;

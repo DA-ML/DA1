@@ -1,3 +1,9 @@
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student View Test</title>
+</head>
 <link rel="stylesheet" href="{{ asset('css/global.css') }}">
 
 @php
@@ -36,7 +42,7 @@
                     @else
                         @foreach ($tests as $key => $test)
                             <!-- Danh sách bài tập -->
-                            <div class="test-list" onclick="toggleTestInfo('{{ $key }}')">
+                            <div class="test-list" onclick="toggleTestInfo('{{ $key }}')"
                                 style="font-family: Inter; display: flex; align-items: center; gap: 20px">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="30" height="24"
                                     viewBox="0 0 30 24" fill="none">

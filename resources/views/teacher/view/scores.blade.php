@@ -1,3 +1,10 @@
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Teacher Score</title>
+</head>
+
 <Div class="teacher-viewclass">
     @include('components.heading')
     <div class="body">
@@ -60,6 +67,11 @@
         flex-direction: column;
         align-items: flex-start;
         background: #FFF;
+    }
+
+    .heading-dashboard p:nth-child(2) {
+        color: #208CE4;
+        font-weight: 700;
     }
 
     .score {

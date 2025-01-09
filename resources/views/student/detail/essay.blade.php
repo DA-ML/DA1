@@ -1,3 +1,10 @@
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student View Detail</title>
+</head>
+
 <div class="student-dotest">
     <div class="body">
         <div class="left">
@@ -116,13 +123,16 @@
     .class-name {
         background: #208CE4;
         padding: 20px;
-        color: #FFF;
+        color: #FFFFFF;
         display: flex;
         flex-direction: column;
         align-items: flex-start;
         gap: 20px;
         flex: 1 0 0;
         width: 100%;
+        font-weight: 700;
+        font-size: 18px;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
     }
 
     .time {

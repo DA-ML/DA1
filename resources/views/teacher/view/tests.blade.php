@@ -196,6 +196,11 @@
         overflow: hidden;
     }
 
+    .heading-dashboard p:nth-child(2) {
+        color: #208CE4;
+        font-weight: 700;
+    }
+
     .test {
         border-radius: 10px;
         background: #208CE4;

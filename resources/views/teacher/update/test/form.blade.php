@@ -1,3 +1,10 @@
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Teacher Update Test</title>
+</head>
+
 <link rel="stylesheet" href="{{ asset('css/global.css') }}">
 <div class="test-form">
     @include('components.heading')
@@ -14,6 +21,7 @@
                                 <label for="file-input" class="custom-button">Chọn tệp</label>
                                 <input type="file" id="file-input" name="file-input" accept=".jpg, .jpeg, .png, .pdf"
                                     onchange="handleFileUpload(event)">
+                                <span id="file-desc" class="sr-only">Hãy chọn một tệp hình ảnh hoặc PDF để tải lên.</span>
                             </div>
 
                         </div>
@@ -22,10 +30,10 @@
                     </div>
                     <div class="test-setting">
                         <div style="display:flex">
-                            <button type="button" onclick="openCity('London', this)" data-tab-button class="active">
+                            <button type="button" onclick="openCity('London', this)" aria-label="Chuyển đến tab Đáp án" data-tab-button class="active">
                                 Đáp án
                             </button>
-                            <button type="button" onclick="openCity('Paris', this)" data-tab-button>
+                            <button type="button" onclick="openCity('Paris', this)" aria-label="Chuyển đến tab Thông tin" data-tab-button>
                                 Thông tin
                             </button>
                         </div>
@@ -34,13 +42,13 @@
                             <div class="number-question">
                                 <div class="number">
                                     Số câu
-                                    <input type="number" id="num-questions" name="num-questions"
+                                    <input type="number" id="num-questions" name="num-questions" title="Số câu"
                                         value="{{ $baiKiemTra->num_ques }}" readonly
                                         style="height: 40px; font-family: Inter; width: 70px; border-radius: 5px; border: 1px solid rgba(0, 60, 60, 0.2); padding: 10px;">
                                 </div>
                                 <div class="tpdg">
                                     TPDG
-                                    <select id="tpdg-dropdown" name="tpdg"
+                                    <select id="tpdg-dropdown" name="tpdg" title="Thành phần đánh giá"
                                         style="width: 70px; height: 40px; border-radius: 5px; border: 1px solid rgba(0, 60, 60, 0.2); font-family: Inter; padding: 10px">
                                         <option value="A1">A1</option>
                                         <option value="A2">A2</option>
@@ -55,12 +63,12 @@
                                         <div class="text">Câu {{ $index + 1 }}</div>
                                         <div class="row-1">
                                             Đáp án
-                                            <input type="text" name="answer-{{ $index + 1 }}"
+                                            <input type="text" name="answer-{{ $index + 1 }}" title="Đáp án"
                                                 value="{{ $question->dapan }}" style="width: 90px">
                                         </div>
                                         <div class="row-1">
                                             CDR
-                                            <select id="cdr-dropdown-{{ $index + 1 }}" name="cdr-{{ $index + 1 }}"
+                                            <select id="cdr-dropdown-{{ $index + 1 }}" name="cdr-{{ $index + 1 }}" title="Chuẩn đầu ra"
                                                 style="width: 90px; height: 40px; border-radius: 5px; border: 1px solid rgba(0, 60, 60, 0.2); font-family: Inter;">
                                                 <option value="G2.2"
                                                     {{ $question->chuan_id == 'G2.2' ? 'selected' : '' }}>G2.2</option>
@@ -70,7 +78,7 @@
                                         </div>
                                         <div class="row-1">
                                             Điểm
-                                            <input readOnly type="text" name="points-{{ $index + 1 }}"
+                                            <input readOnly type="text" name="points-{{ $index + 1 }}" title="Điểm"
                                                 style="width: 90px" value="{{ $question->diem }}">
                                         </div>
                                     </div>
@@ -140,6 +148,11 @@
         background: #FFF;
     }
 
+    .heading-dashboard p:nth-child(2) {
+        color: #208CE4;
+        font-weight: 700;
+    }
+
     .body {
         display: flex;
         align-items: flex-start;
@@ -156,42 +169,6 @@
         align-items: flex-start;
         flex: 1 0 0;
         align-self: stretch;
-    }
-
-    .class-info {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 20px;
-        align-self: stretch;
-    }
-
-    .class-name {
-        display: flex;
-        padding: 20px;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 20px;
-        align-self: stretch;
-        background: #FFF;
-        color: #000;
-        font-family: Inter;
-        font-size: 20px;
-        font-style: normal;
-        font-weight: 700;
-        line-height: normal;
-    }
-
-    .class-id {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-        color: #000;
-        font-family: Inter;
-        font-size: 20px;
-        font-style: normal;
-        font-weight: 400;
-        line-height: normal;
     }
 
     .class-test {
@@ -386,6 +363,17 @@
         background-color: #208ce4;
         color: #fff;
     }
+
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        margin: -1px;
+        padding: 0;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        border: 0;
+    }
 </style>
 <script>
     document.getElementById('num-questions').addEventListener('input', function() {
@@ -419,7 +407,6 @@
         }
     });
 
-
     // Lắng nghe sự thay đổi của TPDG và cập nhật các dropdown CDR
     document.getElementById('tpdg-dropdown').addEventListener('change', function() {
         const tpdg = this.value;
@@ -429,7 +416,6 @@
             alert('Vui lòng chọn một TPDG!');
             return;
         }
-
         // Gọi API để lấy danh sách CDR
         fetch(`/api/get-cdr?tpdg=${tpdg}`)
             .then((response) => response.json())
@@ -492,7 +478,6 @@
             loadSavedFile(savedFilePath);
         }
     };
-
 
     function handleFileUpload(event) {
         const file = event.target.files[0];

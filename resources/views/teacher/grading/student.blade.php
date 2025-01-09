@@ -1,3 +1,10 @@
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Teacher Grading</title>
+</head>
+
 <link rel="stylesheet" href="{{ asset('css/global.css') }}">
 
 <div class="grading">
@@ -73,7 +80,7 @@
                                     <td>
                                         <input class="input-grade" type="number"
                                             name="points[{{ $outcome->question_id }}]" min="0"
-                                            max="{{ $outcome->predefined_point }}" step="0.1" required>
+                                            max="{{ $outcome->predefined_point }}" step="0.1" required title="Nhập hoặc chọn điểm từng câu">
                                     </td>
                                 </tr>
                             @endforeach
@@ -81,7 +88,7 @@
                     </table>
                     <div class="grading-comment">
                         <p>Nhận xét:</p>
-                        <textarea name="comment" id="comment" rows="4" maxlength="500" class="comment-box"></textarea>
+                        <textarea name="comment" id="comment" rows="4" maxlength="500" class="comment-box" title="Nhận xét"></textarea>
                     </div>
                     <div class="grading-button">
                         <button type="submit">CHẤM ĐIỂM</button>
@@ -100,6 +107,11 @@
         flex-direction: column;
         align-items: flex-start;
         overflow: hidden;
+    }
+
+    .heading-dashboard p:nth-child(2) {
+        color: #208CE4;
+        font-weight: 700;
     }
 
     .grading-heading {

@@ -1,3 +1,10 @@
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Teacher View Lecture</title>
+</head>
+
 <link rel="stylesheet" href="{{ asset('css/global.css') }}">
 <Div class="teacher-viewclass">
     @include('components.heading')
@@ -67,7 +74,7 @@
                                             </td>
                                             <td>
                                                 <a href="{{ route('lecture.edit', ['malop' => $class->malop, 'id' => $lecture->msbg]) }}"
-                                                    class="btn btn-warning">
+                                                    class="btn btn-warning" title = "Sửa">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="24"
                                                         height="24" viewBox="0 0 24 24" fill="none">
                                                         <path
@@ -83,7 +90,7 @@
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit"
-                                                        style="background: none; border: none; padding: 0;"
+                                                        style="background: none; border: none; padding: 0;" title = "Xóa"
                                                         onclick="return confirm('Bạn có chắc chắn muốn xóa không?')">
                                                         <svg xmlns="http://www.w3.org/2000/svg" width="24"
                                                             height="24" viewBox="0 0 24 24" fill="none">
@@ -119,6 +126,11 @@
         background: #FFF;
     }
 
+    .heading-dashboard p:nth-child(2) {
+        color: #208CE4;
+        font-weight: 700;
+    }
+    
     .lecture {
         border-radius: 10px;
         background: #208CE4;

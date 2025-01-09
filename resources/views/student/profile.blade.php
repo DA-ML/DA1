@@ -1,3 +1,9 @@
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Profile</title>
+</head>
 <link rel="stylesheet" href="{{ asset('css/global.css') }}">
 
 <div class="view-profile">
@@ -179,6 +185,11 @@
         align-items: flex-start;
     }
 
+    .heading-dashboard p:nth-child(2) {
+        color: #208CE4;
+        font-weight: 700;
+    }
+    
     .body {
         display: flex;
         justify-content: center;

@@ -1,3 +1,10 @@
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Teacher Add Test</title>
+</head>
+
 <link rel="stylesheet" href="{{ asset('css/global.css') }}">
 <div class="test-form">
     @include('components.heading')
@@ -40,7 +47,7 @@
                                 </div>
                                 <div class="tpdg">
                                     TPDG
-                                    <select id="tpdg-dropdown" name="tpdg"
+                                    <select id="tpdg-dropdown" name="tpdg" title="Thành phần đánh giá"
                                         style="width: 70px; height: 40px; border-radius: 5px; border: 1px solid rgba(0, 60, 60, 0.2); font-family: Inter; padding: 10px">
                                         <option value="A1">A1</option>
                                         <option value="A2">A2</option>
@@ -111,6 +118,11 @@
         background: #FFF;
     }
 
+    .heading-dashboard p:nth-child(2) {
+        color: #208CE4;
+        font-weight: 700;
+    }
+    
     .body {
         display: flex;
         align-items: flex-start;

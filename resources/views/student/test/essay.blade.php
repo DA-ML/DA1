@@ -1,3 +1,9 @@
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Do Test</title>
+</head> 
 <div class="student-dotest">
     <div class="body">
         <div class="left">
@@ -46,7 +52,7 @@
                             <label for="file-upload" style="display: block; font-weight: bold; margin-bottom: 10px;">
                                 Chỉ hỗ trợ tệp dưới dạng PDF hoặc ảnh (jpg, jpeg, png)
                             </label>
-                            <input type="file" name="file" id="file" accept=".pdf,image/*" required>
+                            <input type="file" name="file" id="file" accept=".pdf,image/*" required title="Tên file được tải lên sẽ hiển thị ở đây">
                         </div>
                     </div>
                 </div>

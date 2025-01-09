@@ -1,3 +1,10 @@
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Teacher Update Test</title>
+</head>
+
 <link rel="stylesheet" href="{{ asset('css/global.css') }}">
 <div class="test-form">
     @include('components.heading')
@@ -12,20 +19,20 @@
                             {{-- File hiển thị ở đây --}}
                             <div class="custom-file-upload">
                                 <label for="file-input" class="custom-button">Chọn tệp</label>
-                                <input type="file" id="file-input" name="file-input" accept=".jpg, .jpeg, .png, .pdf"
-                                    onchange="handleFileUpload(event)">
+                                <input type="file" id="file-input" name="file-input" accept=".jpg, .jpeg, .png, .pdf" 
+                                onchange="handleFileUpload(event)" aria-describedby="file-desc">
+                                <span id="file-desc" class="sr-only">Hãy chọn một tệp hình ảnh hoặc PDF để tải lên.</span>
                             </div>
-
                         </div>
                         <!-- Container hiển thị file -->
                         <div id="file-preview"></div>
                     </div>
                     <div class="test-setting">
                         <div style="display:flex">
-                            <button type="button" onclick="openCity('London', this)" data-tab-button class="active">
+                            <button type="button" onclick="openCity('London', this)" aria-label="Chuyển đến tab Đáp án" data-tab-button class="active">
                                 Đáp án
                             </button>
-                            <button type="button" onclick="openCity('Paris', this)" data-tab-button>
+                            <button type="button" onclick="openCity('Paris', this)" aria-label="Chuyển đến tab Thông tin" data-tab-button>
                                 Thông tin
                             </button>
                         </div>
@@ -34,13 +41,13 @@
                             <div class="number-question">
                                 <div class="number">
                                     Số câu
-                                    <input type="number" id="num-questions" name="num-questions"
+                                    <input type="number" id="num-questions" name="num-questions" title="Số câu"
                                         value="{{ $baiKiemTra->num_ques ?? '' }}" readonly
                                         style="height: 40px; font-family: Inter; width: 70px; border-radius: 5px; border: 1px solid rgba(0, 60, 60, 0.2); padding: 10px;">
                                 </div>
                                 <div class="tpdg">
                                     TPDG
-                                    <select id="tpdg-dropdown" name="tpdg" disabled
+                                    <select id="tpdg-dropdown" name="tpdg" disabled title="Thành phần đánh giá"
                                         style="width: 70px; height: 40px; border-radius: 5px; border: 1px solid rgba(0, 60, 60, 0.2); font-family: Inter; padding: 10px">
                                         <option value="A1">A1</option>
                                         <option value="A2">A2</option>
@@ -55,7 +62,7 @@
                                         <div style="display:flex; flex-direction: column;align-items: flex-start">
                                             <div class="row-1">
                                                 {{ $question->chuan_id }}
-                                                <input type="text" name="points-{{ $index + 1 }}"
+                                                <input type="text" name="points-{{ $index + 1 }}" title="Điểm từng thành phần đánh giá"
                                                     style="width: 90px" value="{{ $question->diem }}" required>
                                             </div>
                                         </div>
@@ -357,6 +364,17 @@
     [data-tab-button].active {
         background-color: #208ce4;
         color: #fff;
+    }
+
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        margin: -1px;
+        padding: 0;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        border: 0;
     }
 </style>
 <script>
