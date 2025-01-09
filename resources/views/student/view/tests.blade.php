@@ -1,8 +1,16 @@
 <link rel="stylesheet" href="{{ asset('css/global.css') }}">
-<Div class="student-viewtest">
+
+@php
+    use Carbon\Carbon;
+    $currentTime = Carbon::now('Asia/Ho_Chi_Minh');
+@endphp
+
+<div class="student-viewclass">
     @include('components.heading')
     <div class="body">
-        @include('components.sidebar_2')
+        <div class="body-sidebar">
+            @include('components.sidebar_2')
+        </div>
         <div class="right">
             <div class="class-list">
                 <div class="class-name">
@@ -15,44 +23,126 @@
                                 fill="black" />
                         </svg>
                         Mã lớp: {{ $class->malop }}
+                        @foreach ($class->quanLyGV as $quanLyGV)
+                            <p>Giáo viên: <strong>{{ $quanLyGV->giaoVien->tengv }}</strong></p>
+                        @endforeach
                     </div>
                 </div>
             </div>
-            <!-- Danh sách bài tập -->
-            <div class="class-btn">
-                <div class="btn">
-                    <div class="testlist-btn">
-                        <input type="text" placeholder="Tìm kiếm">
-                    </div>
-                    <!-- Hiển thị bảng danh sách bài tập -->
-                    <div class="class-tests">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>STT</th>
-                                    <th>Tên bài tập</th>
-                                    <th>Hành động</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @if ($tests->isEmpty())
-                                    <!-- Kiểm tra nếu không có bài tập -->
-                                    <tr>
-                                        <td colspan="3" class="text-center">Bạn chưa có bài tập nào.</td>
-                                        <!-- Hiển thị thông báo -->
-                                    </tr>
+            <div style="width: 100%; background-color: #fff; border-radius: 5px; padding: 10px">
+                <div style="width: 100%">
+                    @if (!$tests || $tests->isEmpty())
+                        <p class="text-center" style="font-family: Inter">Bạn chưa có bài tập nào.</p>
+                    @else
+                        @foreach ($tests as $key => $test)
+                            <!-- Danh sách bài tập -->
+                            <div class="test-list" onclick="toggleTestInfo('{{ $key }}')">
+                                style="font-family: Inter; display: flex; align-items: center; gap: 20px">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="24"
+                                    viewBox="0 0 30 24" fill="none">
+                                    <path
+                                        d="M11.25 17H18.75M11.25 14H18.75M23.7495 9H18.2495C17.5494 9 17.1998 8.99998 16.9324 8.89099C16.6972 8.79512 16.5061 8.64218 16.3862 8.45401C16.25 8.2401 16.25 7.96005 16.25 7.4V3M23.75 17.8V9.65399C23.75 9.19048 23.7503 8.95872 23.6877 8.73932C23.6323 8.54475 23.541 8.35788 23.4165 8.18499C23.276 7.99002 23.0791 7.81997 22.6854 7.47986L18.6877 4.02588C18.2503 3.64789 18.0313 3.45888 17.771 3.32343C17.5403 3.20337 17.2858 3.11464 17.0189 3.06077C16.7179 3 16.3965 3 15.7526 3H10.2502C8.85011 3 8.14953 3 7.61475 3.21799C7.14434 3.40973 6.76217 3.71572 6.52248 4.09204C6.25 4.51986 6.25 5.07991 6.25 6.20001V17.8C6.25 18.9201 6.25 19.4801 6.52248 19.908C6.76217 20.2843 7.14434 20.5902 7.61475 20.782C8.14953 21 8.85011 21 10.2502 21H19.7502C21.1504 21 21.85 21 22.3847 20.782C22.8551 20.5902 23.2381 20.2843 23.4778 19.908C23.7503 19.4801 23.75 18.9201 23.75 17.8Z"
+                                        stroke="black" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" />
+                                </svg>
+                                <div>
+                                    <p><strong>Tên bài tập:</strong> {{ $test->tenbkt }}</p>
+                                </div>
+                            </div>
+
+                            <!-- Chi tiết bài tập -->
+                            <div id="test-info-{{ $key }}" class="test-info hidden">
+                                <div class="detail">
+                                    <div class="detail-id">
+                                        <p style="font-weight:400">Thời gian (phút):
+                                            {{ $test->thoigianlambai ?? 'Không' }}</p>
+                                    </div>
+                                </div>
+                                <div class="detail">
+                                    <div class="detail-id">
+                                        <p style="font-weight:400">Ngày bắt đầu:
+                                            {{ $test->ngaybatdau ?? 'Không có thông tin' }}</p>
+                                    </div>
+                                </div>
+                                <div class="detail">
+                                    <div class="detail-id">
+                                        <p style="font-weight:400">Ngày kết thúc:
+                                            {{ $test->ngayketthuc ?? 'Không có thông tin' }}</p>
+                                    </div>
+                                </div>
+                                @if ($test->loai_bkt === 'TracNghiem')
+                                    <div class="detail">
+                                        <div class="detail-id">
+                                            <p style="font-weight:400">
+                                                Số lần làm bài:
+                                                {{ $test->numAttempts }}/{{ $test->solanlam ?? 'Không' }}
+                                            </p>
+                                        </div>
+                                    </div>
                                 @endif
-                            </tbody>
-                        </table>
-                    </div>
+
+                                <div class="detail">
+                                    <div class="detail-id">
+                                        <p style="font-weight:400">Loại bài:
+                                            {{ $test->loai_bkt ?? 'Không có thông tin' }}</p>
+                                    </div>
+                                </div>
+                                <div class="detail">
+                                    <div class="detail-id">
+                                        <p style="font-weight:400">Thành phần đánh giá:
+                                            {{ $test->danhgia_id ?? 'Không có thông tin' }}</p>
+                                    </div>
+                                </div>
+                                <div class="detail">
+                                    <div class="detail-id">
+                                        @if ($test->numAttempts > 0 && $test->loai_bkt === 'TracNghiem')
+                                            <a style="font-family: Inter; text-decoration:none; color: #208CE4"
+                                                href="{{ route('student.detail.test', ['malop' => $malop, 'msbkt' => $test->msbkt]) }}"
+                                                class="btn btn-primary">Xem chi tiết</a>
+                                        @elseif ($test->loai_bkt === 'TuLuan')
+                                            <a style="font-family: Inter; text-decoration:none; color: #208CE4"
+                                                href="{{ route('student.detail.essay', ['malop' => $malop, 'msbkt' => $test->msbkt]) }}"
+                                                class="btn btn-primary">Xem chi tiết</a>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div style="width: 200px; height: 40px; margin-left: 10px; margin-top: 10px">
+                                    @if ($test->ngayketthuc > $currentTime && $test->ngaybatdau < $currentTime)
+                                        <button class="primary"
+                                            onclick="window.location.href='{{ route('student.test.redirect', ['malop' => $test->malop, 'msbkt' => $test->msbkt]) }}'">
+                                            Làm bài
+                                        </button>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    @endif
                 </div>
             </div>
         </div>
     </div>
-</Div>
+</div>
 
 <style>
-    .student-viewtest {
+    .heading-dashboard p:nth-child(2) {
+        color: #208CE4;
+        font-weight: 700;
+    }
+
+    .test {
+        border-radius: 10px;
+        background: #208CE4;
+    }
+
+    .test a {
+        color: #FFF;
+    }
+
+    .test svg path {
+        fill: #fff;
+    }
+
+    .student-viewclass {
         display: flex;
         width: 100%;
         height: 100%;
@@ -61,32 +151,36 @@
         background: #FFF;
     }
 
-    .test {
-        border-radius: 10px;
-        background: #208CE4;
-        cursor: pointer;
-    }
-
-    .test a {
-        color: #FFF;
-        font-family: Inter;
-        font-weight: 700;
-    }
-
-    .test svg path {
-        fill: #FFF;
-        stroke: #FFF;
-    }
-
     .body {
         display: flex;
         align-items: flex-start;
         flex: 1 0 0;
         align-self: stretch;
         background: #F0F2F5;
+        flex-direction: row;
+        width: 100%;
+        max-width: 100vw;
+        overflow: hidden;
+    }
+
+    .class-id {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        color: #000;
+        font-family: Inter;
+        font-size: 20px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: normal;
+    }
+
+    .body-sidebar {
+        flex-basis: 200px;
     }
 
     .right {
+        flex-grow: 1;
         display: flex;
         padding: 20px;
         flex-direction: column;
@@ -94,14 +188,18 @@
         gap: 20px;
         flex: 1 0 0;
         align-self: stretch;
+        overflow: hidden;
     }
 
     .class-list {
         display: flex;
         width: 100%;
-        flex-direction: column;
+        max-width: 100%;
+        flex-direction: row;
         align-items: flex-start;
         gap: 20px;
+        flex: 0 0 auto;
+        min-height: 50px;
     }
 
     .class-name {
@@ -119,12 +217,26 @@
         font-style: normal;
         font-weight: 700;
         line-height: normal;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .class-id {
         display: flex;
         align-items: center;
         gap: 20px;
+    }
+
+    .class-id h1 {
+        color: #000;
+        font-family: Inter;
+        font-size: 20px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: normal;
+    }
+
+    .class-id p {
         color: #000;
         font-family: Inter;
         font-size: 20px;
@@ -133,18 +245,11 @@
         line-height: normal;
     }
 
-    .class-btn {
-        display: flex;
-        width: 100%;
-        align-items: flex-start;
-        gap: 20px;
-        flex: 1 0 0;
-    }
-
-    .btn {
+    .class-list-2 {
+        flex-grow: 1;
         display: flex;
         padding: 20px;
-        flex-direction: column;
+        flex-direction: row;
         align-items: flex-start;
         gap: 20px;
         flex: 1 0 0;
@@ -153,46 +258,179 @@
         background: #FFF;
     }
 
-    .testlist-btn {
+    .class-name-2 {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
+        width: 800px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+        flex-shrink: 0;
         align-self: stretch;
-        height: 40px;
+        background: #FFF;
+        flex-grow: 2;
+    }
+
+    .search {
+        display: flex;
+        /* Sử dụng flexbox để căn chỉnh theo chiều ngang */
+        align-items: center;
+        /* Căn giữa các phần tử theo chiều dọc */
+        gap: 20px;
+        /* Khoảng cách giữa các phần tử */
+        width: 100%;
+        /* Chiếm toàn bộ chiều rộng của container */
+        border: none;
+    }
+
+    .class-btn {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 10px;
+        width: 100%;
+        box-sizing: border-box;
+        border: none;
+    }
+
+    .search-bar {
+        flex: 1;
+    }
+
+    .filter-search {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .test-list {
+        cursor: pointer;
+        padding: 10px;
+        border: 1px solid #208CE4;
+        margin-bottom: 5px;
+        border-radius: 5px;
+    }
+
+    .test-list:hover {
+        background-color: #eaeaea;
+    }
+
+    .test-info {
+        padding: 10px;
+        border-left: 4px solid #007bff;
+        margin-bottom: 10px;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+
+    .test-list:hover {
+        background-color: #f0f8ff;
+    }
+
+    .test-list-id {
+        display: flex;
+        align-items: center;
         gap: 20px;
     }
 
-    .class-tests {
-        width: 100%;
+    .test-list-id p {
+        color: #208CE4;
+        font-family: Inter;
+        font-size: 20px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: normal;
+    }
+
+    .class-name-3 {
         display: flex;
-        padding: 0px 30px;
-        justify-content: center;
+        padding: 10px;
+        flex-direction: column;
         align-items: flex-start;
-        gap: 10px;
-        flex: 1 0 0;
+        gap: 0px;
         align-self: stretch;
+        background: #FFF;
+        flex: 1 1 auto;
+    }
+
+    .test-name {
+        display: flex;
+        padding: 10px;
+        align-items: flex-start;
+        gap: 20px;
+        align-self: stretch;
+        border-radius: 10px;
+        border: 1px solid #208CE4;
         background: #FFF;
     }
 
-    /* Table */
-    .class-tests table {
+    .test-name p {
+        color: #208CE4;
+        font-family: Inter;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: normal;
+    }
+
+    .detail {
+        display: flex;
+        padding: 10px;
+        align-items: flex-start;
+        gap: 5px;
+        align-self: stretch;
+        cursor: default;
+    }
+
+    .detail-id {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .detail p {
+        color: #000;
+        font-family: Inter;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: normal;
+    }
+
+    .do-btn {
         width: 100%;
-        border-collapse: collapse;
-        font-family: 'Inter', sans-serif;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
 
-    .class-tests th {
-        font-size: 16px;
-        font-weight: bold;
-        padding: 8px;
-        text-align: left;
-        background-color: #dedede;
+    .hidden {
+        display: none;
     }
 
-    .class-tests td {
-        font-size: 16px;
-        font-weight: normal;
-        padding: 8px;
-        text-align: left;
+    .test-info {
+        margin-top: 10px;
     }
 </style>
+
+<script>
+    function toggleTestInfo(id) {
+        const infoDiv = document.getElementById(`test-info-${id}`);
+
+        // Kiểm tra trạng thái hiển thị
+        if (infoDiv.classList.contains('hidden')) {
+            // Ẩn tất cả các test-info khác trước khi hiển thị
+            document.querySelectorAll('.test-info').forEach((div) => {
+                div.classList.add('hidden');
+            });
+
+            // Hiển thị div hiện tại
+            infoDiv.classList.remove('hidden');
+        } else {
+            // Ẩn nếu đang mở
+            infoDiv.classList.add('hidden');
+        }
+    }
+</script>

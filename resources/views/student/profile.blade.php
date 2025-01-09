@@ -83,11 +83,8 @@
                                     <div class="cell-content">******</div>
                                 </div>
                                 <div class="cell-2">
-                                    <div class="cell-content-2">
-                                        <a href="{{ route('student.changepw') }}" style="text-decoration: none;">
-                                            <p>Chỉnh sửa</p>
-                                        </a>
-                                    </div>
+                                    <a style="text-decoration: none" href="{{ route('student.password') }}"
+                                        class="cell-content-2">Chỉnh sửa</a>
                                 </div>
                             </div>
                         </div>

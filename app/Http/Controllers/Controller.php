@@ -36,6 +36,7 @@ class Controller
                 'email' => $sinhvien->emailsv,
                 'date' => $sinhvien->ngaysinh,
                 'system' => $sinhvien->hedaotao,
+                'password_sv' => $sinhvien->password_sv,
             ]);
             return redirect()->route('student.dashboard');
         }
@@ -49,7 +50,9 @@ class Controller
                 'name' => $giaovien->tengv,
                 'id' => $giaovien->msgv,
                 'email' => $giaovien->emailgv,
+                'date' => $giaovien->ngaysinh,
                 'major' => $giaovien->khoa,
+                'password_gv' => $giaovien->password_gv,
             ]);
             return redirect()->route('teacher.dashboard');
         }

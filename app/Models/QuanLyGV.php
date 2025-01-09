@@ -15,4 +15,9 @@ class QuanLyGV extends Model
         'msgv',
         'malop',
     ];
+
+    public function giaoVien()
+    {
+        return $this->belongsTo(GiaoVien::class, 'msgv', 'msgv'); // Liên kết với bảng giáo viên
+    }
 }

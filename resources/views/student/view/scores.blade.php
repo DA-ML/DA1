@@ -1,7 +1,7 @@
 <Div class="teacher-viewclass">
     @include('components.heading')
     <div class="body">
-        @include('components.sidebar')
+        @include('components.sidebar_2')
         <div class="right">
             <div class="class-list">
                 <div class="class-name">
@@ -23,29 +23,25 @@
             <div class="class-statics">
                 <div class="statics-body">
                     Bảng điểm
+                    <p style="font-weight: 400">Điểm trung bình:
+                        <strong>{{ $averageScore !== null ? number_format($averageScore, 2) : '-' }}</strong>
+                    </p>
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>Tên sinh viên</th>
-                                <th>Mã số sinh viên</th>
-                                @foreach ($baiKiemTras as $baiKiemTra)
-                                    <th>{{ $baiKiemTra->tenbkt }}</th>
-                                @endforeach
+                                <th>Tên bài kiểm tra</th>
+                                <th>Điểm</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($studentsWithResults as $studentData)
+                            @foreach ($scores as $score)
                                 <tr>
-                                    <td>{{ $studentData['sinh_vien']->tensv }}</td>
-                                    <td>{{ $studentData['sinh_vien']->mssv }}</td>
-                                    @foreach ($studentData['ket_qua'] as $ketQua)
-                                        <td>{{ $ketQua['diem'] }}</td>
-                                    @endforeach
+                                    <td>{{ $score['tenbkt'] }}</td>
+                                    <td>{{ $score['diem'] }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
                     </table>
-
                 </div>
             </div>
         </div>

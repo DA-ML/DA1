@@ -1,7 +1,7 @@
 <Div class="teacher-viewclass">
     @include('components.heading')
     <div class="body">
-        @include('components.sidebar')
+        @include('components.sidebar_2')
         <div class="right">
             <div class="class-statics">
                 <div class="lecture-file">

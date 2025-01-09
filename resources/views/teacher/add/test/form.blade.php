@@ -12,8 +12,8 @@
                             {{-- File hiển thị ở đây --}}
                             <div class="custom-file-upload">
                                 <label for="file-input" class="custom-button">Chọn tệp</label>
-                                <input type="file" id="file-input" name="file-input"
-                                    accept=".jpg, .jpeg, .png, .pdf, .docx, .doc" onchange="handleFileUpload(event)">
+                                <input type="file" id="file-input" name="file-input" accept=".jpg, .jpeg, .png, .pdf"
+                                    onchange="handleFileUpload(event)">
                             </div>
 
                         </div>
@@ -81,6 +81,12 @@
                                 <h1 style="font-family: Inter; font-size: 16px; font-weight: 400">Thời gian làm bài
                                     (phút)</h1>
                                 <input type="number" min="1" id="time-doing" name="time-doing"
+                                    style="font-family: Inter; width: 300px; height: 40px; border-radius: 5px; border: 1px solid rgba(44, 148, 231, 0.50); padding: 10px">
+                            </div>
+                            <div
+                                style="width: 100%; padding: 10px; margin-top:10px; display: flex; justify-content: space-between; align-items: center">
+                                <h1 style="font-family: Inter; font-size: 16px; font-weight: 400">Số lần làm bài</h1>
+                                <input type="number" min="1" id="times-allow" name="times-allow"
                                     style="font-family: Inter; width: 300px; height: 40px; border-radius: 5px; border: 1px solid rgba(44, 148, 231, 0.50); padding: 10px">
                             </div>
                             <div
@@ -204,7 +210,7 @@
         justify-content: space-between;
         align-items: center;
         align-self: stretch;
-        background: #004b9a;
+        background: #208ce4;
         height: 60px;
         width: 100%;
     }
@@ -348,7 +354,7 @@
     }
 
     [data-tab-button].active {
-        background-color: #004b9a;
+        background-color: #208ce4;
         color: #fff;
     }
 </style>
@@ -383,7 +389,7 @@
             </div>
             <div class="row-1">
                 Điểm
-                <input type="text" name="points-${i + 1}" style="width: 90px" value="${pointsPerQuestion}">
+                <input readOnly type="text" name="points-${i + 1}" style="width: 90px" value="${pointsPerQuestion}">
             </div>
         `;
             questionContainer.appendChild(questionInfo);
@@ -470,7 +476,6 @@
             });
     }
 
-    // Hàm xử lý khi người dùng chọn file
     function handleFileUpload(event) {
         const file = event.target.files[0];
         const previewContainer = document.getElementById('file-preview');
@@ -479,7 +484,7 @@
             // Clear nội dung trước đó
             previewContainer.innerHTML = '';
 
-            // Kiểm tra loại file và hiển thị phù hợp
+            // Kiểm tra loại file và chỉ cho phép hình ảnh hoặc PDF
             const fileType = file.type;
 
             if (fileType.includes('image')) {
@@ -491,34 +496,19 @@
                 img.style.marginBottom = '10px';
                 previewContainer.appendChild(img);
             } else if (fileType === 'application/pdf') {
+                // Nếu là file PDF, hiển thị trong iframe
                 const iframe = document.createElement('iframe');
                 iframe.src = URL.createObjectURL(file);
                 iframe.style.width = '700px';
-                iframe.style.height = '700px'; // Tăng chiều cao để PDF rõ hơn
+                iframe.style.height = '700px';
                 iframe.style.border = 'none';
                 iframe.style.marginTop = '20px';
                 previewContainer.appendChild(iframe);
-
-            } else if (
-                fileType === 'application/msword' ||
-                fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-            ) {
-                const fileName = document.createElement('p');
-                fileName.textContent = `Đã chọn file Word: ${file.name}`;
-                fileName.style.color = '#333';
-                fileName.style.fontSize = '16px';
-                previewContainer.appendChild(fileName);
-
-
             } else {
-                // Nếu không phải hình ảnh, PDF, hay Word, hiển thị thông báo lỗi
-                const message = document.createElement('p');
-                message.textContent = 'Vui lòng chọn file hình ảnh, PDF hoặc Word.';
-                message.style.color = 'red';
-                previewContainer.appendChild(message);
+                // Nếu không phải hình ảnh hay PDF, hiển thị thông báo lỗi
+                alert('Vui lòng chọn file hình ảnh hoặc PDF!');
             }
         }
-
     }
 
     function openCity(cityName, button) {
@@ -537,4 +527,37 @@
         // Thêm class active vào nút hiện tại
         button.classList.add('active');
     }
+
+    const startDateInput = document.getElementById("date-start");
+    const endDateInput = document.getElementById("date-end");
+
+    function validateStartDate() {
+        const now = new Date();
+        const startDate = new Date(startDateInput.value);
+
+        if (startDate <= now) {
+            alert("Ngày bắt đầu phải lớn hơn thời gian hiện tại.");
+            startDateInput.value = ""; // Reset giá trị không hợp lệ
+        }
+    }
+
+    function validateEndDate() {
+        const startDate = new Date(startDateInput.value);
+        const endDate = new Date(endDateInput.value);
+
+        if (!startDateInput.value) {
+            alert("Vui lòng chọn ngày bắt đầu trước.");
+            endDateInput.value = ""; // Reset giá trị không hợp lệ
+            return;
+        }
+
+        if (endDate <= startDate) {
+            alert("Ngày kết thúc phải lớn hơn ngày bắt đầu.");
+            endDateInput.value = ""; // Reset giá trị không hợp lệ
+        }
+    }
+
+    startDateInput.addEventListener("change", validateStartDate);
+    endDateInput.addEventListener("change", validateEndDate);
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>

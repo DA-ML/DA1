@@ -4,19 +4,74 @@
         <div class="right">
             <div class="class_list">
                 <p>Lớp học:</p>
-                <div class="container"></div>
+                <div class="container">
+                    <p><strong>Học kỳ: {{ $currentSemester }}, năm học: {{ $currentYear }}</strong></p>
+                    @if ($classes->isEmpty())
+                        <p>Bạn không có lớp học nào trong học kỳ này.</p>
+                    @else
+                        <ul>
+                            @foreach ($classes as $class)
+                                <li>
+                                    <p><strong>Tên lớp:</strong> {{ $class->tenlop }} - <strong>Mã lớp:
+                                        </strong>{{ $class->malop }}</p>
+                                    <p><strong>Khoa:</strong> {{ $class->tenkhoa }} </p>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @endif
+                </div>
             </div>
             <div class="class_list">
                 <p>Bài giảng:</p>
-                <div class="container"></div>
+                <div class="container">
+                    @php
+                        $hasLecture = false;
+                    @endphp
+
+                    @foreach ($lectures as $item)
+                        @if ($item->tenbg)
+                            @php
+                                $hasLecture = true;
+                            @endphp
+                            <ul>
+                                <li>
+                                    <strong>Bài giảng:</strong> {{ $item->tenbg }}
+                                </li>
+                            </ul>
+                        @endif
+                    @endforeach
+
+                    @if (!$hasLecture)
+                        <p>Bạn chưa có bài giảng nào.</p>
+                    @endif
+                </div>
             </div>
             <div class="class_list">
                 <p>Bài tập:</p>
-                <div class="container"></div>
-            </div>
-            <div class="class_list">
-                <p>Thống kê:</p>
-                <div class="container"></div>
+                <div class="container">
+                    @php
+                        $hasExam = false;
+                    @endphp
+
+                    @foreach ($exams as $item)
+                        @if ($item->tenbkt)
+                            @php
+                                $hasExam = true;
+                            @endphp
+                            <div>
+                                <p><strong>Bài kiểm tra: </strong> {{ $item->tenbkt }}</p>
+                                <p><strong>Loại: </strong> {{ $item->loai_bkt }}</p>
+                                <p><strong>Số câu hỏi: </strong> {{ $item->num_ques }}</p>
+                                <p><strong>Bắt đầu: </strong> {{ $item->ngaybatdau }}</p>
+                                <p><strong>Kết thúc: </strong> {{ $item->ngayketthuc }}</p>
+                            </div>
+                        @endif
+                    @endforeach
+
+                    @if (!$hasExam)
+                        <p>Bạn chưa có bài tập nào</p>
+                    @endif
+                </div>
             </div>
         </div>
     </div>
@@ -44,6 +99,7 @@
         flex: 1 0 0;
         align-self: stretch;
         background: #F0F2F5;
+        overflow: hidden;
     }
 
     .right {
@@ -54,6 +110,7 @@
         gap: 20px;
         flex: 1 0 0;
         align-self: stretch;
+        overflow-y: auto;
     }
 
     .class_list {
@@ -75,12 +132,54 @@
 
     .container {
         display: flex;
-        height: 54px;
-        padding: 10px;
-        align-items: flex-start;
+        height: auto;
         gap: 10px;
-        align-self: stretch;
         border-radius: 10px;
         background: #FFF;
+        padding: 20px;
+        flex-direction: column;
+        align-items: flex-start;
+        flex: 1 0 0;
+        align-self: stretch;
+    }
+
+    .container p {
+        font-family: "Inter";
+        font-weight: 400;
+        font-size: 16px;
+    }
+
+    .container {
+        display: flex;
+        height: auto;
+        gap: 10px;
+        border-radius: 10px;
+        background: #FFF;
+        padding: 20px;
+        flex-direction: column;
+        align-items: flex-start;
+        flex: 1 0 0;
+        align-self: stretch;
+    }
+
+    .container p {
+        font-family: "Inter";
+        font-weight: 400;
+        font-size: 16px;
+        margin-bottom: 10px;
+    }
+
+    .container ul {
+        font-family: "Inter";
+        list-style: none;
+    }
+
+    .container ul li {
+        font-size: 16px;
+    }
+
+    .container ul li p {
+        font-size: 16px;
+        margin-bottom: 10px;
     }
 </style>

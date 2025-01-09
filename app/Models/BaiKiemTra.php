@@ -20,32 +20,38 @@ class BaiKiemTra extends Model
         'loai_bkt',
         'num_ques',
         'thoigianlambai',
+        'solanlam',
         'file_path',
-        'diem',
-        'loinhanxet',
         'malop',
     ];
 
-    // Quan hệ với bảng ThanhPhanDanhGia qua danhgia_id
+    // Quan hệ với bảng ThanhPhanDanhGia
     public function thanhPhanDanhGia()
     {
         return $this->belongsTo(ThanhPhanDanhGia::class, 'danhgia_id', 'id');
     }
 
-    // Quan hệ với bảng LopHoc qua malop
+    // Quan hệ với bảng LopHoc
     public function lopHoc()
     {
         return $this->belongsTo(LopHoc::class, 'malop', 'malop');
     }
 
+    // Quan hệ với bảng CauHoi
     public function cauHoi()
     {
         return $this->hasMany(CauHoi::class, 'msbkt', 'msbkt');
     }
 
-    // Quan hệ 1 - Nhiều: Một bài kiểm tra có nhiều câu trả lời
+    // Quan hệ với bảng CauTraLoi
     public function cauTraLoi()
     {
         return $this->hasMany(CauTraLoi::class, 'msbkt', 'msbkt');
+    }
+
+    // Quan hệ với bảng KetQuaBaiKiemTra
+    public function ketQuaBaiKiemTra()
+    {
+        return $this->hasMany(KetQuaBaiKiemTra::class, 'msbkt', 'msbkt');
     }
 }

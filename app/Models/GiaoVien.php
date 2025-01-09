@@ -8,8 +8,8 @@ class GiaoVien extends Model
 {
     protected $table = 'GiaoVien';
     protected $primaryKey = 'msgv';
-    protected $keyType = 'string'; // Đảm bảo rằng kiểu của khóa chính là chuỗi (string)
-    public $incrementing = false; // Tắt tính năng tự tăng của khóa chính
-    protected $fillable = ['msgv', 'password_gv', 'tengv', 'emailgv', 'khoa'];
+    protected $keyType = 'string';
+    public $incrementing = false;
+    protected $fillable = ['msgv', 'password_gv', 'tengv', 'ngaysinh', 'emailgv', 'khoa'];
     public $timestamps = false;
 }

@@ -1,3 +1,8 @@
+@php
+    use Carbon\Carbon;
+    $currentTime = Carbon::now('Asia/Ho_Chi_Minh');
+@endphp
+
 <Div class="teacher-viewclass">
     @include('components.heading')
     <div class="body">
@@ -22,30 +27,40 @@
             </div>
             <div class="class-statics">
                 <div class="statics-body">
-                    Bảng điểm
-                    <table class="table table-striped">
+                    Danh sách làm bài
+                    <table>
                         <thead>
                             <tr>
                                 <th>Tên sinh viên</th>
-                                <th>Mã số sinh viên</th>
-                                @foreach ($baiKiemTras as $baiKiemTra)
-                                    <th>{{ $baiKiemTra->tenbkt }}</th>
-                                @endforeach
+                                <th>MSSV</th>
+                                <th>Tình trạng làm</th>
+                                <th>Điểm</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($studentsWithResults as $studentData)
+                            @foreach ($students as $student)
                                 <tr>
-                                    <td>{{ $studentData['sinh_vien']->tensv }}</td>
-                                    <td>{{ $studentData['sinh_vien']->mssv }}</td>
-                                    @foreach ($studentData['ket_qua'] as $ketQua)
-                                        <td>{{ $ketQua['diem'] }}</td>
-                                    @endforeach
+                                    <td>{{ $student['name'] }}</td>
+                                    <td>{{ $student['id'] }}</td>
+                                    <td>{{ $student['status'] }}</td>
+                                    <td>{{ $student['score'] }}</td>
+                                    <td>
+                                        @if ($test->ngayketthuc < $currentTime)
+                                            <a href="{{ route('grading.student', [
+                                                'malop' => $class->malop,
+                                                'msbkt' => $test->msbkt,
+                                                'mssv' => $student['id'],
+                                            ]) }}"
+                                                style="text-decoration:none; color: #208CE4; font-weight:700">
+                                                Chấm điểm
+                                            </a>
+                                        @endif
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>
                     </table>
-
                 </div>
             </div>
         </div>
@@ -62,19 +77,19 @@
         background: #FFF;
     }
 
-    .score {
+    .test {
         border-radius: 10px;
         background: #208CE4;
         cursor: pointer;
     }
 
-    .score a {
+    .test a {
         color: #FFF;
         font-family: Inter;
         font-weight: 700;
     }
 
-    .score svg path {
+    .test svg path {
         fill: #FFF;
         stroke: #FFF;
     }

@@ -3,52 +3,92 @@
     @include('components.heading')
     <div class="body">
         <div class="right">
-            <div class="class-test">
-                <div class="test-btn">
-                    <div class="test-img">
-                        {{-- File hiển thị ở đây --}}
-                        <div class="custom-file-upload">
-                            <label for="file-input" class="custom-button">Chọn tệp</label>
-                            <input type="file" id="file-input" accept=".jpg, .jpeg, .png, .pdf, .docx, .doc"
-                                onchange="handleFileUpload(event)">
+            <form method="POST" action="{{ route('test.store.essay', ['malop' => $malop]) }}" style="height: 100%"
+                enctype="multipart/form-data">
+                @csrf
+                <div class="class-test">
+                    <div class="test-btn">
+                        <div class="test-img">
+                            {{-- File hiển thị ở đây --}}
+                            <div class="custom-file-upload">
+                                <label for="file-input" class="custom-button">Chọn tệp</label>
+                                <input type="file" id="file-input" name="file-input"
+                                    accept=".jpg, .jpeg, .png, .pdf, .docx, .doc" onchange="handleFileUpload(event)">
+                            </div>
+
+                        </div>
+                        <!-- Container hiển thị file -->
+                        <div id="file-preview"></div>
+                    </div>
+                    <div class="test-setting">
+                        <div style="display:flex">
+                            <button type="button" onclick="openCity('London', this)" data-tab-button class="active">
+                                Đáp án
+                            </button>
+                            <button type="button" onclick="openCity('Paris', this)" data-tab-button>
+                                Thông tin
+                            </button>
+                            <input type="hidden" id="num-questions" name="num-questions" value="0">
+                            <input type="hidden" id="cdr-name" name="cdr-name" value="0">
                         </div>
 
-                    </div>
-                    <!-- Container hiển thị file -->
-                    <div id="file-preview"></div>
-                </div>
-                <div class="test-setting">
-                    @include('components.test_progress')
-                    <div class="number-question">
-                        <div class="number">
-                            <div class="tpdg">
-                                TPDG
-                                <select id="tpdg-dropdown" name="tpdg"
-                                    style="width: 70px; height: 40px; border-radius: 5px; border: 1px solid rgba(0, 60, 60, 0.2); font-family: Inter; padding: 10px">
-                                    <option value="A1">A1</option>
-                                    <option value="A2">A2</option>
-                                    <option value="A3">A3</option>
-                                    <option value="A4">A4</option>
-                                </select>
+                        <div id="London" data-city="true" style="width: 100%">
+                            <div class="number-question">
+                                <div class="tpdg">
+                                    TPDG
+                                    <select id="tpdg-dropdown" name="tpdg"
+                                        style="width: 70px; height: 40px; border-radius: 5px; border: 1px solid rgba(0, 60, 60, 0.2); font-family: Inter; padding: 10px">
+                                        <option value="A1">A1</option>
+                                        <option value="A2">A2</option>
+                                        <option value="A3">A3</option>
+                                        <option value="A4">A4</option>
+                                    </select>
+                                </div>
                             </div>
-                            <button class="tertiary" id="next-button">
-                                Tiếp theo
-                            </button>
-                        </div>
-                    </div>
-                    <div>
-                        <div style="margin-top:20px; margin-left: 20px;">
-                            <h1 style="font-family: Inter; font-size: 16px; font-weight: 400;">Lưu ý: Tổng điểm của
-                                các thành phần
-                                đánh giá phải là 10</h1>
-                            <div id="cdr-inputs-container"
-                                style="display: none; margin-top: 20px; width: 100%; justify-content: space-between; align-self: stretch;">
-                                <!-- Các input phần trăm sẽ được thêm vào đây -->
+                            <div>
+                                <div style="margin-top:20px; margin-left: 20px;">
+                                    <h1 style="font-family: Inter; font-size: 16px; font-weight: 400;">Lưu ý: Tổng điểm
+                                        của
+                                        các thành phần
+                                        đánh giá phải là 10</h1>
+                                    <div id="cdr-inputs-container"
+                                        style="display: none; margin-top: 20px; width: 100%; justify-content: space-between; align-self: stretch;">
+                                        <!-- Các input phần trăm sẽ được thêm vào đây -->
+                                    </div>
+                                </div>
                             </div>
                         </div>
+
+                        <div id="Paris" data-city="true" style="display:none; width: 100%">
+                            <div class="number-question">
+                                <h2 style="color: white">Thông tin bài tập</h2>
+                            </div>
+                            <div
+                                style="width: 100%; padding: 10px; margin-top:10px; display: flex; justify-content: space-between; align-items: center">
+                                <h1 style="font-family: Inter; font-size: 16px; font-weight: 400">Tên bài tập</h1>
+                                <input type="text" name="tenbkt" id="tenbkt" required value="{{ old('tenbkt') }}"
+                                    style="font-family: Inter; width: 300px; height: 40px; border-radius: 5px; border: 1px solid rgba(44, 148, 231, 0.50); padding: 10px">
+                            </div>
+                            <div
+                                style="width: 100%; padding: 10px; margin-top:10px; display: flex; justify-content: space-between; align-items: center">
+                                <h1 style="font-family: Inter; font-size: 16px; font-weight: 400">Ngày bắt đầu</h1>
+                                <input type="datetime-local" id="date-start" name="date-start"
+                                    style="font-family: Inter; width: 300px; height: 40px; border-radius: 5px; border: 1px solid rgba(44, 148, 231, 0.50); padding: 10px">
+                            </div>
+                            <div
+                                style="width: 100%; padding: 10px; margin-top:10px; display: flex; justify-content: space-between; align-items: center">
+                                <h1 style="font-family: Inter; font-size: 16px; font-weight: 400">Ngày kết thúc</h1>
+                                <input type="datetime-local" id="date-end" name="date-end"
+                                    style="font-family: Inter; width: 300px; height: 40px; border-radius: 5px; border: 1px solid rgba(44, 148, 231, 0.50); padding: 10px">
+                            </div>
+                            <div
+                                style="width: 100%; padding: 10px; margin-top:10px; display: flex; justify-content: space-between; align-items: center">
+                                <button id="next-button" type="submit">Hoàn tất</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 </div>
@@ -162,8 +202,9 @@
         justify-content: space-between;
         align-items: center;
         align-self: stretch;
-        background: #004b9a;
+        background: #208ce4;
         width: 100%;
+        height: 60px;
     }
 
     .number-question a {
@@ -325,15 +366,37 @@
         width: 100%;
         justify-content: space-between;
     }
+
+    [data-tab-button] {
+        background-color: #fafafa;
+        color: #000;
+        border-radius: 0;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+    }
+
+    [data-tab-button].active {
+        background-color: #208ce4;
+        color: #fff;
+    }
 </style>
 <script>
-    // Hàm để gọi API và hiển thị input CDR
     function updateCdrInputs(tpdg) {
         const cdrInputsContainer = document.getElementById('cdr-inputs-container');
+        const numQuestionsInput = document.getElementById('num-questions');
+        const cdrNameInput = document.getElementById('cdr-name'); // Lấy input hidden
         cdrInputsContainer.innerHTML = ''; // Xóa các input cũ trước khi thêm mới
 
         if (!tpdg) {
             alert('Vui lòng chọn một TPDG!');
+            return;
+        }
+        // Kiểm tra giá trị của cdrNameInput
+        const cdrNameValue = cdrNameInput ? cdrNameInput.value : ''; // Lấy giá trị từ input hidden nếu có
+
+        if (!cdrNameValue) {
+            alert('Không tìm thấy giá trị cdrName!');
             return;
         }
 
@@ -342,9 +405,14 @@
             .then((response) => response.json())
             .then((data) => {
                 console.log('Dữ liệu CDR nhận được từ API:', data);
+
                 if (data.cdrs && data.cdrs.length > 0) {
+                    numQuestionsInput.value = data.cdrs.length;
+
                     // Hiển thị input cho từng CDR
-                    data.cdrs.forEach((cdr) => {
+                    for (let i = 0; i < data.cdrs.length; i++) {
+                        const cdr = data.cdrs[i];
+
                         const div = document.createElement('div');
                         div.style.marginBottom = '10px';
                         div.classList.add('cdr-div');
@@ -354,9 +422,16 @@
                         label.classList.add('cdr-label');
                         div.appendChild(label);
 
+                        // Tạo input ẩn mới cho từng CDR và gán giá trị
+                        const hiddenInput = document.createElement('input');
+                        hiddenInput.type = 'hidden';
+                        hiddenInput.name = `cdr-${i + 1}`; // Tạo name cho mỗi CDR
+                        hiddenInput.value = cdr.chuan; // Gán giá trị vào input ẩn
+                        div.appendChild(hiddenInput);
+
                         const input = document.createElement('input');
                         input.type = 'number';
-                        input.name = `cdr_${cdr.id}`;
+                        input.name = `points-${i + 1}`;
                         input.placeholder = 'Điểm';
                         input.style.marginLeft = '10px';
                         input.style.padding = '5px';
@@ -367,18 +442,21 @@
 
                         div.appendChild(input);
                         cdrInputsContainer.appendChild(div);
-                    });
+                    }
 
                     // Hiển thị phần input
                     cdrInputsContainer.style.display = 'block';
+
                 } else {
                     alert('Không tìm thấy chuẩn đầu ra.');
+                    numQuestionsInput.value = 0;
                 }
             })
             .catch((error) => {
                 console.error('Lỗi khi gọi API:', error);
             });
     }
+
 
     // Lắng nghe sự thay đổi của TPDG và cập nhật các dropdown CDR
     document.getElementById('tpdg-dropdown').addEventListener('change', function() {
@@ -455,6 +533,54 @@
                 previewContainer.appendChild(message);
             }
         }
-
     }
+
+    function openCity(cityName, button) {
+        // Ẩn tất cả các tab
+        var tabs = document.querySelectorAll('[data-city="true"]');
+        for (var i = 0; i < tabs.length; i++) {
+            tabs[i].style.display = "none";
+        }
+        // Hiển thị tab được chọn
+        document.getElementById(cityName).style.display = "block";
+
+        // Loại bỏ class active khỏi tất cả các nút
+        var buttons = document.querySelectorAll('[data-tab-button]');
+        buttons.forEach(btn => btn.classList.remove('active'));
+
+        // Thêm class active vào nút hiện tại
+        button.classList.add('active');
+    }
+
+    const startDateInput = document.getElementById("date-start");
+    const endDateInput = document.getElementById("date-end");
+
+    function validateStartDate() {
+        const now = new Date();
+        const startDate = new Date(startDateInput.value);
+
+        if (startDate <= now) {
+            alert("Ngày bắt đầu phải lớn hơn thời gian hiện tại.");
+            startDateInput.value = ""; // Reset giá trị không hợp lệ
+        }
+    }
+
+    function validateEndDate() {
+        const startDate = new Date(startDateInput.value);
+        const endDate = new Date(endDateInput.value);
+
+        if (!startDateInput.value) {
+            alert("Vui lòng chọn ngày bắt đầu trước.");
+            endDateInput.value = ""; // Reset giá trị không hợp lệ
+            return;
+        }
+
+        if (endDate <= startDate) {
+            alert("Ngày kết thúc phải lớn hơn ngày bắt đầu.");
+            endDateInput.value = ""; // Reset giá trị không hợp lệ
+        }
+    }
+
+    startDateInput.addEventListener("change", validateStartDate);
+    endDateInput.addEventListener("change", validateEndDate);
 </script>

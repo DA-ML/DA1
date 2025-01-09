@@ -47,7 +47,7 @@
                 // Lấy toàn bộ văn bản trong các cột của hàng
                 cells.forEach(function(cell) {
                     rowText += cell.textContent.toLowerCase() +
-                    ' '; // Thêm vào toàn bộ văn bản của hàng
+                        ' '; // Thêm vào toàn bộ văn bản của hàng
                 });
 
                 // Kiểm tra xem từ khóa có trong văn bản của hàng không

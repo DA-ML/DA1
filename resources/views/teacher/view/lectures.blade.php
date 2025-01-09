@@ -15,6 +15,9 @@
                                 fill="black" />
                         </svg>
                         Mã lớp: {{ $class->malop }}
+                        @foreach ($class->quanLyGV as $quanLyGV)
+                            <p>Giáo viên: <strong>{{ $quanLyGV->giaoVien->tengv }}</strong></p>
+                        @endforeach
                     </div>
                 </div>
             </div>
@@ -22,7 +25,7 @@
             <div class="class-btn">
                 <div class="btn">
                     <div class="lecturelist-btn">
-                        <input type="text" placeholder="Tìm kiếm">
+                        @include('components.search_bar')
                         <button class="primary"
                             onclick="window.location.href='{{ url('teacher/add/lecture/' . $class->malop) }}'">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="25" viewBox="0 0 24 25"
@@ -36,12 +39,12 @@
                     </div>
                     <!-- Hiển thị bảng danh sách bài giảng -->
                     <div class="class-lectures">
-                        <table class="table table-striped">
+                        <table class="table table-striped" style="width: 100%">
                             <thead>
                                 <tr>
                                     <th>STT</th>
                                     <th>Tên bài giảng</th>
-                                    <th>Hành động</th>
+                                    <th>Cập nhật</th>
                                     <th>Xóa</th>
                                 </tr>
                             </thead>
@@ -57,12 +60,13 @@
                                         <tr>
                                             <td>{{ $key + 1 }}</td>
                                             <td>
-                                                <a href="{{ route('lecture.detail', ['id' => $lecture->msbg]) }}">
+                                                <a style="text-decoration: none; color: #000"
+                                                    href="{{ route('lecture.detail', ['malop' => $lecture->malop, 'id' => $lecture->msbg]) }}">
                                                     {{ $lecture->tenbg }}
                                                 </a>
                                             </td>
                                             <td>
-                                                <a href="{{ route('update.lecture', ['malop' => $class->malop, 'id' => $lecture->msbg]) }}"
+                                                <a href="{{ route('lecture.edit', ['malop' => $class->malop, 'id' => $lecture->msbg]) }}"
                                                     class="btn btn-warning">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="24"
                                                         height="24" viewBox="0 0 24 24" fill="none">
@@ -248,13 +252,14 @@
     .class-lectures {
         width: 100%;
         display: flex;
-        padding: 0px 30px;
+        padding: 0px;
         justify-content: center;
         align-items: flex-start;
         gap: 10px;
         flex: 1 0 0;
         align-self: stretch;
         background: #FFF;
+        overflow-y: auto;
     }
 
     /* Table */
@@ -267,15 +272,21 @@
     .class-lectures th {
         font-size: 16px;
         font-weight: bold;
-        padding: 8px;
         text-align: left;
-        background-color: #dedede;
+        background-color: #208CE4;
+        padding: 8px;
+        color: white;
     }
 
     .class-lectures td {
         font-size: 16px;
         font-weight: normal;
-        padding: 8px;
         text-align: left;
+        padding: 8px;
+    }
+
+    .class-lectures a {
+        text-decoration: none;
+        color: #000;
     }
 </style>

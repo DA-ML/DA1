@@ -1,5 +1,5 @@
 <link rel="stylesheet" href="{{ asset('css/global.css') }}">
-<Div class="student-viewmember">
+<Div class="teacher-viewclass">
     @include('components.heading')
     <div class="body">
         @include('components.sidebar_2')
@@ -15,33 +15,47 @@
                                 fill="black" />
                         </svg>
                         Mã lớp: {{ $class->malop }}
+                        @foreach ($class->quanLyGV as $quanLyGV)
+                            <p>Giáo viên: <strong>{{ $quanLyGV->giaoVien->tengv }}</strong></p>
+                        @endforeach
                     </div>
                 </div>
             </div>
-            <!-- Danh sách thành viên -->
+            <!-- Danh sách bài giảng -->
             <div class="class-btn">
                 <div class="btn">
-                    <div class="memberlist-btn">
-                        <input type="text" placeholder="Tìm kiếm">
+                    <div class="lecturelist-btn">
+                        @include('components.search_bar')
                     </div>
-                    <!-- Hiển thị bảng danh sách thành viên -->
-                    <div class="class-members">
+                    <!-- Hiển thị bảng danh sách bài giảng -->
+                    <div class="class-lectures">
                         <table class="table table-striped">
                             <thead>
                                 <tr>
                                     <th>STT</th>
-                                    <th>Tên thành viên</th>
-                                    <th>Khoa</th>
-                                    <th>Hệ đào tạo</th>
+                                    <th>Tên sinh viên</th>
+                                    <th>MSSV</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @if ($members->isEmpty())
-                                    <!-- Kiểm tra nếu không có thành viên -->
+                                    <!-- Kiểm tra nếu không có sinh viên -->
                                     <tr>
-                                        <td colspan="4" class="text-center">Lớp chưa có thành viên nào.</td>
+                                        <td colspan="4" class="text-center">Lớp không có sinh viên nào.</td>
                                         <!-- Hiển thị thông báo -->
                                     </tr>
+                                @else
+                                    @foreach ($members as $key => $member)
+                                        <tr>
+                                            <td>{{ $key + 1 }}</td>
+                                            <td>
+                                                {{ $member->sinhVien->tensv }}
+                                            </td>
+                                            <td>
+                                                {{ $member->sinhVien->mssv }}
+                                            </td>
+                                        </tr>
+                                    @endforeach
                                 @endif
                             </tbody>
                         </table>
@@ -53,7 +67,7 @@
 </Div>
 
 <style>
-    .student-viewmember {
+    .teacher-viewclass {
         display: flex;
         width: 100%;
         height: 100%;
@@ -134,6 +148,35 @@
         line-height: normal;
     }
 
+    .class-statics {
+        display: flex;
+        width: 100%;
+        height: auto;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .list-test {
+        display: flex;
+        width: 500px;
+        flex-direction: column;
+        align-items: flex-start;
+        align-self: stretch;
+    }
+
+    .statics-btn {
+        display: flex;
+        width: 500px;
+        flex-direction: column;
+        align-items: center;
+        align-self: stretch;
+    }
+
+    .statics-chart {
+        width: 50%;
+    }
+
     .class-btn {
         display: flex;
         width: 100%;
@@ -154,7 +197,7 @@
         background: #FFF;
     }
 
-    .memberlist-btn {
+    .lecturelist-btn {
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -163,10 +206,10 @@
         gap: 20px;
     }
 
-    .class-members {
+    .class-lectures {
         width: 100%;
         display: flex;
-        padding: 0px 30px;
+        padding: 0px;
         justify-content: center;
         align-items: flex-start;
         gap: 10px;
@@ -176,21 +219,22 @@
     }
 
     /* Table */
-    .class-members table {
+    .class-lectures table {
         width: 100%;
         border-collapse: collapse;
         font-family: 'Inter', sans-serif;
     }
 
-    .class-members th {
+    .class-lectures th {
         font-size: 16px;
         font-weight: bold;
         padding: 8px;
         text-align: left;
-        background-color: #dedede;
+        background-color: #208CE4;
+        color: #FFF;
     }
 
-    .class-members td {
+    .class-lectures td {
         font-size: 16px;
         font-weight: normal;
         padding: 8px;

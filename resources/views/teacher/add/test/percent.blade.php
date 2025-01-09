@@ -1,3 +1,4 @@
+<link rel="stylesheet" href="{{ asset('css/global.css') }}">
 <Div class="teacher-viewclass">
     @include('components.heading')
     <div class="body">
@@ -20,34 +21,29 @@
                     </div>
                 </div>
             </div>
-            <div class="class-statics">
-                <div class="statics-body">
-                    Bảng điểm
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Tên sinh viên</th>
-                                <th>Mã số sinh viên</th>
-                                @foreach ($baiKiemTras as $baiKiemTra)
-                                    <th>{{ $baiKiemTra->tenbkt }}</th>
-                                @endforeach
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($studentsWithResults as $studentData)
-                                <tr>
-                                    <td>{{ $studentData['sinh_vien']->tensv }}</td>
-                                    <td>{{ $studentData['sinh_vien']->mssv }}</td>
-                                    @foreach ($studentData['ket_qua'] as $ketQua)
-                                        <td>{{ $ketQua['diem'] }}</td>
-                                    @endforeach
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-
+            <!-- Đặt tỉ lệ cho danh sách các bài kiểm tra-->
+            <form method="POST" action="{{ route('test.percent.store', ['malop' => $class->malop]) }}"
+                style="width:100%; flex-direction: column; background-color:#FFF; border-radius: 10px">
+                @csrf
+                <div class="test-list">
+                    @if ($tests->isEmpty())
+                        <p class="text-center">Bạn chưa có bài kiểm tra nào.</p>
+                    @else
+                        @foreach ($tests as $key => $test)
+                            <div class="test-item">
+                                <label for="tile-{{ $key }}">{{ $test->tenbkt }}
+                                    ({{ $test->danhgia_id }})
+                                </label>
+                                <input type="number" id="tile-{{ $key }}" name="tile[{{ $test->msbkt }}]"
+                                    min="0" max="100" step="0.01" placeholder="Nhập tỉ lệ">
+                            </div>
+                        @endforeach
+                    @endif
                 </div>
-            </div>
+                <div class="save-button">
+                    <button class="primary" type="submit" style="font-weight: 700; padding: 10px">Lưu</button>
+                </div>
+            </form>
         </div>
     </div>
 </Div>
@@ -62,19 +58,19 @@
         background: #FFF;
     }
 
-    .score {
+    .test {
         border-radius: 10px;
         background: #208CE4;
         cursor: pointer;
     }
 
-    .score a {
+    .test a {
         color: #FFF;
         font-family: Inter;
         font-weight: 700;
     }
 
-    .score svg path {
+    .test svg path {
         fill: #FFF;
         stroke: #FFF;
     }
@@ -143,32 +139,6 @@
         gap: 20px;
     }
 
-    .statics-body {
-        display: flex;
-        padding: 20px;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 20px;
-        align-self: stretch;
-        border-radius: 10px;
-        background: #FFF;
-        color: #000;
-        font-family: Inter;
-        font-size: 20px;
-        font-style: normal;
-        font-weight: 700;
-        line-height: normal;
-    }
-
-    .statics-test {
-        display: flex;
-        padding: 0px 20px;
-        justify-content: space-between;
-        align-items: flex-start;
-        align-self: stretch;
-        width: 100%;
-    }
-
     .list-test {
         display: flex;
         width: 500px;
@@ -189,25 +159,111 @@
         width: 50%;
     }
 
-    .statics-body table {
+    .class-btn {
+        display: flex;
         width: 100%;
-        border-collapse: collapse;
-        font-family: 'Inter', sans-serif;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+        flex-shrink: 0;
+        align-self: stretch;
     }
 
-    .statics-body td {
-        font-size: 16px;
-        font-weight: normal;
-        padding: 8px;
-        text-align: left;
+    .btn {
+        display: flex;
+        padding: 20px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+        flex: 1 0 0;
+        align-self: stretch;
+        border-radius: 10px;
+        background: #FFF;
     }
 
-    .statics-body th {
-        font-size: 16px;
-        font-weight: bold;
-        padding: 8px;
-        text-align: left;
-        background-color: #208CE4;
+    .lecturelist-btn {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        align-self: stretch;
+        height: 40px;
+        gap: 20px;
+    }
+
+    .class-lectures {
+        width: 100%;
+        display: flex;
+        padding: 0px;
+        justify-content: center;
+        align-items: flex-start;
+        gap: 10px;
+        flex: 1 0 0;
+        align-self: stretch;
+        background: #FFF;
+        overflow-y: auto;
+    }
+
+    .class-lectures a {
+        text-decoration: none;
+        color: #000;
+    }
+
+    .add-tile {
+        background-color: #00b1ff;
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        height: 100%;
+        align-items: center;
         color: #FFF;
     }
+
+    .add-tile:hover {
+        background-color: #208CE4;
+    }
+
+    .test-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        /* Khoảng cách giữa các dòng */
+
+    }
+
+    .test-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+        gap: 20px;
+    }
+
+    .test-item label {
+        font-family: "Inter";
+        font-size: 16px;
+        font-weight: 400;
+        white-space: nowrap;
+    }
+
+    .test-item input {
+        flex: 1;
+        padding: 5px;
+        margin-left: 10px;
+        font-family: "Inter";
+        font-size: 16px;
+        border-radius: 5px;
+        border: 1px solid rgba(0, 60, 60, 0.2);
+        padding: 10px;
+    }
+
+    .save-button {
+        text-align: right;
+        margin-top: 20px;
+        display: flex;
+    }
 </style>
+
+<script>
+    @if (session('alert'))
+        alert("{{ session('alert') }}");
+    @endif
+</script>
