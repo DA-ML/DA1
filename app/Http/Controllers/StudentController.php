@@ -165,68 +165,7 @@ class StudentController extends Controller
 
         // A1 - G2.2
         var_name:
-        $result = DB::select("
-    SELECT
-        bkt.msbkt,
-        bkt.tenbkt,
-        bkt_tile.tile AS tile_bai_kiem_tra,
-        tp.thanhphan AS thanhphan_danhgia,
-        kqch.chuan_id,
-        chuan.chuan AS chuan_dau_ra,
-        kqch.so_cau_dung,
-        kqbk.diem,
-        CASE
-            WHEN bkt.loai_bkt = 'TracNghiem' THEN
-                (SELECT COUNT(*)
-                 FROM CauHoi ch
-                 WHERE ch.msbkt = bkt.msbkt AND ch.chuan_id = chuan.id)
-            WHEN bkt.loai_bkt = 'TuLuan' THEN
-                (SELECT SUM(ch.diem)
-                 FROM CauHoi ch
-                 WHERE ch.msbkt = bkt.msbkt AND ch.chuan_id = chuan.id)
-            ELSE NULL
-        END AS ket_qua
-    FROM
-        BaiKiemTra bkt
-    JOIN
-        ThanhPhanDanhGia tp ON bkt.danhgia_id = tp.id
-    JOIN
-        KetQuaBaiKiemTra kqbk ON bkt.msbkt = kqbk.msbkt
-    JOIN
-        KetQuaChuans kqch ON kqbk.id = kqch.sinhvien_ketqua_id
-    JOIN
-        ChuanDauRa chuan ON kqch.chuan_id = chuan.id
-    JOIN
-        BaiKiemTraTile bkt_tile ON bkt.msbkt = bkt_tile.msbkt
-    WHERE
-        kqbk.mssv = ?  -- Sinh viên (mssv từ URL)
-        AND bkt.malop = ?  -- Lớp (malop từ URL)
-        AND tp.id = 'A1'
-        AND kqbk.diem = (
-            SELECT MAX(kqbk2.diem)
-            FROM KetQuaBaiKiemTra kqbk2
-            JOIN BaiKiemTra bkt2 ON kqbk2.msbkt = bkt2.msbkt
-            WHERE kqbk2.mssv = ?
-            AND bkt2.malop = ?
-            AND bkt2.danhgia_id = 'A1'
-            AND kqbk2.msbkt = bkt.msbkt
-        )
-        AND chuan.chuan = 'G2.2'
-    ORDER BY
-        bkt.tenbkt, chuan.chuan
-", [$mssv, $malop, $mssv, $malop]);
-
-        // Tính tổng tỷ lệ theo công thức
-        $totalPercentage = 0;
-        foreach ($result as $row) {
-            $ket_qua = $row->ket_qua ?? 0;
-            if ($ket_qua != 0) {
-                $totalPercentage += (($row->so_cau_dung / $ket_qua) * $row->tile_bai_kiem_tra);
-            }
-        }
-
-        // Nếu không có kết quả, set totalPercentage = 0
-        $totalPercentage = $totalPercentage ?? 0;
+        $totalPercentage = $this->calculateTotalPercentage($mssv, $malop, 'A1', 'G2.2');
 
         // Lưu kết quả vào bảng KetQuaThanhPhan
         DB::table('KetQuaThanhPhan')->updateOrInsert(
@@ -242,68 +181,7 @@ class StudentController extends Controller
         );
 
         // A1 - G3.1
-        $result2 = DB::select("
-    SELECT
-        bkt.msbkt,
-        bkt.tenbkt,
-        bkt_tile.tile AS tile_bai_kiem_tra,
-        tp.thanhphan AS thanhphan_danhgia,
-        kqch.chuan_id,
-        chuan.chuan AS chuan_dau_ra,
-        kqch.so_cau_dung,
-        kqbk.diem,
-        CASE
-            WHEN bkt.loai_bkt = 'TracNghiem' THEN
-                (SELECT COUNT(*)
-                 FROM CauHoi ch
-                 WHERE ch.msbkt = bkt.msbkt AND ch.chuan_id = chuan.id)
-            WHEN bkt.loai_bkt = 'TuLuan' THEN
-                (SELECT SUM(ch.diem)
-                 FROM CauHoi ch
-                 WHERE ch.msbkt = bkt.msbkt AND ch.chuan_id = chuan.id)
-            ELSE NULL
-        END AS ket_qua
-    FROM
-        BaiKiemTra bkt
-    JOIN
-        ThanhPhanDanhGia tp ON bkt.danhgia_id = tp.id
-    JOIN
-        KetQuaBaiKiemTra kqbk ON bkt.msbkt = kqbk.msbkt
-    JOIN
-        KetQuaChuans kqch ON kqbk.id = kqch.sinhvien_ketqua_id
-    JOIN
-        ChuanDauRa chuan ON kqch.chuan_id = chuan.id
-    JOIN
-        BaiKiemTraTile bkt_tile ON bkt.msbkt = bkt_tile.msbkt
-    WHERE
-        kqbk.mssv = ?  -- Sinh viên (mssv từ URL)
-        AND bkt.malop = ?  -- Lớp (malop từ URL)
-        AND tp.id = 'A1'
-        AND kqbk.diem = (
-            SELECT MAX(kqbk2.diem)
-            FROM KetQuaBaiKiemTra kqbk2
-            JOIN BaiKiemTra bkt2 ON kqbk2.msbkt = bkt2.msbkt
-            WHERE kqbk2.mssv = ?
-            AND bkt2.malop = ?
-            AND bkt2.danhgia_id = 'A1'
-            AND kqbk2.msbkt = bkt.msbkt
-        )
-        AND chuan.chuan = 'G3.1'
-    ORDER BY
-        bkt.tenbkt, chuan.chuan
-", [$mssv, $malop, $mssv, $malop]);
-
-        // Tính tổng tỷ lệ theo công thức
-        $totalPercentage2 = 0;
-        foreach ($result2 as $row) {
-            $ket_qua = $row->ket_qua ?? 0;
-            if ($ket_qua != 0) {
-                $totalPercentage2 += (($row->so_cau_dung / $ket_qua) * $row->tile_bai_kiem_tra);
-            }
-        }
-
-        // Nếu không có kết quả, set totalPercentage = 0
-        $totalPercentage2 = $totalPercentage2 ?? 0;
+        $totalPercentage2 = $this->calculateTotalPercentage($mssv, $malop, 'A1', 'G3.1');
 
         // Lưu kết quả vào bảng KetQuaThanhPhan
         DB::table('KetQuaThanhPhan')->updateOrInsert(
@@ -319,68 +197,7 @@ class StudentController extends Controller
         );
 
         // A3 - G2.2
-        $result3 = DB::select("
-    SELECT
-        bkt.msbkt,
-        bkt.tenbkt,
-        bkt_tile.tile AS tile_bai_kiem_tra,
-        tp.thanhphan AS thanhphan_danhgia,
-        kqch.chuan_id,
-        chuan.chuan AS chuan_dau_ra,
-        kqch.so_cau_dung,
-        kqbk.diem,
-        CASE
-            WHEN bkt.loai_bkt = 'TracNghiem' THEN
-                (SELECT COUNT(*)
-                 FROM CauHoi ch
-                 WHERE ch.msbkt = bkt.msbkt AND ch.chuan_id = chuan.id)
-            WHEN bkt.loai_bkt = 'TuLuan' THEN
-                (SELECT SUM(ch.diem)
-                 FROM CauHoi ch
-                 WHERE ch.msbkt = bkt.msbkt AND ch.chuan_id = chuan.id)
-            ELSE NULL
-        END AS ket_qua
-    FROM
-        BaiKiemTra bkt
-    JOIN
-        ThanhPhanDanhGia tp ON bkt.danhgia_id = tp.id
-    JOIN
-        KetQuaBaiKiemTra kqbk ON bkt.msbkt = kqbk.msbkt
-    JOIN
-        KetQuaChuans kqch ON kqbk.id = kqch.sinhvien_ketqua_id
-    JOIN
-        ChuanDauRa chuan ON kqch.chuan_id = chuan.id
-    JOIN
-        BaiKiemTraTile bkt_tile ON bkt.msbkt = bkt_tile.msbkt
-    WHERE
-        kqbk.mssv = ?  -- Sinh viên (mssv từ URL)
-        AND bkt.malop = ?  -- Lớp (malop từ URL)
-        AND tp.id = 'A3'
-        AND kqbk.diem = (
-            SELECT MAX(kqbk2.diem)
-            FROM KetQuaBaiKiemTra kqbk2
-            JOIN BaiKiemTra bkt2 ON kqbk2.msbkt = bkt2.msbkt
-            WHERE kqbk2.mssv = ?
-            AND bkt2.malop = ?
-            AND bkt2.danhgia_id = 'A3'
-            AND kqbk2.msbkt = bkt.msbkt
-        )
-        AND chuan.chuan = 'G2.2'
-    ORDER BY
-        bkt.tenbkt, chuan.chuan
-", [$mssv, $malop, $mssv, $malop]);
-
-        // Tính tổng tỷ lệ theo công thức
-        $totalPercentage3 = 0;
-        foreach ($result3 as $row) {
-            $ket_qua = $row->ket_qua ?? 0;
-            if ($ket_qua != 0) {
-                $totalPercentage3 += (($row->so_cau_dung / $ket_qua) * $row->tile_bai_kiem_tra);
-            }
-        }
-
-        // Nếu không có kết quả, set totalPercentage = 0
-        $totalPercentage3 = $totalPercentage3 ?? 0;
+        $totalPercentage3 = $this->calculateTotalPercentage($mssv, $malop, 'A3', 'G2.2');
 
         // Lưu kết quả vào bảng KetQuaThanhPhan
         DB::table('KetQuaThanhPhan')->updateOrInsert(
@@ -396,68 +213,7 @@ class StudentController extends Controller
         );
 
         // A3 - G3.1
-        $result4 = DB::select("
-    SELECT
-        bkt.msbkt,
-        bkt.tenbkt,
-        bkt_tile.tile AS tile_bai_kiem_tra,
-        tp.thanhphan AS thanhphan_danhgia,
-        kqch.chuan_id,
-        chuan.chuan AS chuan_dau_ra,
-        kqch.so_cau_dung,
-        kqbk.diem,
-        CASE
-            WHEN bkt.loai_bkt = 'TracNghiem' THEN
-                (SELECT COUNT(*)
-                 FROM CauHoi ch
-                 WHERE ch.msbkt = bkt.msbkt AND ch.chuan_id = chuan.id)
-            WHEN bkt.loai_bkt = 'TuLuan' THEN
-                (SELECT SUM(ch.diem)
-                 FROM CauHoi ch
-                 WHERE ch.msbkt = bkt.msbkt AND ch.chuan_id = chuan.id)
-            ELSE NULL
-        END AS ket_qua
-    FROM
-        BaiKiemTra bkt
-    JOIN
-        ThanhPhanDanhGia tp ON bkt.danhgia_id = tp.id
-    JOIN
-        KetQuaBaiKiemTra kqbk ON bkt.msbkt = kqbk.msbkt
-    JOIN
-        KetQuaChuans kqch ON kqbk.id = kqch.sinhvien_ketqua_id
-    JOIN
-        ChuanDauRa chuan ON kqch.chuan_id = chuan.id
-    JOIN
-        BaiKiemTraTile bkt_tile ON bkt.msbkt = bkt_tile.msbkt
-    WHERE
-        kqbk.mssv = ?  -- Sinh viên (mssv từ URL)
-        AND bkt.malop = ?  -- Lớp (malop từ URL)
-        AND tp.id = 'A3'
-        AND kqbk.diem = (
-            SELECT MAX(kqbk2.diem)
-            FROM KetQuaBaiKiemTra kqbk2
-            JOIN BaiKiemTra bkt2 ON kqbk2.msbkt = bkt2.msbkt
-            WHERE kqbk2.mssv = ?
-            AND bkt2.malop = ?
-            AND bkt2.danhgia_id = 'A3'
-            AND kqbk2.msbkt = bkt.msbkt
-        )
-        AND chuan.chuan = 'G3.1'
-    ORDER BY
-        bkt.tenbkt, chuan.chuan
-", [$mssv, $malop, $mssv, $malop]);
-
-        // Tính tổng tỷ lệ theo công thức
-        $totalPercentage4 = 0;
-        foreach ($result4 as $row) {
-            $ket_qua = $row->ket_qua ?? 0;
-            if ($ket_qua != 0) {
-                $totalPercentage4 += (($row->so_cau_dung / $ket_qua) * $row->tile_bai_kiem_tra);
-            }
-        }
-
-        // Nếu không có kết quả, set totalPercentage = 0
-        $totalPercentage4 = $totalPercentage4 ?? 0;
+        $totalPercentage4 = $this->calculateTotalPercentage($mssv, $malop, 'A3', 'G3.1');
 
         // Lưu kết quả vào bảng KetQuaThanhPhan
         DB::table('KetQuaThanhPhan')->updateOrInsert(
@@ -473,68 +229,7 @@ class StudentController extends Controller
         );
 
         // A3 - G3.2
-        $result5 = DB::select("
-    SELECT
-        bkt.msbkt,
-        bkt.tenbkt,
-        bkt_tile.tile AS tile_bai_kiem_tra,
-        tp.thanhphan AS thanhphan_danhgia,
-        kqch.chuan_id,
-        chuan.chuan AS chuan_dau_ra,
-        kqch.so_cau_dung,
-        kqbk.diem,
-        CASE
-            WHEN bkt.loai_bkt = 'TracNghiem' THEN
-                (SELECT COUNT(*)
-                 FROM CauHoi ch
-                 WHERE ch.msbkt = bkt.msbkt AND ch.chuan_id = chuan.id)
-            WHEN bkt.loai_bkt = 'TuLuan' THEN
-                (SELECT SUM(ch.diem)
-                 FROM CauHoi ch
-                 WHERE ch.msbkt = bkt.msbkt AND ch.chuan_id = chuan.id)
-            ELSE NULL
-        END AS ket_qua
-    FROM
-        BaiKiemTra bkt
-    JOIN
-        ThanhPhanDanhGia tp ON bkt.danhgia_id = tp.id
-    JOIN
-        KetQuaBaiKiemTra kqbk ON bkt.msbkt = kqbk.msbkt
-    JOIN
-        KetQuaChuans kqch ON kqbk.id = kqch.sinhvien_ketqua_id
-    JOIN
-        ChuanDauRa chuan ON kqch.chuan_id = chuan.id
-    JOIN
-        BaiKiemTraTile bkt_tile ON bkt.msbkt = bkt_tile.msbkt
-    WHERE
-        kqbk.mssv = ?  -- Sinh viên (mssv từ URL)
-        AND bkt.malop = ?  -- Lớp (malop từ URL)
-        AND tp.id = 'A3'
-        AND kqbk.diem = (
-            SELECT MAX(kqbk2.diem)
-            FROM KetQuaBaiKiemTra kqbk2
-            JOIN BaiKiemTra bkt2 ON kqbk2.msbkt = bkt2.msbkt
-            WHERE kqbk2.mssv = ?
-            AND bkt2.malop = ?
-            AND bkt2.danhgia_id = 'A3'
-            AND kqbk2.msbkt = bkt.msbkt
-        )
-        AND chuan.chuan = 'G3.2'
-    ORDER BY
-        bkt.tenbkt, chuan.chuan
-", [$mssv, $malop, $mssv, $malop]);
-
-        // Tính tổng tỷ lệ theo công thức
-        $totalPercentage5 = 0;
-        foreach ($result5 as $row) {
-            $ket_qua = $row->ket_qua ?? 0;
-            if ($ket_qua != 0) {
-                $totalPercentage5 += (($row->so_cau_dung / $ket_qua) * $row->tile_bai_kiem_tra);
-            }
-        }
-
-        // Nếu không có kết quả, set totalPercentage = 0
-        $totalPercentage5 = $totalPercentage5 ?? 0;
+        $totalPercentage5 = $this->calculateTotalPercentage($mssv, $malop, 'A3', 'G3.2');
 
         // Lưu kết quả vào bảng KetQuaThanhPhan
         DB::table('KetQuaThanhPhan')->updateOrInsert(
@@ -550,68 +245,7 @@ class StudentController extends Controller
         );
 
         // A4 - G2.2
-        $result6 = DB::select("
-        SELECT
-            bkt.msbkt,
-            bkt.tenbkt,
-            bkt_tile.tile AS tile_bai_kiem_tra,
-            tp.thanhphan AS thanhphan_danhgia,
-            kqch.chuan_id,
-            chuan.chuan AS chuan_dau_ra,
-            kqch.so_cau_dung,
-            kqbk.diem,
-            CASE
-                WHEN bkt.loai_bkt = 'TracNghiem' THEN
-                    (SELECT COUNT(*)
-                     FROM CauHoi ch
-                     WHERE ch.msbkt = bkt.msbkt AND ch.chuan_id = chuan.id)
-                WHEN bkt.loai_bkt = 'TuLuan' THEN
-                    (SELECT SUM(ch.diem)
-                     FROM CauHoi ch
-                     WHERE ch.msbkt = bkt.msbkt AND ch.chuan_id = chuan.id)
-                ELSE NULL
-            END AS ket_qua
-        FROM
-            BaiKiemTra bkt
-        JOIN
-            ThanhPhanDanhGia tp ON bkt.danhgia_id = tp.id
-        JOIN
-            KetQuaBaiKiemTra kqbk ON bkt.msbkt = kqbk.msbkt
-        JOIN
-            KetQuaChuans kqch ON kqbk.id = kqch.sinhvien_ketqua_id
-        JOIN
-            ChuanDauRa chuan ON kqch.chuan_id = chuan.id
-        JOIN
-            BaiKiemTraTile bkt_tile ON bkt.msbkt = bkt_tile.msbkt
-        WHERE
-            kqbk.mssv = ?  -- Sinh viên (mssv từ URL)
-            AND bkt.malop = ?  -- Lớp (malop từ URL)
-            AND tp.id = 'A4'
-            AND kqbk.diem = (
-                SELECT MAX(kqbk2.diem)
-                FROM KetQuaBaiKiemTra kqbk2
-                JOIN BaiKiemTra bkt2 ON kqbk2.msbkt = bkt2.msbkt
-                WHERE kqbk2.mssv = ?
-                AND bkt2.malop = ?
-                AND bkt2.danhgia_id = 'A4'
-                AND kqbk2.msbkt = bkt.msbkt
-            )
-            AND chuan.chuan = 'G2.2'
-        ORDER BY
-            bkt.tenbkt, chuan.chuan
-    ", [$mssv, $malop, $mssv, $malop]);
-
-        // Tính tổng tỷ lệ theo công thức
-        $totalPercentage6 = 0;
-        foreach ($result6 as $row) {
-            $ket_qua = $row->ket_qua ?? 0;
-            if ($ket_qua != 0) {
-                $totalPercentage6 += (($row->so_cau_dung / $ket_qua) * $row->tile_bai_kiem_tra);
-            }
-        }
-
-        // Nếu không có kết quả, set totalPercentage = 0
-        $totalPercentage6 = $totalPercentage6 ?? 0;
+        $totalPercentage6 = $this->calculateTotalPercentage($mssv, $malop, 'A4', 'G2.2');
 
         // Lưu kết quả vào bảng KetQuaThanhPhan
         DB::table('KetQuaThanhPhan')->updateOrInsert(
@@ -627,68 +261,7 @@ class StudentController extends Controller
         );
 
         // A4 - G3.1
-        $result7 = DB::select("
-        SELECT
-            bkt.msbkt,
-            bkt.tenbkt,
-            bkt_tile.tile AS tile_bai_kiem_tra,
-            tp.thanhphan AS thanhphan_danhgia,
-            kqch.chuan_id,
-            chuan.chuan AS chuan_dau_ra,
-            kqch.so_cau_dung,
-            kqbk.diem,
-            CASE
-                WHEN bkt.loai_bkt = 'TracNghiem' THEN
-                    (SELECT COUNT(*)
-                     FROM CauHoi ch
-                     WHERE ch.msbkt = bkt.msbkt AND ch.chuan_id = chuan.id)
-                WHEN bkt.loai_bkt = 'TuLuan' THEN
-                    (SELECT SUM(ch.diem)
-                     FROM CauHoi ch
-                     WHERE ch.msbkt = bkt.msbkt AND ch.chuan_id = chuan.id)
-                ELSE NULL
-            END AS ket_qua
-        FROM
-            BaiKiemTra bkt
-        JOIN
-            ThanhPhanDanhGia tp ON bkt.danhgia_id = tp.id
-        JOIN
-            KetQuaBaiKiemTra kqbk ON bkt.msbkt = kqbk.msbkt
-        JOIN
-            KetQuaChuans kqch ON kqbk.id = kqch.sinhvien_ketqua_id
-        JOIN
-            ChuanDauRa chuan ON kqch.chuan_id = chuan.id
-        JOIN
-            BaiKiemTraTile bkt_tile ON bkt.msbkt = bkt_tile.msbkt
-        WHERE
-            kqbk.mssv = ?  -- Sinh viên (mssv từ URL)
-            AND bkt.malop = ?  -- Lớp (malop từ URL)
-            AND tp.id = 'A4'
-            AND kqbk.diem = (
-                SELECT MAX(kqbk2.diem)
-                FROM KetQuaBaiKiemTra kqbk2
-                JOIN BaiKiemTra bkt2 ON kqbk2.msbkt = bkt2.msbkt
-                WHERE kqbk2.mssv = ?
-                AND bkt2.malop = ?
-                AND bkt2.danhgia_id = 'A4'
-                AND kqbk2.msbkt = bkt.msbkt
-            )
-            AND chuan.chuan = 'G3.1'
-        ORDER BY
-            bkt.tenbkt, chuan.chuan
-    ", [$mssv, $malop, $mssv, $malop]);
-
-        // Tính tổng tỷ lệ theo công thức
-        $totalPercentage7 = 0;
-        foreach ($result7 as $row) {
-            $ket_qua = $row->ket_qua ?? 0;
-            if ($ket_qua != 0) {
-                $totalPercentage7 += (($row->so_cau_dung / $ket_qua) * $row->tile_bai_kiem_tra);
-            }
-        }
-
-        // Nếu không có kết quả, set totalPercentage = 0
-        $totalPercentage7 = $totalPercentage7 ?? 0;
+        $totalPercentage7 = $this->calculateTotalPercentage($mssv, $malop, 'A4', 'G3.1');
 
         // Lưu kết quả vào bảng KetQuaThanhPhan
         DB::table('KetQuaThanhPhan')->updateOrInsert(
@@ -704,68 +277,7 @@ class StudentController extends Controller
         );
 
         // A4 - G3.2
-        $result8 = DB::select("
-        SELECT
-            bkt.msbkt,
-            bkt.tenbkt,
-            bkt_tile.tile AS tile_bai_kiem_tra,
-            tp.thanhphan AS thanhphan_danhgia,
-            kqch.chuan_id,
-            chuan.chuan AS chuan_dau_ra,
-            kqch.so_cau_dung,
-            kqbk.diem,
-            CASE
-                WHEN bkt.loai_bkt = 'TracNghiem' THEN
-                    (SELECT COUNT(*)
-                     FROM CauHoi ch
-                     WHERE ch.msbkt = bkt.msbkt AND ch.chuan_id = chuan.id)
-                WHEN bkt.loai_bkt = 'TuLuan' THEN
-                    (SELECT SUM(ch.diem)
-                     FROM CauHoi ch
-                     WHERE ch.msbkt = bkt.msbkt AND ch.chuan_id = chuan.id)
-                ELSE NULL
-            END AS ket_qua
-        FROM
-            BaiKiemTra bkt
-        JOIN
-            ThanhPhanDanhGia tp ON bkt.danhgia_id = tp.id
-        JOIN
-            KetQuaBaiKiemTra kqbk ON bkt.msbkt = kqbk.msbkt
-        JOIN
-            KetQuaChuans kqch ON kqbk.id = kqch.sinhvien_ketqua_id
-        JOIN
-            ChuanDauRa chuan ON kqch.chuan_id = chuan.id
-        JOIN
-            BaiKiemTraTile bkt_tile ON bkt.msbkt = bkt_tile.msbkt
-        WHERE
-            kqbk.mssv = ?  -- Sinh viên (mssv từ URL)
-            AND bkt.malop = ?  -- Lớp (malop từ URL)
-            AND tp.id = 'A4'
-            AND kqbk.diem = (
-                SELECT MAX(kqbk2.diem)
-                FROM KetQuaBaiKiemTra kqbk2
-                JOIN BaiKiemTra bkt2 ON kqbk2.msbkt = bkt2.msbkt
-                WHERE kqbk2.mssv = ?
-                AND bkt2.malop = ?
-                AND bkt2.danhgia_id = 'A4'
-                AND kqbk2.msbkt = bkt.msbkt
-            )
-            AND chuan.chuan = 'G3.2'
-        ORDER BY
-            bkt.tenbkt, chuan.chuan
-    ", [$mssv, $malop, $mssv, $malop]);
-
-        // Tính tổng tỷ lệ theo công thức
-        $totalPercentage8 = 0;
-        foreach ($result8 as $row) {
-            $ket_qua = $row->ket_qua ?? 0;
-            if ($ket_qua != 0) {
-                $totalPercentage8 += (($row->so_cau_dung / $ket_qua) * $row->tile_bai_kiem_tra);
-            }
-        }
-
-        // Nếu không có kết quả, set totalPercentage = 0
-        $totalPercentage8 = $totalPercentage8 ?? 0;
+        $totalPercentage8 = $this->calculateTotalPercentage($mssv, $malop, 'A4', 'G3.2');
 
         // Lưu kết quả vào bảng KetQuaThanhPhan
         DB::table('KetQuaThanhPhan')->updateOrInsert(
@@ -781,68 +293,7 @@ class StudentController extends Controller
         );
 
         // A4 - G6.1
-        $result9 = DB::select("
-        SELECT
-            bkt.msbkt,
-            bkt.tenbkt,
-            bkt_tile.tile AS tile_bai_kiem_tra,
-            tp.thanhphan AS thanhphan_danhgia,
-            kqch.chuan_id,
-            chuan.chuan AS chuan_dau_ra,
-            kqch.so_cau_dung,
-            kqbk.diem,
-            CASE
-                WHEN bkt.loai_bkt = 'TracNghiem' THEN
-                    (SELECT COUNT(*)
-                     FROM CauHoi ch
-                     WHERE ch.msbkt = bkt.msbkt AND ch.chuan_id = chuan.id)
-                WHEN bkt.loai_bkt = 'TuLuan' THEN
-                    (SELECT SUM(ch.diem)
-                     FROM CauHoi ch
-                     WHERE ch.msbkt = bkt.msbkt AND ch.chuan_id = chuan.id)
-                ELSE NULL
-            END AS ket_qua
-        FROM
-            BaiKiemTra bkt
-        JOIN
-            ThanhPhanDanhGia tp ON bkt.danhgia_id = tp.id
-        JOIN
-            KetQuaBaiKiemTra kqbk ON bkt.msbkt = kqbk.msbkt
-        JOIN
-            KetQuaChuans kqch ON kqbk.id = kqch.sinhvien_ketqua_id
-        JOIN
-            ChuanDauRa chuan ON kqch.chuan_id = chuan.id
-        JOIN
-            BaiKiemTraTile bkt_tile ON bkt.msbkt = bkt_tile.msbkt
-        WHERE
-            kqbk.mssv = ?  -- Sinh viên (mssv từ URL)
-            AND bkt.malop = ?  -- Lớp (malop từ URL)
-            AND tp.id = 'A4'
-            AND kqbk.diem = (
-                SELECT MAX(kqbk2.diem)
-                FROM KetQuaBaiKiemTra kqbk2
-                JOIN BaiKiemTra bkt2 ON kqbk2.msbkt = bkt2.msbkt
-                WHERE kqbk2.mssv = ?
-                AND bkt2.malop = ?
-                AND bkt2.danhgia_id = 'A4'
-                AND kqbk2.msbkt = bkt.msbkt
-            )
-            AND chuan.chuan = 'G6.1'
-        ORDER BY
-            bkt.tenbkt, chuan.chuan
-    ", [$mssv, $malop, $mssv, $malop]);
-
-        // Tính tổng tỷ lệ theo công thức
-        $totalPercentage9 = 0;
-        foreach ($result9 as $row) {
-            $ket_qua = $row->ket_qua ?? 0;
-            if ($ket_qua != 0) {
-                $totalPercentage9 += (($row->so_cau_dung / $ket_qua) * $row->tile_bai_kiem_tra);
-            }
-        }
-
-        // Nếu không có kết quả, set totalPercentage = 0
-        $totalPercentage9 = $totalPercentage9 ?? 0;
+        $totalPercentage9 = $this->calculateTotalPercentage($mssv, $malop, 'A4', 'G6.1');
 
         // Lưu kết quả vào bảng KetQuaThanhPhan
         DB::table('KetQuaThanhPhan')->updateOrInsert(
@@ -1316,5 +767,70 @@ class StudentController extends Controller
             'diem' => $ketQuaBaiKiemTra->diem,  // Trả điểm cho bài kiểm tra
             'nhanXet' => $nhanXet ? $nhanXet->nhanxet : 'Chưa có nhận xét' // Nếu không có nhận xét, trả về thông báo
         ]);
+    }
+
+    //Hàm tính phần trăm TPDG
+    protected function calculateTotalPercentage($mssv, $malop, $thanhphanId, $chuanId)
+    {
+        $result = DB::select("
+        SELECT
+            bkt.msbkt,
+            bkt.tenbkt,
+            bkt_tile.tile AS tile_bai_kiem_tra,
+            tp.thanhphan AS thanhphan_danhgia,
+            kqch.chuan_id,
+            chuan.chuan AS chuan_dau_ra,
+            kqch.so_cau_dung,
+            kqbk.diem,
+            CASE
+                WHEN bkt.loai_bkt = 'TracNghiem' THEN
+                    (SELECT COUNT(*)
+                     FROM CauHoi ch
+                     WHERE ch.msbkt = bkt.msbkt AND ch.chuan_id = chuan.id)
+                WHEN bkt.loai_bkt = 'TuLuan' THEN
+                    (SELECT SUM(ch.diem)
+                     FROM CauHoi ch
+                     WHERE ch.msbkt = bkt.msbkt AND ch.chuan_id = chuan.id)
+                ELSE NULL
+            END AS ket_qua
+        FROM
+            BaiKiemTra bkt
+        JOIN
+            ThanhPhanDanhGia tp ON bkt.danhgia_id = tp.id
+        JOIN
+            KetQuaBaiKiemTra kqbk ON bkt.msbkt = kqbk.msbkt
+        JOIN
+            KetQuaChuans kqch ON kqbk.id = kqch.sinhvien_ketqua_id
+        JOIN
+            ChuanDauRa chuan ON kqch.chuan_id = chuan.id
+        JOIN
+            BaiKiemTraTile bkt_tile ON bkt.msbkt = bkt_tile.msbkt
+        WHERE
+            kqbk.mssv = ?
+            AND bkt.malop = ?
+            AND tp.id = ?
+            AND kqbk.diem = (
+                SELECT MAX(kqbk2.diem)
+                FROM KetQuaBaiKiemTra kqbk2
+                JOIN BaiKiemTra bkt2 ON kqbk2.msbkt = bkt2.msbkt
+                WHERE kqbk2.mssv = ?
+                AND bkt2.malop = ?
+                AND bkt2.danhgia_id = ?
+                AND kqbk2.msbkt = bkt.msbkt
+            )
+            AND chuan.chuan = ?
+        ORDER BY
+            bkt.tenbkt, chuan.chuan
+    ", [$mssv, $malop, $thanhphanId, $mssv, $malop, $thanhphanId, $chuanId]);
+
+        $totalPercentage = 0;
+        foreach ($result as $row) {
+            $ket_qua = $row->ket_qua ?? 0;
+            if ($ket_qua != 0) {
+                $totalPercentage += (($row->so_cau_dung / $ket_qua) * $row->tile_bai_kiem_tra);
+            }
+        }
+
+        return $totalPercentage ?? 0;
     }
 }
