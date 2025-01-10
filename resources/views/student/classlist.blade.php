@@ -1,5 +1,6 @@
 <html lang="vi">
 <!DOCTYPE html>
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -17,7 +18,7 @@
             </div>
         </div>
         <div class="class-table">
-        <table class="table table-bordered">
+            <table class="table table-bordered">
                 <thead>
                     <tr>
                         <th>Mã lớp</th>
@@ -37,7 +38,7 @@
                             <td>{{ $class->so_bai_giang }}</td>
                             <td>{{ $class->so_bai_kiem_tra }}</td>
                             <td>
-                                <a href="{{ route('class.details', $class->malop) }}" class="btn btn-primary"
+                                <a href="{{ route('student.class.details', $class->malop) }}" class="btn btn-primary"
                                     style="color: #208ce4; text-decoration: none">
                                     View</a>
                             </td>
@@ -127,4 +128,5 @@
         text-align: left;
     }
 </style>
+
 </html>
