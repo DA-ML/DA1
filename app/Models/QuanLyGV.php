@@ -20,4 +20,9 @@ class QuanLyGV extends Model
     {
         return $this->belongsTo(GiaoVien::class, 'msgv', 'msgv'); // Liên kết với bảng giáo viên
     }
+
+    public function lopHoc()
+    {
+        return $this->belongsTo(LopHoc::class, 'malop', 'malop');
+    }
 }

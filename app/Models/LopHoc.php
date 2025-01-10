@@ -39,4 +39,9 @@ class LopHoc extends Model
     {
         return $this->hasMany(BaiKiemTra::class, 'malop', 'malop');
     }
+
+    public function hocKy()
+    {
+        return $this->belongsTo(HocKy::class, 'mahk', 'mahk');
+    }
 }

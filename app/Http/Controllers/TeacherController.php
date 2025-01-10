@@ -283,29 +283,37 @@ class TeacherController extends Controller
 
         // Thống kê điểm số
         $scoreStatistics = DB::select("
-        SELECT
-            category,
-            COUNT(*) AS count
-        FROM (
-            SELECT
-                CASE
-                    WHEN avg_score >= 8 THEN 'Giỏi'
-                    WHEN avg_score >= 7 THEN 'Khá'
-                    WHEN avg_score >= 5 THEN 'Trung bình'
-                    ELSE 'Yếu'
-                END AS category
-            FROM (
-                SELECT
-                    kq.mssv,
-                    AVG(kq.diem) AS avg_score
-                FROM KetQuaBaiKiemTra kq
-                JOIN QuanLyHS qlhs ON kq.mssv = qlhs.mssv
-                WHERE qlhs.malop = ?
-                GROUP BY kq.mssv
-            ) AS avg_scores
-        ) AS categorized
-        GROUP BY category
-    ", [$malop]);
+    SELECT
+    category,
+    COUNT(*) AS count
+FROM (
+    SELECT
+        sv.mssv AS MaSinhVien,
+        sv.tensv AS TenSinhVien,
+        AVG(kq.diem) AS avg_score,
+        CASE
+            WHEN AVG(kq.diem) >= 8 THEN 'Giỏi'
+            WHEN AVG(kq.diem) >= 7 THEN 'Khá'
+            WHEN AVG(kq.diem) >= 5 THEN 'Trung bình'
+            ELSE 'Yếu'
+        END AS category
+    FROM
+        SinhVien sv
+    JOIN QuanLyHS qlhs ON sv.mssv = qlhs.mssv
+    JOIN BaiKiemTra bkt ON bkt.malop = qlhs.malop
+    JOIN KetQuaBaiKiemTra kq ON sv.mssv = kq.mssv AND bkt.msbkt = kq.msbkt
+    WHERE
+        qlhs.malop = ?
+    GROUP BY
+        sv.mssv, sv.tensv
+) AS subquery
+GROUP BY
+    category
+ORDER BY
+    count DESC;
+
+", [$malop]);
+
 
         // Lấy danh sách top 5 sinh viên
         $leaderboard = DB::select("

@@ -16,4 +16,9 @@ class HocKy extends Model
         'tenhk',
         'namhoc',
     ];
+
+    public function lopHocs()
+    {
+        return $this->hasMany(LopHoc::class, 'mahk', 'mahk');
+    }
 }
