@@ -1,6 +1,5 @@
 <html lang="vi">
 <!DOCTYPE html>
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -253,16 +252,6 @@
         line-height: normal;
     }
 
-    .class-btn {
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        gap: 10px;
-        width: 100%;
-        box-sizing: border-box;
-        border: none;
-    }
-
     .test-list {
         cursor: pointer;
         padding: 10px;
@@ -284,7 +273,6 @@
     .hidden {
         display: none;
     }
-
 
     .test-list:hover {
         background-color: #f0f8ff;
@@ -314,13 +302,6 @@
         line-height: normal;
     }
 
-    .do-btn {
-        width: 100%;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
     .hidden {
         display: none;
     }
@@ -340,7 +321,6 @@
             document.querySelectorAll('.test-info').forEach((div) => {
                 div.classList.add('hidden');
             });
-
             // Hiển thị div hiện tại
             infoDiv.classList.remove('hidden');
         } else {
@@ -349,5 +329,4 @@
         }
     }
 </script>
-
 </html>

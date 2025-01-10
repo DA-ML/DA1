@@ -1,11 +1,11 @@
 <html lang="vi">
 <!DOCTYPE html>
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>View Members</title>
 </head>
+
 <link rel="stylesheet" href="{{ asset('css/global.css') }}">
 <Div class="teacher-viewclass">
     @include('components.heading')
@@ -230,5 +230,4 @@
         font-weight: 700;
     }
 </style>
-
 </html>

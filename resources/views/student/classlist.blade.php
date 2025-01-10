@@ -1,14 +1,13 @@
 <html lang="vi">
 <!DOCTYPE html>
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Student Class List</title>
 </head>
+
 <div class="class-list">
     @include('components.heading')
-
     <div class="body">
         <div class="class-btn">
             @include('components.search_bar')
@@ -128,5 +127,4 @@
         text-align: left;
     }
 </style>
-
 </html>

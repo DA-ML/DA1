@@ -28,8 +28,6 @@ $value = $value ?? '';
     </div>
 </div>
 
-
-
 <style>
     .dropdown {
         display: inline-flex;
@@ -132,7 +130,6 @@ $value = $value ?? '';
             // Toggle dropdown hiện tại
             dropdownOptions.classList.toggle('show');
         }
-
 
         // Xử lý khi nhấn vào dropdown
         function handleDropdownClick(dropdown) {

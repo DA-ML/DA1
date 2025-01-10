@@ -38,10 +38,10 @@
                     <h2>Tổng tỷ lệ điểm G3.1 của bạn: {{ $totalPercentage4 }}%</h2>
                     <h2>Tổng tỷ lệ điểm G3.2 của bạn: {{ $totalPercentage5 }}%</h2>
                     <h1>Thành phần đánh giá A4</h1>
-                    <h3>Tổng tỷ lệ điểm G2.2 của bạn: {{ $totalPercentage6 }}%</h3>
-                    <h3>Tổng tỷ lệ điểm G3.1 của bạn: {{ $totalPercentage7 }}%</h3>
-                    <h3>Tổng tỷ lệ điểm G3.2 của bạn: {{ $totalPercentage8 }}%</h3>
-                    <h3>Tổng tỷ lệ điểm G6.1 của bạn: {{ $totalPercentage9 }}%</h3>
+                    <h2>Tổng tỷ lệ điểm G2.2 của bạn: {{ $totalPercentage6 }}%</h2>
+                    <h2>Tổng tỷ lệ điểm G3.1 của bạn: {{ $totalPercentage7 }}%</h2>
+                    <h2>Tổng tỷ lệ điểm G3.2 của bạn: {{ $totalPercentage8 }}%</h2>
+                    <h2>Tổng tỷ lệ điểm G6.1 của bạn: {{ $totalPercentage9 }}%</h2>
                 </div>
             </div>
         </div>
@@ -158,35 +158,6 @@
         line-height: normal;
     }
 
-    .statics-test {
-        display: flex;
-        padding: 0px 20px;
-        justify-content: space-between;
-        align-items: flex-start;
-        align-self: stretch;
-        width: 100%;
-    }
-
-    .list-test {
-        display: flex;
-        width: 500px;
-        flex-direction: column;
-        align-items: flex-start;
-        align-self: stretch;
-    }
-
-    .statics-btn {
-        display: flex;
-        width: 500px;
-        flex-direction: column;
-        align-items: center;
-        align-self: stretch;
-    }
-
-    .statics-chart {
-        width: 50%;
-    }
-
     .statics-body h2 {
         color: #000;
         font-family: Inter;
@@ -203,10 +174,5 @@
         font-style: normal;
         font-weight: 700;
         line-height: normal;
-    }
-
-    #classLink {
-        font-weight: 700;
-        color: #208CE4;
     }
 </style>

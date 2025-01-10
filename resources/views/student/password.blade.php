@@ -1,20 +1,10 @@
 <html lang="vi">
-<<<<<<< HEAD
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Student Password</title>
-</head>
-
-=======
 <!DOCTYPE html>
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Change Password</title>
 </head>
->>>>>>> 3b50d2eca590c4b83e614dde29c71577a8c08107
 <link rel="stylesheet" href="{{ asset('css/global.css') }}">
 
 <div class="update-pw">
@@ -172,5 +162,4 @@
         margin-bottom: 20px;
     }
 </style>
-
 </html>

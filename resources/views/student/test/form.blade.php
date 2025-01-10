@@ -1,19 +1,11 @@
 <html lang="vi">
-<<<<<<< HEAD
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Student Do Test</title>
-</head> 
-=======
 <!DOCTYPE html>
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Detail Test</title>
 </head>
->>>>>>> 3b50d2eca590c4b83e614dde29c71577a8c08107
+
 <div class="student-dotest">
     <div class="body">
         <div class="left">
@@ -47,10 +39,9 @@
                         <p>Thời gian còn lại: <span id="countdown"
                                 style="font-weight: 700">{{ $test->thoigianlambai }}</span> phút</p>
                     </div>
-
                 </div>
             </div>
-            <form method="POST" action="{{ route('student.storeTest', ['malop' => $malop]) }}">
+            <form id="submitForm" method="POST" action="{{ route('student.storeTest', ['malop' => $malop]) }}">
                 @csrf
                 <input type="hidden" name="msbkt" value="{{ $test->msbkt }}">
                 <input type="hidden" name="mssv" value="{{ $mssv }}">
@@ -90,9 +81,8 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="button-group">
-                    <button class="submit-btn" type="submit">SUBMIT</button>
+                    <button class="submit-btn" type="button" onclick="confirmSubmit()">SUBMIT</button>
                 </div>
             </form>
         </div>
@@ -219,17 +209,6 @@
         gap: 5px;
     }
 
-    .question-title {
-        color: #000;
-        font-size: 16px;
-        font-weight: 700;
-        align-items: flex-start;
-        width: 100%;
-        display: block;
-        text-align: left;
-        margin: 0;
-    }
-
     .answer-instruction {
         width: 100%;
         color: #333;
@@ -305,27 +284,6 @@
         border-width: 2px;
     }
 
-    .answer-options {
-        display: flex;
-        justify-content: space-between;
-        gap: 5px;
-    }
-
-    .option-button {
-        flex: 1;
-        padding: 5px;
-        font-size: 14px;
-        font-weight: 700;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        background-color: #fff;
-        cursor: pointer;
-    }
-
-    .option-button:hover {
-        background-color: #e9ecef;
-    }
-
     .test-name {
         margin-bottom: 20px;
         text-align: left;
@@ -346,38 +304,6 @@
         gap: 10px;
     }
 
-    .button-exit {
-        flex: 1;
-        max-width: 120px;
-        height: 40px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        border-radius: 5px;
-        cursor: pointer;
-        font-weight: 700;
-        font-size: 16px;
-        margin: 0 5px;
-        background: #D0D0D0;
-        color: #000;
-    }
-
-    .button-submit {
-        flex: 1;
-        max-width: 100%;
-        height: 40px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        border-radius: 5px;
-        cursor: pointer;
-        font-weight: 700;
-        font-size: 16px;
-        margin: 0 5px;
-        background: #208CE4;
-        color: #FFF;
-    }
-
     .submit-btn {
         background: #208CE4;
         font-family: "Inter";
@@ -391,21 +317,6 @@
 
     .submit-btn:hover {
         background-color: #004b9a;
-    }
-
-    .exit-btn {
-        background-color: #B9B9B9;
-        font-family: "Inter";
-        font-size: 16px;
-        padding: 10px;
-        color: #000;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-    }
-
-    .exit-btn:hover {
-        background-color: #f0f2f5;
     }
 </style>
 
@@ -450,7 +361,6 @@
         }
     }
 
-
     document.addEventListener('DOMContentLoaded', function() {
         // Hiển thị câu hỏi đầu tiên
         showAnswerBox(0);
@@ -470,30 +380,57 @@
         });
     });
 
+    // Lấy thời gian ban đầu từ máy chủ (phút -> giây)
+    let initialTime = parseInt("{{ $test->thoigianlambai }}") * 60;
 
-    // Lấy thời gian còn lại từ server (ở dạng phút)
-    let timeRemaining = parseInt("{{ $test->thoigianlambai }}") * 60; // Chuyển đổi sang giây
-    let malop = "{{ $malop }}";
+    // Kiểm tra Local Storage để lấy thời gian còn lại
+    let storedEndTime = localStorage.getItem("endTime");
+    let currentTime = Math.floor(Date.now() / 1000); // Lấy thời gian hiện tại (tính theo giây)
 
-    // Hàm để cập nhật đồng hồ đếm ngược
+    let timeRemaining;
+
+    // Nếu có thời gian kết thúc được lưu trữ, tính toán thời gian còn lại
+    if (storedEndTime) {
+        timeRemaining = parseInt(storedEndTime, 10) - currentTime;
+        // Nếu thời gian còn lại âm, thiết lập lại thời gian ban đầu
+        if (timeRemaining <= 0) {
+            timeRemaining = initialTime;
+            localStorage.setItem("endTime", currentTime + initialTime);
+        }
+    } else {
+        // Nếu không có dữ liệu, thiết lập thời gian ban đầu và lưu thời gian kết thúc
+        timeRemaining = initialTime;
+        localStorage.setItem("endTime", currentTime + initialTime);
+    }
+
+    // Hàm cập nhật đồng hồ đếm ngược
     function updateCountdown() {
         let minutes = Math.floor(timeRemaining / 60);
         let seconds = timeRemaining % 60;
 
         document.getElementById("countdown").innerText = `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
 
-        // Giảm thời gian còn lại mỗi giây
         timeRemaining--;
 
         // Kiểm tra nếu hết thời gian
         if (timeRemaining < 0) {
             clearInterval(countdownInterval); // Dừng đồng hồ đếm ngược
-            alert("Bạn đã hết thời gian làm bài!"); // Thông báo hết thời gian
+            localStorage.removeItem("endTime"); // Xóa thời gian lưu trữ
+            alert("Bạn đã hết thời gian làm bài!");
             window.location.href = "{{ route('student.class.tests', ['malop' => $malop]) }}";
         }
     }
-    // Bắt đầu đồng hồ đếm ngược sau khi tải trang
+    // Bắt đầu đếm ngược
     let countdownInterval = setInterval(updateCountdown, 1000);
-</script>
 
+    function confirmSubmit() {
+        if (confirm("Bạn có chắc chắn muốn gửi không?")) {
+            // Nếu người dùng bấm "OK", tiến hành submit form
+            document.getElementById("submitForm").submit()
+        } else {
+            // Nếu người dùng bấm "Cancel", không làm gì cả
+            console.log("Người dùng đã hủy.");
+        }
+    }
+</script>
 </html>

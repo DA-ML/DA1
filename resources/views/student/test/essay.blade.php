@@ -1,19 +1,11 @@
 <html lang="vi">
-<<<<<<< HEAD
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Student Do Test</title>
-</head> 
-=======
 <!DOCTYPE html>
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Detail Test</title>
 </head>
->>>>>>> 3b50d2eca590c4b83e614dde29c71577a8c08107
+
 <div class="student-dotest">
     <div class="body">
         <div class="left">
@@ -48,7 +40,7 @@
         </div>
 
         <div class="right">
-            <form action="{{ route('student.test.storeEssay', ['malop' => $malop]) }}" method="POST"
+            <form id="submitForm" action="{{ route('student.test.storeEssay', ['malop' => $malop]) }}" method="POST"
                 enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" name="msbkt" value="{{ $test->msbkt }}">
@@ -67,7 +59,7 @@
                     </div>
                 </div>
                 <div class="button-group">
-                    <button class="submit-btn" type="submit">SUBMIT</button>
+                    <button class="submit-btn" type="button" onclick="confirmSubmit()">SUBMIT</button>
                 </div>
             </form>
         </div>
@@ -129,43 +121,6 @@
         overflow-y: auto;
     }
 
-    .class-list {
-        display: flex;
-        align-items: flex-start;
-        gap: 10px;
-        align-self: stretch;
-    }
-
-    .class-name {
-        background: #208CE4;
-        padding: 20px;
-        color: #FFF;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 20px;
-        flex: 1 0 0;
-        width: 100%;
-    }
-
-    .time {
-        display: flex;
-        height: 40px;
-        flex-direction: column;
-        justify-content: center;
-        /*Căn giữa theo chiều ngang*/
-        align-items: center;
-        /*Căn giữa theo chiều dọc*/
-        padding: 0;
-    }
-
-    .time p {
-        color: #FFF;
-        font-size: 16px;
-        font-weight: 400;
-        line-height: normal;
-    }
-
     .class-list-2 {
         flex: 1;
         display: flex;
@@ -184,121 +139,6 @@
         overflow-y: auto;
         box-sizing: border-box;
         width: 100%;
-    }
-
-    .question-container {
-        max-width: 100%;
-        margin: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-    }
-
-    .question-title {
-        color: #000;
-        font-size: 16px;
-        font-weight: 700;
-        align-items: flex-start;
-        width: 100%;
-        display: block;
-        text-align: left;
-        margin: 0;
-    }
-
-    .answer-instruction {
-        width: 100%;
-        color: #333;
-        font-size: 14px;
-        margin: 5px 0 10px;
-        align-items: flex-start;
-        display: block;
-        margin: 0;
-        text-align: left;
-    }
-
-    .answer-card {
-        margin-top: 10px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-        gap: 20px;
-    }
-
-    .answer-card p {
-        font-weight: 700;
-        margin-bottom: 10px;
-        text-align: center;
-    }
-
-    .answer-container {
-        display: flex;
-        justify-content: flex-start;
-        gap: 10px;
-        flex-wrap: wrap;
-        margin-bottom: 10px;
-    }
-
-    .answer-box {
-        display: inline-flex;
-        justify-content: center;
-        align-items: center;
-        width: 40px;
-        height: 40px;
-        border: 2px solid #007bff;
-        font-size: 14px;
-        font-weight: 400;
-        color: #000;
-        cursor: pointer;
-        transition: background-color 0.3s;
-        background-color: #fff;
-        width: calc(20% - 10px);
-    }
-
-    .answer-box.selected {
-        background-color: #E3F2FD !important;
-        /* Thêm một lớp mới để thay đổi màu nền */
-        border-color: #007bff !important;
-        /* Đổi màu border nếu cần */
-    }
-
-    .answer-input {
-        width: 100%;
-        padding: 20px;
-        font-size: 14px;
-        margin: 10px 0;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        text-align: left;
-    }
-
-    .answer-input:focus {
-        outline: none;
-        /* Loại bỏ viền mặc định */
-        border-color: #007bff;
-        /* Đổi màu viền khi nhấn vào */
-        border-width: 2px;
-    }
-
-    .answer-options {
-        display: flex;
-        justify-content: space-between;
-        gap: 5px;
-    }
-
-    .option-button {
-        flex: 1;
-        padding: 5px;
-        font-size: 14px;
-        font-weight: 700;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        background-color: #fff;
-        cursor: pointer;
-    }
-
-    .option-button:hover {
-        background-color: #e9ecef;
     }
 
     .test-name {
@@ -321,38 +161,6 @@
         gap: 10px;
     }
 
-    .button-exit {
-        flex: 1;
-        max-width: 120px;
-        height: 40px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        border-radius: 5px;
-        cursor: pointer;
-        font-weight: 700;
-        font-size: 16px;
-        margin: 0 5px;
-        background: #D0D0D0;
-        color: #000;
-    }
-
-    .button-submit {
-        flex: 1;
-        max-width: 100%;
-        height: 40px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        border-radius: 5px;
-        cursor: pointer;
-        font-weight: 700;
-        font-size: 16px;
-        margin: 0 5px;
-        background: #208CE4;
-        color: #FFF;
-    }
-
     .submit-btn {
         background: #208CE4;
         font-family: "Inter";
@@ -367,21 +175,14 @@
     .submit-btn:hover {
         background-color: #004b9a;
     }
-
-    .exit-btn {
-        background-color: #B9B9B9;
-        font-family: "Inter";
-        font-size: 16px;
-        padding: 10px;
-        color: #000;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-    }
-
-    .exit-btn:hover {
-        background-color: #f0f2f5;
-    }
 </style>
-
+<script>
+    function confirmSubmit() {
+        if (confirm("Bạn có chắc chắn muốn gửi không?")) {
+            document.getElementById("submitForm").submit()
+        } else {
+            console.log("Người dùng đã hủy.");
+        }
+    }
+</script>
 </html>
