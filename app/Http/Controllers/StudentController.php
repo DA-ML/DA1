@@ -123,21 +123,37 @@ class StudentController extends Controller
     public function classList()
     {
         $user = Session::get('user');
+        $student = SinhVien::find($user['id']);
 
-        if (!$user || $user['role'] !== 'sinhvien') {
-            return redirect()->route('login')->withErrors(['error' => 'Bạn không có quyền truy cập']);
+        if (!$student) {
+            return back()->with('error', 'Không tìm thấy người dùng.');
         }
 
-        // Truy vấn lớp học mà học sinh đang học
-        $classes = LopHoc::whereHas('quanLyHS', function ($query) use ($user) {
-            $query->where('mssv', $user['id']);
-        })
-            ->withCount([
-                'quanLyHS as so_hoc_sinh', // Đếm số học sinh
-                'baiGiang as so_bai_giang', // Đếm số bài giảng
-                'baiKiemTra as so_bai_kiem_tra', // Đếm số bài kiểm tra
-            ])
-            ->get();
+        // Truy vấn lớp học mà sinh viên đang học
+        $classes = DB::select(
+            'SELECT
+                LopHoc.malop,
+                LopHoc.tenlop,
+                COUNT(DISTINCT QuanLyHS.mssv) AS so_hoc_sinh,
+                COUNT(DISTINCT BaiGiang.msbg) AS so_bai_giang,
+                COUNT(DISTINCT BaiKiemTra.msbkt) AS so_bai_kiem_tra
+            FROM LopHoc
+            JOIN QuanLyHS ON LopHoc.malop = QuanLyHS.malop
+            JOIN HocKy ON QuanLyHS.mahk = HocKy.mahk
+            LEFT JOIN QuanLyGV ON LopHoc.malop = QuanLyGV.malop AND QuanLyGV.mahk = HocKy.mahk
+            LEFT JOIN BaiGiang ON LopHoc.malop = BaiGiang.malop
+            LEFT JOIN BaiKiemTra ON LopHoc.malop = BaiKiemTra.malop
+            LEFT JOIN Khoa ON LopHoc.makhoa = Khoa.makhoa
+            WHERE QuanLyHS.mssv = :mssv
+            AND HocKy.tenhk = :currentSemester
+            AND HocKy.namhoc = :currentYear
+            GROUP BY LopHoc.malop, LopHoc.tenlop, Khoa.tenkhoa, HocKy.tenhk, HocKy.namhoc',
+            [
+                'mssv' => $student->mssv,
+                'currentSemester' => $this->currentSemester,
+                'currentYear' => $this->currentYear
+            ]
+        );
 
         return view('student.classlist', compact('classes'));
     }

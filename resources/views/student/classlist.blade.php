@@ -17,37 +17,37 @@
             </div>
         </div>
         <div class="class-table">
-            <table class="table table-bordered">
+        <table class="table table-bordered">
                 <thead>
                     <tr>
                         <th>Mã lớp</th>
                         <th>Tên lớp</th>
-                        <th>Số lượng học sinh</th>
-                        <th>Số lượng bài giảng</th>
-                        <th>Số lượng bài kiểm tra</th>
+                        <th>Số học sinh</th>
+                        <th>Số bài giảng</th>
+                        <th>Số bài kiểm tra</th>
                         <th>Action</th>
                     </tr>
                 </thead>
-                @if ($classes->isEmpty())
-                    <p>Không có lớp học nào để hiển thị.</p>
-                @else
-                    <tbody>
-                        @foreach ($classes as $class)
-                            <tr>
-                                <td>{{ $class->malop }}</td>
-                                <td>{{ $class->tenlop }}</td>
-                                <td>{{ $class->so_hoc_sinh }}</td>
-                                <td>{{ $class->so_bai_giang }}</td>
-                                <td>{{ $class->so_bai_kiem_tra }}</td>
-                                <td>
-                                    <a href="{{ route('student.class.details', $class->malop) }}"
-                                        class="btn btn-primary" style="color: #208ce4; text-decoration: none">
-                                        View</a>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                @endif
+                <tbody>
+                    @forelse($classes as $class)
+                        <tr>
+                            <td>{{ $class->malop }}</td>
+                            <td>{{ $class->tenlop }}</td>
+                            <td>{{ $class->so_hoc_sinh }}</td>
+                            <td>{{ $class->so_bai_giang }}</td>
+                            <td>{{ $class->so_bai_kiem_tra }}</td>
+                            <td>
+                                <a href="{{ route('class.details', $class->malop) }}" class="btn btn-primary"
+                                    style="color: #208ce4; text-decoration: none">
+                                    View</a>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="8" class="text-center">Bạn hiện tại không có lớp học nào.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
             </table>
         </div>
     </div>
