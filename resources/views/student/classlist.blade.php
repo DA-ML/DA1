@@ -1,5 +1,6 @@
 <html lang="vi">
 <!DOCTYPE html>
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -17,7 +18,7 @@
             </div>
         </div>
         <div class="class-table">
-        <table class="table table-bordered">
+            <table class="table table-bordered">
                 <thead>
                     <tr>
                         <th>Mã lớp</th>
@@ -127,4 +128,5 @@
         text-align: left;
     }
 </style>
+
 </html>
