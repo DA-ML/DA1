@@ -90,21 +90,37 @@ class TeacherController extends Controller
     public function classList()
     {
         $user = Session::get('user');
+        $teacher = GiaoVien::find($user['id']);
 
-        if (!$user || $user['role'] !== 'giaovien') {
-            return redirect()->route('login')->withErrors(['error' => 'Bạn không có quyền truy cập']);
+        if (!$teacher) {
+            return back()->with('error', 'Không tìm thấy người dùng.');
         }
 
         // Truy vấn lớp học mà giáo viên quản lý
-        $classes = LopHoc::whereHas('quanLyGV', function ($query) use ($user) {
-            $query->where('msgv', $user['id']);
-        })
-            ->withCount([
-                'quanLyHS as so_hoc_sinh', // Đếm số học sinh
-                'baiGiang as so_bai_giang', // Đếm số bài giảng
-                'baiKiemTra as so_bai_kiem_tra', // Đếm số bài kiểm tra
-            ])
-            ->get();
+        $classes = DB::select(
+            'SELECT
+                LopHoc.malop,
+                LopHoc.tenlop,
+                COUNT(DISTINCT QuanLyHS.mssv) AS so_hoc_sinh,
+                COUNT(DISTINCT BaiGiang.msbg) AS so_bai_giang,
+                COUNT(DISTINCT BaiKiemTra.msbkt) AS so_bai_kiem_tra
+            FROM LopHoc
+            JOIN QuanLyGV ON LopHoc.malop = QuanLyGV.malop
+            JOIN HocKy ON QuanLyGV.mahk = HocKy.mahk
+            LEFT JOIN QuanLyHS ON LopHoc.malop = QuanLyHS.malop AND QuanLyHS.mahk = HocKy.mahk
+            LEFT JOIN BaiGiang ON LopHoc.malop = BaiGiang.malop
+            LEFT JOIN BaiKiemTra ON LopHoc.malop = BaiKiemTra.malop
+            LEFT JOIN Khoa ON LopHoc.makhoa = Khoa.makhoa
+            WHERE QuanLyGV.msgv = :msgv
+            AND HocKy.tenhk = :currentSemester
+            AND HocKy.namhoc = :currentYear
+            GROUP BY LopHoc.malop, LopHoc.tenlop, Khoa.tenkhoa, HocKy.tenhk, HocKy.namhoc',
+            [
+                'msgv' => $teacher->msgv,
+                'currentSemester' => $this->currentSemester,
+                'currentYear' => $this->currentYear
+            ]
+        );
 
         return view('teacher.classlist', compact('classes'));
     }
