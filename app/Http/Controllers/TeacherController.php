@@ -1229,27 +1229,38 @@ ORDER BY
             // Cập nhật lại các câu hỏi của bài kiểm tra
             $numQuestions = $request->input('num-questions');
 
-            for ($i = 1; $i <= $numQuestions; $i++) {
+            // Lấy msch nhỏ nhất cho bài kiểm tra hiện tại
+            $minMsch = CauHoi::where('msbkt', $id)->min('msch') ?? 1;
+
+            // Giá trị msch bắt đầu
+            $startMsch = $minMsch;
+
+            // Cập nhật hoặc tạo câu hỏi mới
+            for ($i = 0; $i < $numQuestions; $i++) {
+                // Tính toán giá trị msch cho câu hỏi hiện tại
+                $currentMsch = $startMsch + $i;
+
+                // Tìm câu hỏi theo msch và bài kiểm tra
                 $cauHoi = CauHoi::where('msbkt', $id)
-                    ->where('msch', $i)  // Dùng thứ tự để xác định câu hỏi cần cập nhật
+                    ->where('msch', $currentMsch)
                     ->first();
 
                 if ($cauHoi) {
-                    // Cập nhật câu hỏi
-                    $cauHoi->chuan_id = $request->input("cdr-$i");
-                    $cauHoi->dapan = $request->input("answer-$i");
-                    $cauHoi->diem = $request->input("points-$i");
-
-                    $cauHoi->save();
-                } else {
-                    // Nếu không tìm thấy câu hỏi, có thể tạo câu hỏi mới
-                    $cauHoi = new CauHoi([
-                        'chuan_id' => $request->input("cdr-$i"),
-                        'dapan' => $request->input("answer-$i"),
-                        'diem' => $request->input("points-$i"),
-                        'msbkt' => $id,
+                    // Nếu câu hỏi đã tồn tại, cập nhật
+                    $cauHoi->update([
+                        'chuan_id' => $request->input("cdr-" . ($i + 1)),
+                        'dapan' => $request->input("answer-" . ($i + 1)),
+                        'diem' => $request->input("points-" . ($i + 1)),
                     ]);
-                    $cauHoi->save();
+                } else {
+                    // Nếu câu hỏi không tồn tại, tạo mới
+                    CauHoi::create([
+                        'msbkt' => $id,
+                        'msch' => $currentMsch,
+                        'chuan_id' => $request->input("cdr-" . ($i + 1)),
+                        'dapan' => $request->input("answer-" . ($i + 1)),
+                        'diem' => $request->input("points-" . ($i + 1)),
+                    ]);
                 }
             }
 
