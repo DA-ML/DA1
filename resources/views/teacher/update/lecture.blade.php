@@ -1,11 +1,16 @@
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Teacher Update Lecture</title>
 </head>
 <link rel="stylesheet" href="{{ asset('css/global.css') }}">
-
+@if (session('alert'))
+    <script type="text/javascript">
+        alert("{{ session('alert') }}");
+    </script>
+@endif
 <div class="lecture-type">
     @include('components.heading')
     <div class="body">
@@ -43,7 +48,8 @@
                                 <h1>Tạo bài giảng từ File</h1>
                                 <p>Chỉ hỗ trợ dưới dạng PDF, DOCX, EXCEL, PNG</p>
                                 <div>
-                                    <input type="file" name="file_paths[]" multiple title="Tên file được tải lên sẽ hiển thị ở đây" style="margin-bottom: 10px;">
+                                    <input type="file" name="file_paths[]" multiple
+                                        title="Tên file được tải lên sẽ hiển thị ở đây" style="margin-bottom: 10px;">
                                     <!-- Hiển thị các file đã tải lên trước đó -->
                                     @foreach (json_decode($lecture->file_paths, true) as $filePath)
                                         <p><a href="{{ asset($filePath) }}" target="_blank">Xem file</a></p>
@@ -89,7 +95,7 @@
         color: #208CE4;
         font-weight: 700;
     }
-    
+
     .lecture {
         border-radius: 10px;
         background: #208CE4;

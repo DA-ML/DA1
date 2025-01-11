@@ -163,7 +163,7 @@ class TeacherController extends Controller
         $user->password_gv = $request->pass_new;
         $user->save();
 
-        return redirect()->route('teacher.password')->with('success', 'Mật khẩu đã được thay đổi thành công.');
+        return redirect()->route('teacher.password')->with('alert', 'Mật khẩu đã được thay đổi thành công.');
     }
 
     public function viewClass($malop)
@@ -605,7 +605,7 @@ ORDER BY
             $baiGiang->save();
 
             // Chuyển hướng đến trang lectures
-            return redirect()->route('class.lectures', ['malop' => $malop])->with('success', 'Thêm bài giảng thành công');
+            return redirect()->route('class.lectures', ['malop' => $malop])->with('alert', 'Thêm bài giảng thành công');
         }
 
         return view('teacher.add.lecture', compact('class'));
@@ -700,7 +700,7 @@ ORDER BY
             $lecture->delete();
 
             // Quay lại trang danh sách bài giảng với thông báo thành công
-            return redirect()->route('class.lectures', ['malop' => $malop])->with('success', 'Xóa bài giảng và thư mục thành công');
+            return redirect()->route('class.lectures', ['malop' => $malop])->with('alert', 'Xóa bài giảng và thư mục thành công');
         }
 
         // Nếu không tìm thấy bài giảng, hiển thị lỗi
@@ -771,9 +771,9 @@ ORDER BY
                 $cauHoi->save();
             }
 
-            return redirect()->route('class.tests', ['malop' => $malop])->with('success', 'Thêm bài tập thành công');
+            return redirect()->route('class.tests', ['malop' => $malop])->with('alert', 'Thêm bài tập thành công');
         } catch (Exception $e) {
-            return redirect()->back()->with('error', 'Đã có lỗi xảy ra khi lưu bài kiểm tra. Vui lòng thử lại sau.')->withInput();
+            return redirect()->back()->with('alert', 'Đã có lỗi xảy ra khi lưu bài kiểm tra. Vui lòng thử lại sau.')->withInput();
         }
     }
 
@@ -904,9 +904,9 @@ ORDER BY
                 $cauHoi->save();
             }
 
-            return redirect()->route('class.tests', ['malop' => $malop])->with('success', 'Thêm bài tập thành công');
+            return redirect()->route('class.tests', ['malop' => $malop])->with('alert', 'Thêm bài tập thành công');
         } catch (Exception $e) {
-            return redirect()->back()->with('error', 'Đã có lỗi xảy ra khi lưu bài kiểm tra. Vui lòng thử lại sau.')->withInput();
+            return redirect()->back()->with('alert', 'Đã có lỗi xảy ra khi lưu bài kiểm tra. Vui lòng thử lại sau.')->withInput();
         }
     }
 
@@ -979,7 +979,7 @@ ORDER BY
                 'file_paths' => !empty($filePaths) ? json_encode($filePaths) : $lecture->file_paths, // If no file is uploaded, keep the existing value
             ]);
 
-            return redirect()->route('class.lectures', ['malop' => $malop])->with('success', 'Cập nhật bài giảng thành công');
+            return redirect()->route('class.lectures', ['malop' => $malop])->with('alert', 'Cập nhật bài giảng thành công');
         }
 
         return view('teacher.update.lecture', compact('lecture', 'class'));
@@ -1134,7 +1134,7 @@ ORDER BY
             'malop' => $request->input('malop'),
             'msbkt' => $validated['msbkt'],
         ])->with([
-            'success' => 'Điểm đã được cập nhật thành công!',
+            'alert' => 'Điểm đã được cập nhật thành công!',
         ]);
     }
 
@@ -1297,7 +1297,7 @@ ORDER BY
             // Cập nhật điểm lại cho sinh viên
             $this->updateStudentScores($id, $malop);
 
-            return redirect()->route('class.tests', ['malop' => $malop])->with('success', 'Cập nhật bài kiểm tra thành công');
+            return redirect()->route('class.tests', ['malop' => $malop])->with('alert', 'Cập nhật bài kiểm tra thành công');
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Đã có lỗi xảy ra khi cập nhật bài kiểm tra.')->withInput();
         }
@@ -1415,7 +1415,7 @@ ORDER BY
                 }
             }
 
-            return redirect()->route('class.tests', ['malop' => $malop])->with('success', 'Cập nhật bài kiểm tra thành công');
+            return redirect()->route('class.tests', ['malop' => $malop])->with('alert', 'Cập nhật bài kiểm tra thành công');
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Đã có lỗi xảy ra khi cập nhật bài kiểm tra.')->withInput();
         }

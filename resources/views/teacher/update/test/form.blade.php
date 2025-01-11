@@ -1,10 +1,15 @@
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Teacher Update Test</title>
 </head>
-
+@if (session('alert'))
+    <script type="text/javascript">
+        alert("{{ session('alert') }}");
+    </script>
+@endif
 <link rel="stylesheet" href="{{ asset('css/global.css') }}">
 <div class="test-form">
     @include('components.heading')
@@ -21,7 +26,8 @@
                                 <label for="file-input" class="custom-button">Chọn tệp</label>
                                 <input type="file" id="file-input" name="file-input" accept=".jpg, .jpeg, .png, .pdf"
                                     onchange="handleFileUpload(event)">
-                                <span id="file-desc" class="sr-only">Hãy chọn một tệp hình ảnh hoặc PDF để tải lên.</span>
+                                <span id="file-desc" class="sr-only">Hãy chọn một tệp hình ảnh hoặc PDF để tải
+                                    lên.</span>
                             </div>
 
                         </div>
@@ -30,10 +36,12 @@
                     </div>
                     <div class="test-setting">
                         <div style="display:flex">
-                            <button type="button" onclick="openCity('London', this)" aria-label="Chuyển đến tab Đáp án" data-tab-button class="active">
+                            <button type="button" onclick="openCity('London', this)" aria-label="Chuyển đến tab Đáp án"
+                                data-tab-button class="active">
                                 Đáp án
                             </button>
-                            <button type="button" onclick="openCity('Paris', this)" aria-label="Chuyển đến tab Thông tin" data-tab-button>
+                            <button type="button" onclick="openCity('Paris', this)"
+                                aria-label="Chuyển đến tab Thông tin" data-tab-button>
                                 Thông tin
                             </button>
                         </div>
@@ -68,7 +76,8 @@
                                         </div>
                                         <div class="row-1">
                                             CDR
-                                            <select id="cdr-dropdown-{{ $index + 1 }}" name="cdr-{{ $index + 1 }}" title="Chuẩn đầu ra"
+                                            <select id="cdr-dropdown-{{ $index + 1 }}" name="cdr-{{ $index + 1 }}"
+                                                title="Chuẩn đầu ra"
                                                 style="width: 90px; height: 40px; border-radius: 5px; border: 1px solid rgba(0, 60, 60, 0.2); font-family: Inter;">
                                                 <option value="G2.2"
                                                     {{ $question->chuan_id == 'G2.2' ? 'selected' : '' }}>G2.2</option>
@@ -78,8 +87,8 @@
                                         </div>
                                         <div class="row-1">
                                             Điểm
-                                            <input readOnly type="text" name="points-{{ $index + 1 }}" title="Điểm"
-                                                style="width: 90px" value="{{ $question->diem }}">
+                                            <input readOnly type="text" name="points-{{ $index + 1 }}"
+                                                title="Điểm" style="width: 90px" value="{{ $question->diem }}">
                                         </div>
                                     </div>
                                 @endforeach

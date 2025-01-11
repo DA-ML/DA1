@@ -119,7 +119,8 @@
         font-weight: bold;
         padding: 8px;
         text-align: left;
-        background-color: #dedede;
+        background-color: #208ce4;
+        color: #FFF;
     }
 
     .class-table td {

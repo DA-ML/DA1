@@ -1,10 +1,15 @@
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Teacher Add Test</title>
 </head>
-
+@if (session('alert'))
+    <script type="text/javascript">
+        alert("{{ session('alert') }}");
+    </script>
+@endif
 <link rel="stylesheet" href="{{ asset('css/global.css') }}">
 <div class="test-form">
     @include('components.heading')
@@ -114,7 +119,7 @@
         color: #208CE4;
         font-weight: 700;
     }
-    
+
     .body {
         display: flex;
         align-items: flex-start;

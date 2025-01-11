@@ -1,10 +1,15 @@
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Teacher Update Test</title>
 </head>
-
+@if (session('alert'))
+    <script type="text/javascript">
+        alert("{{ session('alert') }}");
+    </script>
+@endif
 <link rel="stylesheet" href="{{ asset('css/global.css') }}">
 <div class="test-form">
     @include('components.heading')
@@ -19,9 +24,10 @@
                             {{-- File hiển thị ở đây --}}
                             <div class="custom-file-upload">
                                 <label for="file-input" class="custom-button">Chọn tệp</label>
-                                <input type="file" id="file-input" name="file-input" accept=".jpg, .jpeg, .png, .pdf" 
-                                onchange="handleFileUpload(event)" aria-describedby="file-desc">
-                                <span id="file-desc" class="sr-only">Hãy chọn một tệp hình ảnh hoặc PDF để tải lên.</span>
+                                <input type="file" id="file-input" name="file-input" accept=".jpg, .jpeg, .png, .pdf"
+                                    onchange="handleFileUpload(event)" aria-describedby="file-desc">
+                                <span id="file-desc" class="sr-only">Hãy chọn một tệp hình ảnh hoặc PDF để tải
+                                    lên.</span>
                             </div>
                         </div>
                         <!-- Container hiển thị file -->
@@ -29,10 +35,12 @@
                     </div>
                     <div class="test-setting">
                         <div style="display:flex">
-                            <button type="button" onclick="openCity('London', this)" aria-label="Chuyển đến tab Đáp án" data-tab-button class="active">
+                            <button type="button" onclick="openCity('London', this)" aria-label="Chuyển đến tab Đáp án"
+                                data-tab-button class="active">
                                 Đáp án
                             </button>
-                            <button type="button" onclick="openCity('Paris', this)" aria-label="Chuyển đến tab Thông tin" data-tab-button>
+                            <button type="button" onclick="openCity('Paris', this)"
+                                aria-label="Chuyển đến tab Thông tin" data-tab-button>
                                 Thông tin
                             </button>
                         </div>
@@ -62,8 +70,9 @@
                                         <div style="display:flex; flex-direction: column;align-items: flex-start">
                                             <div class="row-1">
                                                 {{ $question->chuan_id }}
-                                                <input type="text" name="points-{{ $index + 1 }}" title="Điểm từng thành phần đánh giá"
-                                                    style="width: 90px" value="{{ $question->diem }}" required>
+                                                <input type="text" name="points-{{ $index + 1 }}"
+                                                    title="Điểm từng thành phần đánh giá" style="width: 90px"
+                                                    value="{{ $question->diem }}" required>
                                             </div>
                                         </div>
                                     </div>
