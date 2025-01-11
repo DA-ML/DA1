@@ -134,26 +134,26 @@ class StudentController extends Controller
             'SELECT
                 LopHoc.malop,
                 LopHoc.tenlop,
-                COUNT(DISTINCT QuanLyHS.mssv) AS so_hoc_sinh,
+                (SELECT COUNT(DISTINCT QuanLyHS.mssv)
+                 FROM QuanLyHS
+                 WHERE QuanLyHS.malop = LopHoc.malop) AS so_hoc_sinh,
                 COUNT(DISTINCT BaiGiang.msbg) AS so_bai_giang,
                 COUNT(DISTINCT BaiKiemTra.msbkt) AS so_bai_kiem_tra
             FROM LopHoc
             JOIN QuanLyHS ON LopHoc.malop = QuanLyHS.malop
             JOIN HocKy ON QuanLyHS.mahk = HocKy.mahk
-            LEFT JOIN QuanLyGV ON LopHoc.malop = QuanLyGV.malop AND QuanLyGV.mahk = HocKy.mahk
             LEFT JOIN BaiGiang ON LopHoc.malop = BaiGiang.malop
             LEFT JOIN BaiKiemTra ON LopHoc.malop = BaiKiemTra.malop
-            LEFT JOIN Khoa ON LopHoc.makhoa = Khoa.makhoa
             WHERE QuanLyHS.mssv = :mssv
             AND HocKy.tenhk = :currentSemester
             AND HocKy.namhoc = :currentYear
-            GROUP BY LopHoc.malop, LopHoc.tenlop, Khoa.tenkhoa, HocKy.tenhk, HocKy.namhoc',
+            GROUP BY LopHoc.malop, LopHoc.tenlop',
             [
                 'mssv' => $student->mssv,
                 'currentSemester' => $this->currentSemester,
                 'currentYear' => $this->currentYear
             ]
-        );
+        );        
 
         return view('student.classlist', compact('classes'));
     }
