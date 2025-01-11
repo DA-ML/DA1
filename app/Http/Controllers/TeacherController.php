@@ -331,26 +331,48 @@ ORDER BY
 ", [$malop]);
 
 
-        // Lấy danh sách top 5 sinh viên
-        $leaderboard = DB::select("
-        SELECT
-            ROW_NUMBER() OVER (ORDER BY avg_score DESC) AS stt,
-            sv.tensv,
-            sv.mssv,
-            avg_scores.avg_score AS diem_tb
-        FROM (
-            SELECT
-                kq.mssv,
-                AVG(kq.diem) AS avg_score
-            FROM KetQuaBaiKiemTra kq
-            JOIN QuanLyHS qlhs ON kq.mssv = qlhs.mssv
-            WHERE qlhs.malop = ?
-            GROUP BY kq.mssv
-        ) AS avg_scores
-        JOIN SinhVien sv ON avg_scores.mssv = sv.mssv
-        ORDER BY avg_scores.avg_score DESC
-        LIMIT 5
-    ", [$malop]);
+        $members = QuanLyHS::where('malop', $malop)
+            ->with('sinhVien')
+            ->get();
+
+        // Lấy thông tin bài kiểm tra trong lớp
+        $baiKiemTras = BaiKiemTra::where('malop', $malop)->get();
+
+        // Tạo danh sách sinh viên kèm điểm cao nhất từng bài kiểm tra và tính điểm trung bình
+        $studentsWithResults = $members->map(function ($member) use ($baiKiemTras) {
+            $student = $member->sinhVien;
+
+            // Tính điểm cho mỗi bài kiểm tra của sinh viên
+            $results = $baiKiemTras->map(function ($baiKiemTra) use ($student) {
+                $highestScore = KetQuaBaiKiemTra::where('msbkt', $baiKiemTra->msbkt)
+                    ->where('mssv', $student->mssv)
+                    ->max('diem'); // Lấy điểm cao nhất
+
+                return $highestScore !== null ? $highestScore : 0;
+            });
+
+            // Tính điểm trung bình của sinh viên
+            $averageScore = count($results) > 0 ? array_sum($results->toArray()) / count($results) : 0;
+
+            return [
+                'sinh_vien' => $student,
+                'ket_qua' => $results,
+                'diem_trung_binh' => $averageScore
+            ];
+        });
+
+        // Sắp xếp sinh viên theo điểm trung bình từ cao đến thấp và lấy 5 sinh viên đầu tiên
+        $topStudents = $studentsWithResults->sortByDesc('diem_trung_binh')->take(5);
+
+        // Thêm STT (số thứ tự) vào mảng sinh viên
+        $leaderboard = $topStudents->map(function ($student, $index) {
+            return [
+                'stt' => $index + 1,
+                'tensv' => $student['sinh_vien']->ten, // Giả sử tên sinh viên là `ten`
+                'mssv' => $student['sinh_vien']->mssv, // Giả sử MSSV là `mssv`
+                'diem_tb' => $student['diem_trung_binh']
+            ];
+        });
 
         // Thống kê kết quả thành phần A1 và chuẩn đầu ra G2.2, G3.1
         $resultStatistics = KetQuaThanhPhan::where('malop', $malop)
@@ -482,7 +504,7 @@ ORDER BY
         ];
 
         // Trả về view với dữ liệu thống kê
-        return view('teacher.view.statics', compact('class', 'scoreStatistics', 'leaderboard', 'chartData', 'chartDataA3', 'chartDataA4'));
+        return view('teacher.view.statics', compact('class', 'scoreStatistics', 'baiKiemTras', 'leaderboard', 'chartData', 'chartDataA3', 'chartDataA4'));
     }
 
     public function classScores($malop)
@@ -762,10 +784,18 @@ ORDER BY
             // Tìm bài kiểm tra theo mã lớp và mã bài kiểm tra
             $baiKiemTra = BaiKiemTra::where('malop', $malop)->where('msbkt', $msbkt)->first();
             if (!$baiKiemTra) {
-                return redirect()->route('class.tests', ['malop' => $malop])->with('error', 'Bài kiểm tra không tồn tại.');
+                return redirect()->route('class.tests', ['malop' => $malop])->with('alert', 'Bài kiểm tra không tồn tại.');
             }
 
-            // Xóa các câu hỏi liên quan đến bài kiểm tra
+            // Kiểm tra xem trong bảng KetQuaBaiKiemTra đã có bản ghi nào chứa msbkt chưa
+            $hasScores = KetQuaBaiKiemTra::where('msbkt', $msbkt)->exists();
+
+            // Nếu bài kiểm tra đã có điểm (tức là sinh viên đã nộp bài), không cho phép xóa
+            if ($hasScores) {
+                return redirect()->route('class.tests', ['malop' => $malop])->with('alert', 'Không thể xóa bài kiểm tra vì đã có sinh viên nộp bài.');
+            }
+
+            // Tiến hành xóa câu hỏi liên quan đến bài kiểm tra chỉ khi chưa có sinh viên nộp bài
             CauHoi::where('msbkt', $msbkt)->delete();
 
             // Xóa file bài kiểm tra trong thư mục nếu có
@@ -782,17 +812,17 @@ ORDER BY
                 File::deleteDirectory($folderPath);
             }
 
-
             // Xóa bài kiểm tra
             $baiKiemTra->delete();
 
             // Trả về thông báo thành công
-            return redirect()->route('class.tests', ['malop' => $malop])->with('success', 'Xóa bài tập thành công.');
+            return redirect()->route('class.tests', ['malop' => $malop])->with('alert', 'Xóa bài kiểm tra thành công.');
         } catch (Exception $e) {
             // Nếu xảy ra lỗi, trả về thông báo lỗi
-            return redirect()->route('class.tests', ['malop' => $malop])->with('error', 'Đã có lỗi xảy ra khi xóa bài tập. Vui lòng thử lại sau.');
+            return redirect()->route('class.tests', ['malop' => $malop])->with('alert', 'Đã có lỗi xảy ra khi xóa bài kiểm tra. Vui lòng thử lại sau.');
         }
     }
+
 
     // Đếm số lượng chuẩn đầu ra
     public function getCdr(Request $request)

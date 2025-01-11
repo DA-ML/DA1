@@ -58,14 +58,15 @@
                                         <tbody>
                                             @foreach ($leaderboard as $student)
                                                 <tr>
-                                                    <td>{{ $student->stt }}</td>
-                                                    <td>{{ $student->tensv }}</td>
-                                                    <td>{{ $student->mssv }}</td>
-                                                    <td>{{ number_format($student->diem_tb, 2) }}</td>
+                                                    <td>{{ $student['stt'] }}</td>
+                                                    <td>{{ $student['tensv'] }}</td>
+                                                    <td>{{ $student['mssv'] }}</td>
+                                                    <td>{{ number_format($student['diem_tb'], 2) }}</td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
                                     </table>
+
                                 </div>
                             </div>
                         </div>
