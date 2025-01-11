@@ -615,12 +615,12 @@ class StudentController extends Controller
         foreach ($cauHoi as $cau) {
             $answer = isset($finalAnswers[$cau->msch]) ? $finalAnswers[$cau->msch] : null;
             logger()->info("Câu hỏi {$cau->msch}: câu trả lời = " . json_encode($answer));
-
+        
             if ($answer === null || trim($answer) === "") {
                 $answer = null; // Câu trả lời trống được xem là sai
                 continue;
             }
-
+        
             if (trim((string) $answer) === trim((string) $cau->dapan)) {
                 $tongDiem += $cau->diem;
                 if (!isset($soCauDungTheoChuan[$cau->chuan_id])) {
@@ -629,7 +629,12 @@ class StudentController extends Controller
                 $soCauDungTheoChuan[$cau->chuan_id]++;
             }
         }
-
+        
+        // Giới hạn tổng điểm tối đa là 10
+        if ($tongDiem > 10) {
+            $tongDiem = 10;
+        }
+        
         $ketQuaBaiKiemTra = KetQuaBaiKiemTra::create([
             'msbkt' => $msbkt,
             'mssv' => $mssv,
@@ -789,55 +794,58 @@ class StudentController extends Controller
     protected function calculateTotalPercentage($mssv, $malop, $thanhphanId, $chuanId)
     {
         $result = DB::select("
-        SELECT
-            bkt.msbkt,
-            bkt.tenbkt,
-            bkt_tile.tile AS tile_bai_kiem_tra,
-            tp.thanhphan AS thanhphan_danhgia,
-            kqch.chuan_id,
-            chuan.chuan AS chuan_dau_ra,
-            kqch.so_cau_dung,
-            kqbk.diem,
-            CASE
-                WHEN bkt.loai_bkt = 'TracNghiem' THEN
-                    (SELECT COUNT(*)
-                     FROM CauHoi ch
-                     WHERE ch.msbkt = bkt.msbkt AND ch.chuan_id = chuan.id)
-                WHEN bkt.loai_bkt = 'TuLuan' THEN
-                    (SELECT SUM(ch.diem)
-                     FROM CauHoi ch
-                     WHERE ch.msbkt = bkt.msbkt AND ch.chuan_id = chuan.id)
-                ELSE NULL
-            END AS ket_qua
-        FROM
-            BaiKiemTra bkt
-        JOIN
-            ThanhPhanDanhGia tp ON bkt.danhgia_id = tp.id
-        JOIN
-            KetQuaBaiKiemTra kqbk ON bkt.msbkt = kqbk.msbkt
-        JOIN
-            KetQuaChuans kqch ON kqbk.id = kqch.sinhvien_ketqua_id
-        JOIN
-            ChuanDauRa chuan ON kqch.chuan_id = chuan.id
-        JOIN
-            BaiKiemTraTile bkt_tile ON bkt.msbkt = bkt_tile.msbkt
-        WHERE
-            kqbk.mssv = ?
-            AND bkt.malop = ?
-            AND tp.id = ?
-            AND kqbk.diem = (
-                SELECT MAX(kqbk2.diem)
-                FROM KetQuaBaiKiemTra kqbk2
-                JOIN BaiKiemTra bkt2 ON kqbk2.msbkt = bkt2.msbkt
-                WHERE kqbk2.mssv = ?
-                AND bkt2.malop = ?
-                AND bkt2.danhgia_id = ?
-                AND kqbk2.msbkt = bkt.msbkt
-            )
-            AND chuan.chuan = ?
-        ORDER BY
-            bkt.tenbkt, chuan.chuan
+    SELECT
+        bkt.msbkt,
+        bkt.tenbkt,
+        bkt_tile.tile AS tile_bai_kiem_tra,
+        tp.thanhphan AS thanhphan_danhgia,
+        kqch.chuan_id,
+        chuan.chuan AS chuan_dau_ra,
+        kqch.so_cau_dung,
+        kqbk.diem,
+        CASE
+            WHEN bkt.loai_bkt = 'TracNghiem' THEN
+                (SELECT COUNT(*)
+                 FROM CauHoi ch
+                 WHERE ch.msbkt = bkt.msbkt AND ch.chuan_id = chuan.id)
+            WHEN bkt.loai_bkt = 'TuLuan' THEN
+                (SELECT SUM(ch.diem)
+                 FROM CauHoi ch
+                 WHERE ch.msbkt = bkt.msbkt AND ch.chuan_id = chuan.id)
+            ELSE NULL
+        END AS ket_qua
+    FROM
+        BaiKiemTra bkt
+    JOIN
+        ThanhPhanDanhGia tp ON bkt.danhgia_id = tp.id
+    JOIN
+        KetQuaBaiKiemTra kqbk ON bkt.msbkt = kqbk.msbkt
+    JOIN
+        KetQuaChuans kqch ON kqbk.id = kqch.sinhvien_ketqua_id
+    JOIN
+        ChuanDauRa chuan ON kqch.chuan_id = chuan.id
+    JOIN
+        BaiKiemTraTile bkt_tile ON bkt.msbkt = bkt_tile.msbkt
+    WHERE
+        kqbk.mssv = ?
+        AND bkt.malop = ?
+        AND tp.id = ?
+        AND kqbk.id = (
+            SELECT kqbk2.id
+            FROM KetQuaBaiKiemTra kqbk2
+            JOIN BaiKiemTra bkt2 ON kqbk2.msbkt = bkt2.msbkt
+            WHERE kqbk2.mssv = ?
+              AND bkt2.malop = ?
+              AND bkt2.danhgia_id = ?
+              AND kqbk2.msbkt = bkt.msbkt
+            ORDER BY kqbk2.diem DESC, kqbk2.id ASC
+            LIMIT 1
+        )
+        AND chuan.chuan = ?
+    ORDER BY
+        bkt.tenbkt, chuan.chuan
     ", [$mssv, $malop, $thanhphanId, $mssv, $malop, $thanhphanId, $chuanId]);
+
 
         $totalPercentage = 0;
         foreach ($result as $row) {
