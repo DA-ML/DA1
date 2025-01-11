@@ -1253,12 +1253,74 @@ ORDER BY
                 }
             }
 
+            // Cập nhật điểm lại cho sinh viên
+            $this->updateStudentScores($id, $malop);
 
             return redirect()->route('class.tests', ['malop' => $malop])->with('success', 'Cập nhật bài kiểm tra thành công');
         } catch (Exception $e) {
             return redirect()->back()->with('error', 'Đã có lỗi xảy ra khi cập nhật bài kiểm tra.')->withInput();
         }
     }
+
+    public function updateStudentScores($msbkt, $malop)
+    {
+        // Lấy danh sách sinh viên đã làm bài kiểm tra
+        $sinhVienKetQuaList = SinhVienKetQua::where('malop', $malop)
+            ->where('msbkt', $msbkt)
+            ->get();
+
+        // Lấy danh sách câu hỏi trong bài kiểm tra
+        $cauHoiList = CauHoi::where('msbkt', $msbkt)->get();
+
+        foreach ($sinhVienKetQuaList as $sinhVienKetQua) {
+            $mssv = $sinhVienKetQua->mssv;
+
+            // Lấy kết quả làm bài của sinh viên
+            $ketQuaBaiKiemTra = KetQuaBaiKiemTra::where('msbkt', $msbkt)
+                ->where('mssv', $mssv)
+                ->first();
+
+            if (!$ketQuaBaiKiemTra) {
+                // Nếu không có kết quả bài kiểm tra, bỏ qua sinh viên này
+                continue;
+            }
+
+            // Lấy câu trả lời của sinh viên
+            $finalAnswers = json_decode($ketQuaBaiKiemTra->cau_tra_loi, true);
+
+            $tongDiem = 0;
+            $soCauDungTheoChuan = [];
+
+            // Tính điểm và số câu đúng theo từng chuẩn
+            foreach ($cauHoiList as $cauHoi) {
+                $answer = $finalAnswers[$cauHoi->msch] ?? null;
+
+                if ($answer !== null && trim($answer) === trim($cauHoi->dapan)) {
+                    $tongDiem += $cauHoi->diem;
+
+                    if (!isset($soCauDungTheoChuan[$cauHoi->chuan_id])) {
+                        $soCauDungTheoChuan[$cauHoi->chuan_id] = 0;
+                    }
+                    $soCauDungTheoChuan[$cauHoi->chuan_id]++;
+                }
+            }
+
+            // Cập nhật điểm tổng cho sinh viên
+            $ketQuaBaiKiemTra->update(['diem' => $tongDiem]);
+
+            // Cập nhật số câu đúng theo từng chuẩn
+            foreach ($soCauDungTheoChuan as $chuanId => $soCauDung) {
+                KetQuaChuans::updateOrCreate(
+                    [
+                        'sinhvien_ketqua_id' => $sinhVienKetQua->id,
+                        'chuan_id' => $chuanId,
+                    ],
+                    ['so_cau_dung' => $soCauDung]
+                );
+            }
+        }
+    }
+
 
     public function updateEssay(Request $request, $id, $malop)
     {
