@@ -455,6 +455,7 @@
                         input.style.width = '150px';
                         input.setAttribute('min', '0');
                         input.setAttribute('max', '10');
+                        input.setAttribute('step', '0.01');
                         input.classList.add('cdr-input');
 
                         div.appendChild(input);
