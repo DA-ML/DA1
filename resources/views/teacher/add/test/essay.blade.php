@@ -84,13 +84,13 @@
                             <div
                                 style="width: 100%; padding: 10px; margin-top:10px; display: flex; justify-content: space-between; align-items: center">
                                 <h1 style="font-family: Inter; font-size: 16px; font-weight: 400">Ngày bắt đầu</h1>
-                                <input type="datetime-local" id="date-start" name="date-start"
+                                <input type="datetime-local" id="date-start" name="date-start" required value="{{ old('date-start') }}"
                                     style="font-family: Inter; width: 300px; height: 40px; border-radius: 5px; border: 1px solid rgba(44, 148, 231, 0.50); padding: 10px">
                             </div>
                             <div
                                 style="width: 100%; padding: 10px; margin-top:10px; display: flex; justify-content: space-between; align-items: center">
                                 <h1 style="font-family: Inter; font-size: 16px; font-weight: 400">Ngày kết thúc</h1>
-                                <input type="datetime-local" id="date-end" name="date-end"
+                                <input type="datetime-local" id="date-end" name="date-end" required value="{{ old('date-end') }}"
                                     style="font-family: Inter; width: 300px; height: 40px; border-radius: 5px; border: 1px solid rgba(44, 148, 231, 0.50); padding: 10px">
                             </div>
                             <div
@@ -455,6 +455,7 @@
                         input.style.width = '150px';
                         input.setAttribute('min', '0');
                         input.setAttribute('max', '10');
+                        input.setAttribute('step', '0.01');
                         input.classList.add('cdr-input');
 
                         div.appendChild(input);
