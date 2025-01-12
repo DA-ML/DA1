@@ -131,6 +131,38 @@ class TeacherController extends Controller
         $user = Session::get('user');
         return view('teacher.profile', compact('user'));
     }
+    public function teacherCalendar()
+    {
+        $user = Session::get('user');
+        $teacher = GiaoVien::find($user['id']);
+
+        if (!$teacher) {
+            return back()->with('error', 'Không tìm thấy người dùng.');
+        }
+
+        $exams = DB::table('QuanLyGV')
+            ->join('LopHoc', 'QuanLyGV.malop', '=', 'LopHoc.malop')
+            ->join('HocKy', 'QuanLyGV.mahk', '=', 'HocKy.mahk')
+            ->leftJoin('BaiKiemTra', 'LopHoc.malop', '=', 'BaiKiemTra.malop')
+            ->where('QuanLyGV.msgv', $teacher->msgv)
+            ->where('HocKy.tenhk', $this->currentSemester)
+            ->where('HocKy.namhoc', $this->currentYear)
+            ->select('BaiKiemTra.ngaybatdau')
+            ->pluck('ngaybatdau')
+            ->filter(function ($date) {
+                return $date !== null;
+            })
+            ->map(function ($date) {
+                return date('Y-m-d', strtotime($date));
+            })
+            ->toArray();
+
+        // Reset key của mảng
+        $examDates = array_values($exams);
+
+        return view('teacher.calendar', compact('user', 'examDates'));
+    }
+
 
     public function teacherPassword()
     {

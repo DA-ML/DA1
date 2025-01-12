@@ -128,7 +128,7 @@
         <div class="heading-dashboard">
             <p id="dashboard">Tổng quan</p>
             <p id="classLink">Lớp học</p>
-            <p>Lịch</p>
+            <p id="calendarDate">Lịch</p>
         </div>
         <div class="heading-info">
             <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 60 60" fill="none">
@@ -213,6 +213,14 @@
             window.location.href = '/teacher/profile';
         } else if (role === 'sinhvien') {
             window.location.href = '/student/profile';
+        }
+    });
+
+    document.getElementById('calendarDate').addEventListener('click', function() {
+        if (role === 'giaovien') {
+            window.location.href = '/teacher/calendar';
+        } else if (role === 'sinhvien') {
+            window.location.href = '/student/calendar';
         }
     });
 

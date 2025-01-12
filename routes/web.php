@@ -22,6 +22,8 @@ Route::middleware('check.login')->group(function () {
 
     Route::get('student/profile', [StudentController::class, 'studentProfile'])->name('student.profile');
 
+    Route::get('student/calendar', [StudentController::class, 'studentCalendar'])->name('student.calendar');
+
     Route::get('student/password', [StudentController::class, 'studentPassword'])->name('student.password');
     Route::post('student/password', [StudentController::class, 'changeStudentPassword'])->name('student.password.change');
 
@@ -51,6 +53,8 @@ Route::middleware('check.login')->group(function () {
     Route::get('teacher/classlist', [TeacherController::class, 'classList'])->name('teacher.classlist');
 
     Route::get('teacher/profile', [TeacherController::class, 'teacherProfile'])->name('teacher.profile');
+
+    Route::get('teacher/calendar', [TeacherController::class, 'teacherCalendar'])->name('teacher.calendar');
 
     Route::get('teacher/password', [TeacherController::class, 'teacherPassword'])->name('teacher.password');
     Route::post('teacher/password', [TeacherController::class, 'changePassword'])->name('teacher.password.change');
