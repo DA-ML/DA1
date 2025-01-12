@@ -17,6 +17,7 @@ class LopHoc extends Model
     protected $fillable = [
         'malop',
         'tenlop',
+        'mota',
     ];
 
     public function quanLyHS()

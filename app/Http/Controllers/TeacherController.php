@@ -215,20 +215,43 @@ class TeacherController extends Controller
             return redirect()->route('teacher.classlist')->withErrors(['error' => 'Lớp không tồn tại']);
         }
 
-        // Lấy danh sách sinh viên qua QuanLyHS
-        $members = QuanLyHS::where('malop', $malop)
-            ->with('sinhVien')
-            ->get();
-
-        // Lấy kết quả thành phần cho lớp và tên sinh viên
-        $result = DB::table('KetQuaThanhPhan')
-            ->join('SinhVien', 'KetQuaThanhPhan.mssv', '=', 'SinhVien.mssv')
-            ->where('malop', $malop)
-            ->select('KetQuaThanhPhan.*', 'SinhVien.tensv', 'SinhVien.mssv')
-            ->get();
-
         // Chuyển kết quả vào view
-        return view('teacher.view.classes', compact('class', 'members', 'result'));
+        return view('teacher.view.classes', compact('class'));
+    }
+
+    public function showNotification($malop)
+    {
+        // Lấy thông tin lớp học dựa vào mã lớp
+        $class = LopHoc::where('malop', $malop)->first();
+
+        if (!$class) {
+            return redirect()->route('teacher.classlist')->withErrors(['error' => 'Lớp không tồn tại']);
+        }
+
+        return view('teacher.update.notification', compact('class'));
+    }
+
+    public function updateNotification(Request $request, $malop)
+    {
+        // Validate dữ liệu đầu vào
+        $request->validate([
+            'mota' => 'nullable|string|max:500',
+        ]);
+
+        // Lấy thông tin lớp học dựa vào mã lớp
+        $class = LopHoc::where('malop', $malop)->first();
+
+        if (!$class) {
+            return redirect()->route('teacher.classlist')->withErrors(['alert' => 'Lớp không tồn tại']);
+        }
+
+        // Cập nhật mô tả
+        $class->mota = $request->input('mota');
+        $class->save();
+
+        session()->flash('alert', 'Cập nhật thông báo thành công.');
+
+        return redirect()->route('class.details', ['malop' => $malop]);
     }
 
 
