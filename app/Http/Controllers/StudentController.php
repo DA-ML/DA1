@@ -87,6 +87,36 @@ class StudentController extends Controller
         return view('student.profile', compact('user'));
     }
 
+    public function studentCalendar()
+    {
+        $user = Session::get('user');
+        $student = SinhVien::find($user['id']);
+
+        if (!$student) {
+            return back()->with('error', 'Không tìm thấy người dùng.');
+        }
+        $exams = DB::table('QuanLyHS')
+            ->join('LopHoc', 'QuanLyHS.malop', '=', 'LopHoc.malop')
+            ->join('HocKy', 'QuanLyHS.mahk', '=', 'HocKy.mahk')
+            ->leftJoin('BaiKiemTra', 'LopHoc.malop', '=', 'BaiKiemTra.malop')
+            ->where('QuanLyHS.mssv', $student->mssv)
+            ->where('HocKy.tenhk', $this->currentSemester)
+            ->where('HocKy.namhoc', $this->currentYear)
+            ->select('BaiKiemTra.ngaybatdau')
+            ->pluck('ngaybatdau')
+            ->filter(function ($date) {
+                return $date !== null;
+            })
+            ->map(function ($date) {
+                return date('Y-m-d', strtotime($date));
+            })
+            ->toArray();
+
+        $examDates = array_values($exams);
+
+        return view('student.calendar', compact('user', 'examDates'));
+    }
+
     public function studentPassword()
     {
         $user = Session::get('user');
@@ -153,7 +183,7 @@ class StudentController extends Controller
                 'currentSemester' => $this->currentSemester,
                 'currentYear' => $this->currentYear
             ]
-        );        
+        );
 
         return view('student.classlist', compact('classes'));
     }
@@ -615,12 +645,12 @@ class StudentController extends Controller
         foreach ($cauHoi as $cau) {
             $answer = isset($finalAnswers[$cau->msch]) ? $finalAnswers[$cau->msch] : null;
             logger()->info("Câu hỏi {$cau->msch}: câu trả lời = " . json_encode($answer));
-        
+
             if ($answer === null || trim($answer) === "") {
                 $answer = null; // Câu trả lời trống được xem là sai
                 continue;
             }
-        
+
             if (trim((string) $answer) === trim((string) $cau->dapan)) {
                 $tongDiem += $cau->diem;
                 if (!isset($soCauDungTheoChuan[$cau->chuan_id])) {
@@ -629,12 +659,12 @@ class StudentController extends Controller
                 $soCauDungTheoChuan[$cau->chuan_id]++;
             }
         }
-        
+
         // Giới hạn tổng điểm tối đa là 10
         if ($tongDiem > 10) {
             $tongDiem = 10;
         }
-        
+
         $ketQuaBaiKiemTra = KetQuaBaiKiemTra::create([
             'msbkt' => $msbkt,
             'mssv' => $mssv,
