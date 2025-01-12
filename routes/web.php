@@ -75,6 +75,7 @@ Route::middleware('check.login')->group(function () {
     Route::get('teacher/view/statics/{malop}', [TeacherController::class, 'classStatics'])->name('class.statics');
 
     Route::get('teacher/view/scores/{malop}', [TeacherController::class, 'classScores'])->name('class.scores');
+    Route::get('/teacher/class-scores/export/{malop}', [TeacherController::class, 'exportScores'])->name('teacher.exportScores');
 
     Route::get('teacher/add/lecture/{malop}', [TeacherController::class, 'addLecture'])->name('add.lecture');
     Route::post('teacher/add/lecture/{malop}', [TeacherController::class, 'addLecture'])->name('add.lecture');
