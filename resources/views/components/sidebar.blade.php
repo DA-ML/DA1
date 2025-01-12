@@ -188,4 +188,14 @@
     :hover {
         cursor: pointer;
     }
+
+    .lecture:hover,
+    .class:hover,
+    .member:hover,
+    .score:hover,
+    .statics:hover,
+    .test:hover {
+        background-color: #E3F2FD;
+        border-radius: 5px;
+    }
 </style>

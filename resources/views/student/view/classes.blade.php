@@ -192,4 +192,9 @@
         font-size: 16px;
         font-weight: 400;
     }
+
+    .classes:hover {
+        background-color: #E3F2FD;
+        border-radius: 5px;
+    }
 </style>

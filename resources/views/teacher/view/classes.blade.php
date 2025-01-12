@@ -79,6 +79,11 @@
         stroke: #FFF;
     }
 
+    .classes:hover {
+        background-color: #E3F2FD;
+        border-radius: 5px;
+    }
+
     .body {
         display: flex;
         align-items: flex-start;
