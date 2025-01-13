@@ -821,7 +821,7 @@ class StudentController extends Controller
     }
 
     //Hàm tính phần trăm TPDG
-    protected function calculateTotalPercentage($mssv, $malop, $thanhphanId, $chuanId)
+    public function calculateTotalPercentage($mssv, $malop, $thanhphanId, $chuanId)
     {
         $result = DB::select("
     SELECT

@@ -26,17 +26,20 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use App\Exports\ScoreDataExport;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Http\Controllers\StudentController;
 
 class TeacherController extends Controller
 {
     protected $currentSemester;
     protected $currentYear;
+    protected $studentController;
 
     // Constructor để khởi tạo giá trị
-    public function __construct()
+    public function __construct(StudentController $studentController)
     {
         $this->currentSemester = '1';
         $this->currentYear = '2023-2024';
+        $this->studentController = $studentController;
     }
     public function teacherDashboard()
     {
@@ -1284,6 +1287,38 @@ ORDER BY
                 ['msbkt' => $bkt->msbkt, 'malop' => $malop],
                 ['tile' => $tile]
             );
+        }
+
+        // Danh sách ánh xạ thành phần đánh giá với các chuẩn đầu ra
+        $thanhPhanToChuans = [
+            'A1' => ['G2.2', 'G3.1'],
+            'A3' => ['G2.2', 'G3.1', 'G3.2'],
+            'A4' => ['G2.2', 'G3.1', 'G3.2', 'G6.1'],
+        ];
+        $students = $class->quanLyHS; // Giả sử quanLyHS trả về danh sách sinh viên
+
+        foreach ($students as $student) {
+            $mssv = $student->mssv;
+
+            // Tính toán và lưu điểm cho từng sinh viên dựa trên từng chuẩn đầu ra
+            foreach ($thanhPhanToChuans as $thanhphan_id => $chuans) {
+                foreach ($chuans as $chuan_id) {
+                    // Tính toán tổng tỷ lệ cho từng chuẩn đầu ra
+                    $totalPercentage = $this->studentController->calculateTotalPercentage($mssv, $malop, $thanhphan_id, $chuan_id);
+                    // Lưu kết quả vào bảng KetQuaThanhPhan
+                    DB::table('KetQuaThanhPhan')->updateOrInsert(
+                        [
+                            'mssv' => $mssv,
+                            'malop' => $malop,
+                            'thanhphan_id' => $thanhphan_id,
+                            'chuan_id' => $chuan_id,
+                        ],
+                        [
+                            'tyle' => $totalPercentage,
+                        ]
+                    );
+                }
+            }
         }
 
         return redirect()->route('class.tests', ['malop' => $malop])->with('alert', 'Lưu tỉ lệ thành công.');
