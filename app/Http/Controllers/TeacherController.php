@@ -971,6 +971,23 @@ ORDER BY
             $msbkt = BaiKiemTra::max('msbkt') ?? 0; // Trả về 0 nếu không có bản ghi nào
             $msbkt += 1;
 
+            $totalPoints = 0;
+            $numQuestions = $request->input('num-questions');
+            for ($i = 1; $i <= $numQuestions; $i++) {
+                $pointKey = "points-$i";
+                if ($request->has($pointKey)) {
+                    $totalPoints += floatval($request->input($pointKey));
+                }
+            }
+
+            // Kiểm tra nếu tổng điểm không bằng 10
+            if (round($totalPoints, 2) !== 10.0) {
+                return redirect()
+                    ->back()
+                    ->with(['alert' => "Tổng điểm phải bằng 10. Hiện tại là $totalPoints."])
+                    ->withInput();
+            }
+
             if ($request->hasFile('file-input')) {
                 $file = $request->file('file-input');
                 $folderPath = public_path('test/' . $msbkt);
