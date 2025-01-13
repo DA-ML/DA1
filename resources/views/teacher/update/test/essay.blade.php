@@ -398,7 +398,16 @@
 
         const pointsPerQuestion = numQuestions > 0 ? (10 / numQuestions).toFixed(2) : 0;
 
+        if (pointsPerQuestion <= 0 || pointsPerQuestion > 10) {
+            alert('Tổng điểm không hợp lệ. Mỗi câu phải có điểm hợp lệ.');
+            return;
+        }
+
+        let totalPoints = 0;
+
         for (let i = 0; i < numQuestions; i++) {
+            totalPoints += parseFloat(pointsPerQuestion);
+
             const questionInfo = document.createElement('div');
             questionInfo.classList.add('question-info');
             questionInfo.innerHTML = `
@@ -421,29 +430,12 @@
         `;
             questionContainer.appendChild(questionInfo);
         }
+
+        if (totalPoints !== 10) {
+            alert(`Tổng điểm hiện tại là ${totalPoints}. Tổng điểm phải là 10.`);
+            questionContainer.innerHTML = '';
+        }
     });
-
-    document.getElementById('next-button').addEventListener('click', function (event) {
-    event.preventDefault(); // Ngừng submit form khi nhấn nút
-
-    const pointInputs = document.querySelectorAll('input[name^="points-"]'); // Lấy tất cả các trường điểm
-    let totalPoints = 0;
-
-    // Tính tổng điểm
-    pointInputs.forEach(input => {
-        totalPoints += parseFloat(input.value) || 0; // Tính tổng điểm, nếu input trống thì tính là 0
-    });
-
-    // Kiểm tra nếu tổng điểm không bằng 10
-    if (totalPoints !== 10) {
-        alert('Tổng điểm phải là 10. Hiện tại là ' + totalPoints + ' điểm');
-    } else {
-        // Nếu tổng điểm hợp lệ, submit form
-        alert('Tổng điểm hợp lệ. Tiến hành tiếp theo.');
-        document.querySelector('form').submit(); // Submit form
-    }
-});
-
 
     // Lắng nghe sự thay đổi của TPDG và cập nhật các dropdown CDR
     document.getElementById('tpdg-dropdown').addEventListener('change', function() {

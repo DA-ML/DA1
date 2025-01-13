@@ -1516,6 +1516,27 @@ ORDER BY
         ]);
 
         try {
+            $totalPoints = 0;
+            $cauHoiList = CauHoi::where('msbkt', $id)->get();
+
+            // Tính tổng điểm của các câu hỏi
+            foreach ($cauHoiList as $index => $cauHoi) {
+                $pointKey = "points-" . ($index + 1); // Tên input điểm trong form
+
+                // Kiểm tra nếu tồn tại điểm trong request
+                if ($request->has($pointKey)) {
+                    $totalPoints += floatval($request->input($pointKey));
+                }
+            }
+
+            // Kiểm tra nếu tổng điểm không bằng 10
+            if (round($totalPoints, 2) !== 10.0) {
+                return redirect()
+                    ->back()
+                    ->with(['alert' => "Tổng điểm phải bằng 10. Hiện tại là $totalPoints."])
+                    ->withInput();
+            }
+
             $baiKiemTra = BaiKiemTra::findOrFail($id);
             $filePath = $baiKiemTra->file_path; // Giữ nguyên đường dẫn file cũ nếu không cập nhật
 
@@ -1556,7 +1577,7 @@ ORDER BY
 
             return redirect()->route('class.tests', ['malop' => $malop])->with('alert', 'Cập nhật bài kiểm tra thành công');
         } catch (Exception $e) {
-            return redirect()->back()->with('error', 'Đã có lỗi xảy ra khi cập nhật bài kiểm tra.')->withInput();
+            return redirect()->route('class.tests', ['malop' => $malop])->with('alert', 'Đã có lỗi xảy ra khi cập nhật bài kiểm tra.')->withInput();
         }
     }
 }
