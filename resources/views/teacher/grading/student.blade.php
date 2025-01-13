@@ -80,7 +80,7 @@
                                     <td>
                                         <input class="input-grade" type="number"
                                             name="points[{{ $outcome->question_id }}]" min="0"
-                                            max="{{ $outcome->predefined_point }}" step="0.1" required title="Nhập hoặc chọn điểm từng câu">
+                                            max="{{ $outcome->predefined_point }}" step="0.05" required title="Nhập hoặc chọn điểm từng câu">
                                     </td>
                                 </tr>
                             @endforeach
