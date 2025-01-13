@@ -24,6 +24,8 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use App\Exports\ScoreDataExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class TeacherController extends Controller
 {
@@ -608,6 +610,53 @@ ORDER BY
         });
 
         return view('teacher.view.scores', compact('class', 'studentsWithResults', 'baiKiemTras'));
+    }
+
+    public function exportScores($malop)
+    {
+        // Lấy danh sách sinh viên và điểm như trong hàm classScores
+        $class = LopHoc::where('malop', $malop)
+            ->with(['quanLyHS', 'quanLyGV', 'baiGiang', 'baiKiemTra'])
+            ->first();
+
+        if (!$class) {
+            return redirect()->route('teacher.classlist')->withErrors(['error' => 'Lớp không tồn tại']);
+        }
+
+        $members = QuanLyHS::where('malop', $malop)
+            ->with('sinhVien')
+            ->get();
+
+        $baiKiemTras = BaiKiemTra::where('malop', $malop)->get();
+
+        $studentsWithResults = $members->map(function ($member) use ($baiKiemTras) {
+            $student = $member->sinhVien;
+
+            $results = $baiKiemTras->map(function ($baiKiemTra) use ($student) {
+                $highestScore = KetQuaBaiKiemTra::where('msbkt', $baiKiemTra->msbkt)
+                    ->where('mssv', $student->mssv)
+                    ->max('diem');
+
+                $score = $highestScore !== null ? $highestScore : null;
+
+                return [
+                    'bai_kiem_tra' => $baiKiemTra->tenbkt,
+                    'diem' => $score
+                ];
+            });
+
+            $averageScore = $results->where('diem', '!=', '-')->avg('diem') ?? '-';
+
+            return [
+                'ten_sv' => $student->tensv,
+                'mssv' => $student->mssv,
+                'ket_qua' => $results->toArray(),
+                'diem_tb' => $averageScore,
+            ];
+        });
+
+        // Truyền trực tiếp dữ liệu vào export
+        return Excel::download(new ScoreDataExport($studentsWithResults), 'scores.xlsx');
     }
 
 
