@@ -41,8 +41,10 @@
                             </button>
                         </form>
                         <!-- Thông báo lỗi -->
-                        @if (session('error'))
-                            <p style="color:red;">{{ session('error') }}</p>
+                        @if (session('alert'))
+                            <script type="text/javascript">
+                                alert("{{ session('alert') }}");
+                            </script>
                         @endif
                     </div>
                 </div>
