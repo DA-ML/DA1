@@ -58,7 +58,7 @@ class Controller
         }
 
         // Nếu không có sinh viên hoặc giáo viên phù hợp
-        return back()->withErrors(['error' => 'Thông tin đăng nhập không đúng']);
+        return back()->with(['alert' => 'Thông tin đăng nhập không đúng']);
     }
 
 
