@@ -800,23 +800,21 @@ class StudentController extends Controller
             ->where('mssv', $mssv)
             ->first();
 
-        if (!$ketQuaBaiKiemTra) {
-            return redirect()->route('student.class.tests', ['malop' => $malop])->with(['alert' => 'Bạn chưa làm bài kiểm tra này']);
-        }
+        // Lấy nhận xét của giáo viên (nếu có kết quả bài kiểm tra)
+        $nhanXet = $ketQuaBaiKiemTra
+            ? NhanXetBaiKiemTra::where('ketqua_id', $ketQuaBaiKiemTra->id)->first()
+            : null;
 
-        // Lấy nhận xét của giáo viên
-        $nhanXet = NhanXetBaiKiemTra::where('ketqua_id', $ketQuaBaiKiemTra->id)->first();
-
-        // Lấy đường dẫn file (nếu có)
-        $filesPath = $ketQuaBaiKiemTra->files_path;
+        // Lấy đường dẫn file (nếu có kết quả bài kiểm tra)
+        $filesPath = $ketQuaBaiKiemTra ? $ketQuaBaiKiemTra->files_path : null;
         $filesArray = $filesPath ? explode(',', $filesPath) : [];
 
         return view('student.detail.essay', [
             'test' => $test,
             'malop' => $malop,
             'filesArray' => $filesArray,
-            'diem' => $ketQuaBaiKiemTra->diem,  // Trả điểm cho bài kiểm tra
-            'nhanXet' => $nhanXet ? $nhanXet->nhanxet : 'Chưa có nhận xét' // Nếu không có nhận xét, trả về thông báo
+            'diem' => $ketQuaBaiKiemTra ? $ketQuaBaiKiemTra->diem : 'Chưa có điểm', // Hiển thị mặc định nếu không có điểm
+            'nhanXet' => $nhanXet ? $nhanXet->nhanxet : 'Chưa có nhận xét', // Hiển thị mặc định nếu không có nhận xét
         ]);
     }
 
