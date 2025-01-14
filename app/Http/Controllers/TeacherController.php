@@ -1469,46 +1469,53 @@ ORDER BY
         // Lấy danh sách câu hỏi trong bài kiểm tra
         $cauHoiList = CauHoi::where('msbkt', $msbkt)->get();
 
-        // Lấy tất cả các kết quả bài kiểm tra của sinh viên 1 lần
+        // Lấy tất cả các lần làm bài kiểm tra của sinh viên trong lớp
         $ketQuaBaiKiemTraList = KetQuaBaiKiemTra::where('msbkt', $msbkt)
-            ->whereIn('mssv', $sinhVienKetQuaList->pluck('mssv')) // Lấy tất cả mssv của sinh viên trong lớp
-            ->get()
-            ->groupBy('mssv');  // Group theo mssv để dễ dàng xử lý
+            ->whereIn('mssv', $sinhVienKetQuaList->pluck('mssv'))
+            ->get(); // Không group theo mssv, xử lý từng lần làm riêng biệt
 
-        foreach ($sinhVienKetQuaList as $sinhVienKetQua) {
-            $mssv = $sinhVienKetQua->mssv;
+        // Xử lý cập nhật điểm và chuẩn cho từng lần làm bài
+        foreach ($ketQuaBaiKiemTraList as $ketQuaBaiKiemTra) {
+            $mssv = $ketQuaBaiKiemTra->mssv;
+            $finalAnswers = json_decode($ketQuaBaiKiemTra->cau_tra_loi, true);
 
-            // Kiểm tra xem sinh viên có bài kiểm tra không
-            if (isset($ketQuaBaiKiemTraList[$mssv])) {
-                // Lấy tất cả kết quả bài kiểm tra của sinh viên đó
-                $ketQuaBaiKiemTraListForStudent = $ketQuaBaiKiemTraList[$mssv];
+            $tongDiem = 0;
+            $soCauDungTheoChuan = [];
 
-                // Lưu kết quả chuẩn tạm thời cho sinh viên
-                $soCauDungTheoChuan = [];
+            // Chấm điểm lại từng câu hỏi
+            foreach ($cauHoiList as $cauHoi) {
+                $answer = $finalAnswers[$cauHoi->msch] ?? null;
 
-                foreach ($ketQuaBaiKiemTraListForStudent as $ketQuaBaiKiemTra) {
-                    // Lấy câu trả lời của sinh viên
-                    $finalAnswers = json_decode($ketQuaBaiKiemTra->cau_tra_loi, true);
+                if ($answer !== null && trim((string)$answer) === trim((string)$cauHoi->dapan)) {
+                    $tongDiem += $cauHoi->diem;
 
-                    // Cập nhật điểm tổng cho sinh viên trong bảng KetQuaBaiKiemTra
-                    $tongDiem = 0;
-                    $soCauDungTheoChuan = [];
-
-                    // Tính điểm và số câu đúng theo từng chuẩn
-                    foreach ($cauHoiList as $cauHoi) {
-                        $answer = $finalAnswers[$cauHoi->msch] ?? null;
-
-                        if ($answer !== null && trim($answer) === trim($cauHoi->dapan)) {
-                            $tongDiem += $cauHoi->diem;
-
-                            if (!isset($soCauDungTheoChuan[$cauHoi->chuan_id])) {
-                                $soCauDungTheoChuan[$cauHoi->chuan_id] = 0;
-                            }
-                            $soCauDungTheoChuan[$cauHoi->chuan_id]++;
-                        }
+                    // Cập nhật số câu đúng theo chuẩn
+                    if (!isset($soCauDungTheoChuan[$cauHoi->chuan_id])) {
+                        $soCauDungTheoChuan[$cauHoi->chuan_id] = 0;
                     }
-                    $ketQuaBaiKiemTra->update(['diem' => $tongDiem]);
+                    $soCauDungTheoChuan[$cauHoi->chuan_id]++;
                 }
+            }
+
+            // Giới hạn tổng điểm tối đa là 10
+            if ($tongDiem > 10) {
+                $tongDiem = 10;
+            }
+
+            // Cập nhật điểm tổng vào bảng KetQuaBaiKiemTra
+            $ketQuaBaiKiemTra->update([
+                'diem' => $tongDiem,
+            ]);
+
+            // Cập nhật hoặc tạo mới dữ liệu trong bảng KetQuaChuans
+            foreach ($soCauDungTheoChuan as $chuanId => $soCauDung) {
+                KetQuaChuans::updateOrCreate(
+                    [
+                        'sinhvien_ketqua_id' => $ketQuaBaiKiemTra->id,
+                        'chuan_id' => $chuanId,
+                    ],
+                    ['so_cau_dung' => $soCauDung]
+                );
             }
         }
     }
