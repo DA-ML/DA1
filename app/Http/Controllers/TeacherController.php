@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\DB;
 use App\Exports\ScoreDataExport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\StudentController;
+use Illuminate\Support\Facades\Validator;
 
 class TeacherController extends Controller
 {
@@ -168,7 +169,6 @@ class TeacherController extends Controller
         return view('teacher.calendar', compact('user', 'examDates'));
     }
 
-
     public function teacherPassword()
     {
         $user = Session::get('user');
@@ -184,23 +184,40 @@ class TeacherController extends Controller
             return back()->with('error', 'Không tìm thấy người dùng.');
         }
 
-        // Validate input từ form
-        $request->validate([
+        // Tạo một Validator thủ công để thêm logic kiểm tra mật khẩu cũ
+        $validator = Validator::make($request->all(), [
             'pass_old' => 'required',
             'pass_new' => 'required|min:8',
             'pass_newcf' => 'required|same:pass_new',
+        ], [
+            'pass_old.required' => 'Mật khẩu cũ không được để trống.',
+            'pass_new.required' => 'Mật khẩu mới không được để trống.',
+            'pass_new.min' => 'Mật khẩu mới phải có ít nhất 8 ký tự.',
+            'pass_newcf.required' => 'Xác nhận mật khẩu không được để trống.',
+            'pass_newcf.same' => 'Xác nhận mật khẩu không khớp với mật khẩu mới.',
         ]);
 
-        // Kiểm tra có trùng mật khẩu cũ không
-        if ($request->pass_old !== $user->password_gv) {
-            return back()->with('error', 'Mật khẩu cũ không đúng.');
+        // Thêm lỗi nếu mật khẩu cũ không khớp
+        $validator->after(function ($validator) use ($request, $user) {
+            if ($request->pass_old !== $user->password_gv) {
+                $validator->errors()->add('pass_old', 'Mật khẩu cũ không đúng.');
+            }
+        });
+
+        // Kiểm tra nếu có lỗi, trả về kèm các lỗi
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
         }
 
         // Cập nhật mật khẩu mới
         $user->password_gv = $request->pass_new;
-        $user->save();
+        $saved = $user->save();
 
-        return redirect()->route('teacher.password')->with('alert', 'Mật khẩu đã được thay đổi thành công.');
+        if ($saved) {
+            return redirect()->route('teacher.password')->with('success', 'Mật khẩu đã được thay đổi thành công.');
+        } else {
+            return back()->with('error', 'Đã xảy ra lỗi khi lưu mật khẩu mới.');
+        }
     }
 
     public function viewClass($malop)
