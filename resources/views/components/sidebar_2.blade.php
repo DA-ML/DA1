@@ -182,7 +182,7 @@
     }
 
     .lecture:hover,
-    .class:hover,
+    .classes:hover,
     .member:hover,
     .score:hover,
     .statics:hover,
