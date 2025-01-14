@@ -61,11 +61,6 @@
         align-items: center;
     }
 
-    .heading-dashboard p:nth-child(2) {
-        color: #208CE4;
-        font-weight: 700;
-    }
-    
     .body {
         display: flex;
         justify-content: center;

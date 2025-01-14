@@ -610,6 +610,8 @@ class StudentController extends Controller
         return view('student.test.essay', compact('class', 'msbkt', 'malop', 'mssv', 'test'));
     }
 
+
+
     public function storeStudentTest(Request $request, $malop)
     {
         $answers = $request->input('answers', []);
@@ -696,6 +698,8 @@ class StudentController extends Controller
         return redirect()->route('student.class.tests', ['malop' => $malop])
             ->with('success', 'Lưu bài kiểm tra và chấm điểm thành công!');
     }
+
+
 
     public function viewTestDetail($malop, $msbkt)
     {
