@@ -1,11 +1,16 @@
 <html lang="vi">
 <!DOCTYPE html>
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Detail Essay</title>
 </head>
-
+@if (session('alert'))
+    <script type="text/javascript">
+        alert("{{ session('alert') }}");
+    </script>
+@endif
 <div class="student-dotest">
     <div class="body">
         <div class="left">
@@ -40,6 +45,7 @@
             </div>
             <div style="padding: 20px">
                 <h3>Thông tin lần làm bài:</h3>
+
                 @if ($filesArray && count($filesArray) > 0)
                     <h4 style="margin-top: 20px; margin-bottom: 20px">Files bạn đã tải lên:</h4>
                     @foreach ($filesArray as $file)
@@ -48,10 +54,13 @@
                         </div>
                     @endforeach
                 @else
-                    <p>Không có file nào được tải lên.</p>
+                    <p style="margin-top: 10px">Không có file nào được tải lên.</p>
                 @endif
+
                 <h3 style="font-weight:700;margin-top: 20px; margin-bottom: 20px; font-size:16px">Điểm:
-                    {{ $diem }}</h3>
+                    {{ $diem }}
+                </h3>
+
                 <h3 style="font-weight:700; font-size:16px; margin-bottom: 20px">Nhận xét của giáo viên:</h3>
                 <p>{{ $nhanXet }}</p>
             </div>
@@ -153,4 +162,5 @@
         margin-bottom: 20px;
     }
 </style>
+
 </html>

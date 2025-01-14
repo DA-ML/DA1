@@ -366,18 +366,27 @@ FROM (
     SELECT
         sv.mssv AS MaSinhVien,
         sv.tensv AS TenSinhVien,
-        AVG(kq.diem) AS avg_score,
+        AVG(max_scores.max_diem) AS avg_score,
         CASE
-            WHEN AVG(kq.diem) >= 8 THEN 'Giỏi'
-            WHEN AVG(kq.diem) >= 7 THEN 'Khá'
-            WHEN AVG(kq.diem) >= 5 THEN 'Trung bình'
+            WHEN AVG(max_scores.max_diem) >= 8 THEN 'Giỏi'
+            WHEN AVG(max_scores.max_diem) >= 7 THEN 'Khá'
+            WHEN AVG(max_scores.max_diem) >= 5 THEN 'Trung bình'
             ELSE 'Yếu'
         END AS category
     FROM
         SinhVien sv
     JOIN QuanLyHS qlhs ON sv.mssv = qlhs.mssv
-    JOIN BaiKiemTra bkt ON bkt.malop = qlhs.malop
-    JOIN KetQuaBaiKiemTra kq ON sv.mssv = kq.mssv AND bkt.msbkt = kq.msbkt
+    JOIN (
+        SELECT
+            kq.mssv,
+            kq.msbkt,
+            MAX(kq.diem) AS max_diem
+        FROM
+            KetQuaBaiKiemTra kq
+        GROUP BY
+            kq.mssv, kq.msbkt
+    ) AS max_scores ON sv.mssv = max_scores.mssv
+    JOIN BaiKiemTra bkt ON max_scores.msbkt = bkt.msbkt AND bkt.malop = qlhs.malop
     WHERE
         qlhs.malop = ?
     GROUP BY
