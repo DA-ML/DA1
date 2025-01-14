@@ -680,9 +680,7 @@ class StudentController extends Controller
         }
 
         // Giới hạn tổng điểm tối đa là 10
-        if ($tongDiem > 10) {
-            $tongDiem = 10;
-        }
+        $tongDiem = min($tongDiem, 10);
 
         $ketQuaBaiKiemTra = KetQuaBaiKiemTra::create([
             'msbkt' => $msbkt,
