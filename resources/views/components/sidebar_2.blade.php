@@ -135,24 +135,6 @@
         text-decoration: none;
     }
 
-    .statics {
-        display: flex;
-        height: 30px;
-        align-items: center;
-        gap: 22px;
-        align-self: stretch;
-    }
-
-    .statics a {
-        color: #000;
-        font-family: Inter;
-        font-size: 16px;
-        font-style: normal;
-        font-weight: 700;
-        line-height: normal;
-        text-decoration: none;
-    }
-
     .score {
         display: flex;
         height: 30px;
@@ -171,12 +153,11 @@
         text-decoration: none;
     }
 
-    .class,
+    .classes,
     .test,
     .lecture,
     .member,
     .score,
-    .statics,
     :hover {
         cursor: pointer;
     }
@@ -185,7 +166,6 @@
     .classes:hover,
     .member:hover,
     .score:hover,
-    .statics:hover,
     .test:hover {
         background-color: #E3F2FD;
         border-radius: 5px;
