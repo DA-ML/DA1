@@ -1469,6 +1469,9 @@ ORDER BY
         // Lấy danh sách câu hỏi trong bài kiểm tra
         $cauHoiList = CauHoi::where('msbkt', $msbkt)->get();
 
+        // Lấy danh sách tất cả chuẩn đầu ra trong bài kiểm tra
+        $allChuans = $cauHoiList->pluck('chuan_id')->unique();
+
         // Lấy tất cả các lần làm bài kiểm tra của sinh viên trong lớp
         $ketQuaBaiKiemTraList = KetQuaBaiKiemTra::where('msbkt', $msbkt)
             ->whereIn('mssv', $sinhVienKetQuaList->pluck('mssv'))
@@ -1482,6 +1485,11 @@ ORDER BY
             $tongDiem = 0;
             $soCauDungTheoChuan = [];
 
+            // Khởi tạo mặc định số câu đúng theo chuẩn là 0
+            foreach ($allChuans as $chuanId) {
+                $soCauDungTheoChuan[$chuanId] = 0;
+            }
+
             // Chấm điểm lại từng câu hỏi
             foreach ($cauHoiList as $cauHoi) {
                 $answer = $finalAnswers[$cauHoi->msch] ?? null;
@@ -1489,10 +1497,7 @@ ORDER BY
                 if ($answer !== null && trim((string)$answer) === trim((string)$cauHoi->dapan)) {
                     $tongDiem += $cauHoi->diem;
 
-                    // Cập nhật số câu đúng theo chuẩn
-                    if (!isset($soCauDungTheoChuan[$cauHoi->chuan_id])) {
-                        $soCauDungTheoChuan[$cauHoi->chuan_id] = 0;
-                    }
+                    // Tăng số câu đúng cho chuẩn đầu ra tương ứng
                     $soCauDungTheoChuan[$cauHoi->chuan_id]++;
                 }
             }
@@ -1519,6 +1524,7 @@ ORDER BY
             }
         }
     }
+
 
     public function updateEssay(Request $request, $id, $malop)
     {
