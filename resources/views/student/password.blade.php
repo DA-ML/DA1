@@ -15,17 +15,10 @@
                 <div class="header-content">Chỉnh sửa mật khẩu</div>
             </div>
             @if (session('success'))
-                <script>
-                    alert('{{ session('success') }}');
-                </script>
+            <script>
+                alert('{{ session('success') }}');
+            </script>
             @endif
-
-            @if (session('error'))
-                <script>
-                    alert('{{ session('error') }}');
-                </script>
-            @endif
-
             <div class="info">
                 <form method="POST" action="{{ route('student.password.change') }}">
                     @csrf
@@ -33,14 +26,23 @@
                         <p>Nhập mật khẩu cũ: </p>
                         <div class="changepw_input">
                             <input type="password" name="pass_old" placeholder="Mật khẩu cũ" required />
+                            @error('pass_old')
+                                <div class="error-message" style="font-size: 14px; color: red;">{{ $message }}</div>
+                            @enderror
                         </div>
                         <p>Nhập mật khẩu mới:</p>
                         <div class="changepw_input">
                             <input type="password" name="pass_new" placeholder="Mật khẩu mới" required />
+                            @error('pass_new')
+                                <div class="error-message" style="font-size: 14px; color: red;">{{ $message }}</div>
+                            @enderror
                         </div>
                         <p>Xác nhận mật khẩu mới:</p>
                         <div class="changepw_input">
                             <input type="password" name="pass_newcf" placeholder="Xác nhận mật khẩu mới" required />
+                            @error('pass_newcf')
+                                <div class="error-message" style="font-size: 14px; color: red;">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="changepw_btn">
                             <button type="submit" class="primary"
@@ -61,7 +63,7 @@
         flex-direction: column;
         align-items: center;
     }
-    
+
     .heading-dashboard p:nth-child(2) {
         color: #208CE4;
         font-weight: 700;
@@ -160,6 +162,10 @@
         justify-content: center;
         align-items: center;
         margin-bottom: 20px;
+    }
+
+    .alert alert-success{
+        color: green;
     }
 </style>
 </html>

@@ -17,6 +17,7 @@ use App\Models\NhanXetBaiKiemTra;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class StudentController extends Controller
 {
@@ -132,22 +133,40 @@ class StudentController extends Controller
             return back()->with('error', 'Không tìm thấy người dùng.');
         }
 
-        $request->validate([
+        // Tạo một Validator thủ công để thêm logic kiểm tra mật khẩu cũ
+        $validator = Validator::make($request->all(), [
             'pass_old' => 'required',
             'pass_new' => 'required|min:8',
             'pass_newcf' => 'required|same:pass_new',
+        ], [
+            'pass_old.required' => 'Mật khẩu cũ không được để trống.',
+            'pass_new.required' => 'Mật khẩu mới không được để trống.',
+            'pass_new.min' => 'Mật khẩu mới phải có ít nhất 8 ký tự.',
+            'pass_newcf.required' => 'Xác nhận mật khẩu không được để trống.',
+            'pass_newcf.same' => 'Xác nhận mật khẩu không khớp với mật khẩu mới.',
         ]);
 
-        // Kiểm tra có trùng mật khẩu cũ không
-        if ($request->pass_old !== $user->password_sv) {
-            return back()->with('error', 'Mật khẩu cũ không đúng.');
+        // Thêm lỗi nếu mật khẩu cũ không khớp
+        $validator->after(function ($validator) use ($request, $user) {
+            if ($request->pass_old !== $user->password_sv) {
+                $validator->errors()->add('pass_old', 'Mật khẩu cũ không đúng.');
+            }
+        });
+
+        // Kiểm tra nếu có lỗi, trả về kèm các lỗi
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
         }
 
         // Cập nhật mật khẩu mới
         $user->password_sv = $request->pass_new;
-        $user->save();
+        $saved = $user->save();
 
-        return redirect()->route('student.password')->with('success', 'Mật khẩu đã được thay đổi thành công.');
+        if ($saved) {
+            return redirect()->route('student.password')->with('success', 'Mật khẩu đã được thay đổi thành công.');
+        } else {
+            return back()->with('error', 'Đã xảy ra lỗi khi lưu mật khẩu mới.');
+        }
     }
 
     public function classList()
@@ -610,8 +629,6 @@ class StudentController extends Controller
         return view('student.test.essay', compact('class', 'msbkt', 'malop', 'mssv', 'test'));
     }
 
-
-
     public function storeStudentTest(Request $request, $malop)
     {
         $answers = $request->input('answers', []);
@@ -698,8 +715,6 @@ class StudentController extends Controller
         return redirect()->route('student.class.tests', ['malop' => $malop])
             ->with('success', 'Lưu bài kiểm tra và chấm điểm thành công!');
     }
-
-
 
     public function viewTestDetail($malop, $msbkt)
     {
@@ -796,7 +811,7 @@ class StudentController extends Controller
         $mssv = $user['id'];
 
         if (!$test) {
-            return redirect()->route('student.classlist')->withErrors(['error' => 'Bài kiểm tra không tồn tại']);
+            return redirect()->route('student.classlist')->with(['alert' => 'Bài kiểm tra không tồn tại']);
         }
 
         // Lấy kết quả bài kiểm tra của sinh viên
@@ -804,23 +819,21 @@ class StudentController extends Controller
             ->where('mssv', $mssv)
             ->first();
 
-        if (!$ketQuaBaiKiemTra) {
-            return redirect()->route('student.classlist')->withErrors(['error' => 'Bạn chưa làm bài kiểm tra này']);
-        }
+        // Lấy nhận xét của giáo viên (nếu có kết quả bài kiểm tra)
+        $nhanXet = $ketQuaBaiKiemTra
+            ? NhanXetBaiKiemTra::where('ketqua_id', $ketQuaBaiKiemTra->id)->first()
+            : null;
 
-        // Lấy nhận xét của giáo viên
-        $nhanXet = NhanXetBaiKiemTra::where('ketqua_id', $ketQuaBaiKiemTra->id)->first();
-
-        // Lấy đường dẫn file (nếu có)
-        $filesPath = $ketQuaBaiKiemTra->files_path;
+        // Lấy đường dẫn file (nếu có kết quả bài kiểm tra)
+        $filesPath = $ketQuaBaiKiemTra ? $ketQuaBaiKiemTra->files_path : null;
         $filesArray = $filesPath ? explode(',', $filesPath) : [];
 
         return view('student.detail.essay', [
             'test' => $test,
             'malop' => $malop,
             'filesArray' => $filesArray,
-            'diem' => $ketQuaBaiKiemTra->diem,  // Trả điểm cho bài kiểm tra
-            'nhanXet' => $nhanXet ? $nhanXet->nhanxet : 'Chưa có nhận xét' // Nếu không có nhận xét, trả về thông báo
+            'diem' => $ketQuaBaiKiemTra ? $ketQuaBaiKiemTra->diem : 'Chưa có điểm', // Hiển thị mặc định nếu không có điểm
+            'nhanXet' => $nhanXet ? $nhanXet->nhanxet : 'Chưa có nhận xét', // Hiển thị mặc định nếu không có nhận xét
         ]);
     }
 
