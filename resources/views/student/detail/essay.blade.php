@@ -1,11 +1,16 @@
 <html lang="vi">
 <!DOCTYPE html>
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Detail Essay</title>
 </head>
-
+@if (session('alert'))
+    <script type="text/javascript">
+        alert("{{ session('alert') }}");
+    </script>
+@endif
 <div class="student-dotest">
     <div class="body">
         <div class="left">
@@ -153,4 +158,5 @@
         margin-bottom: 20px;
     }
 </style>
+
 </html>

@@ -1,12 +1,17 @@
 <html lang="vi">
 <!DOCTYPE html>
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>View Tests</title>
 </head>
 <link rel="stylesheet" href="{{ asset('css/global.css') }}">
-
+@if (session('alert'))
+    <script type="text/javascript">
+        alert("{{ session('alert') }}");
+    </script>
+@endif
 @php
     use Carbon\Carbon;
     $currentTime = Carbon::now('Asia/Ho_Chi_Minh');
@@ -329,4 +334,5 @@
         }
     }
 </script>
+
 </html>

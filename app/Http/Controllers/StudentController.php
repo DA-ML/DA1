@@ -792,7 +792,7 @@ class StudentController extends Controller
         $mssv = $user['id'];
 
         if (!$test) {
-            return redirect()->route('student.classlist')->withErrors(['error' => 'Bài kiểm tra không tồn tại']);
+            return redirect()->route('student.classlist')->with(['alert' => 'Bài kiểm tra không tồn tại']);
         }
 
         // Lấy kết quả bài kiểm tra của sinh viên
@@ -801,7 +801,7 @@ class StudentController extends Controller
             ->first();
 
         if (!$ketQuaBaiKiemTra) {
-            return redirect()->route('student.classlist')->withErrors(['error' => 'Bạn chưa làm bài kiểm tra này']);
+            return redirect()->route('student.class.tests', ['malop' => $malop])->with(['alert' => 'Bạn chưa làm bài kiểm tra này']);
         }
 
         // Lấy nhận xét của giáo viên
