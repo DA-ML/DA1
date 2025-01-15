@@ -17,8 +17,6 @@
                     <option value="az">A-Z</option>
                     <option value="za">Z-A</option>
                 </select>
-
-                @include('components.search_button')
             </div>
         </div>
         <div class="class-table">
@@ -145,8 +143,24 @@
     .form-select {
         padding: 10px;
         border-radius: 5px;
-        border: 1px solid #208ce4;
         height: 49px;
+        display: flex;
+        width: 120px;
+        justify-content: space-between;
+        align-items: center;
+        font-family: Inter;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: normal;
+        cursor: pointer;
+    }
+
+    .form-select:hover,
+    .form-select:focus {
+        border-color: #208ce4;
+        color: inherit;
+        outline: none;
     }
 </style>
 <script>
