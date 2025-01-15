@@ -13,7 +13,10 @@
         <div class="class-btn">
             @include('components.search_bar')
             <div class="filter-search">
-                @include('components.filter')
+                <select name="sortOrder" class="form-select" id="sortOrder">
+                    <option value="az">A-Z</option>
+                    <option value="za">Z-A</option>
+                </select>
                 @include('components.search_button')
             </div>
         </div>
@@ -38,8 +41,7 @@
                             <td>{{ $class->so_bai_giang }}</td>
                             <td>{{ $class->so_bai_kiem_tra }}</td>
                             <td>
-                                <a href="{{ route('student.class.details', $class->malop) }}" class="btn btn-primary"
-                                    style="color: #208ce4; text-decoration: none">
+                                <a href="{{ route('student.class.details', $class->malop) }}" class="btn-view">
                                     View</a>
                             </td>
                         </tr>
@@ -127,6 +129,44 @@
         padding: 8px;
         text-align: left;
     }
-</style>
 
+    .class-table td a {
+        text-decoration: none;
+        color: #208CE4;
+    }
+
+    .class-table td a:hover {
+        color: #004b9a;
+    }
+
+    .form-select {
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #208ce4;
+        height: 49px;
+    }
+</style>
+<script>
+    document.getElementById('sortOrder').addEventListener('change', function () {
+        const sortOrder = this.value; // Lấy giá trị sắp xếp (az hoặc za)
+        const table = document.querySelector('.class-table table'); // Lấy bảng
+        const rows = Array.from(table.querySelectorAll('tbody tr')); // Lấy các hàng trong tbody
+
+        // Thực hiện sắp xếp
+        rows.sort((rowA, rowB) => {
+            const cellA = rowA.querySelector('td:nth-child(1)').textContent.trim(); // Cột "Mã lớp"
+            const cellB = rowB.querySelector('td:nth-child(1)').textContent.trim();
+
+            if (sortOrder === 'az') {
+                return cellA.localeCompare(cellB); // Sắp xếp tăng dần
+            } else {
+                return cellB.localeCompare(cellA); // Sắp xếp giảm dần
+            }
+        });
+
+        // Cập nhật thứ tự hàng trong bảng
+        const tbody = table.querySelector('tbody');
+        rows.forEach(row => tbody.appendChild(row)); // Thêm lại từng hàng vào tbody
+    });
+</script>
 </html>

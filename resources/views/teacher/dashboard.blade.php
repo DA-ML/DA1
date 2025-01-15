@@ -4,7 +4,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Teacher Dashboard</title>
 </head>
-
+@if (session('alert'))
+    <script type="text/javascript">
+        alert("{{ session('alert') }}");
+    </script>
+@endif
 <div class="dashboard">
     @include('components.heading')
     <div class="body">

@@ -9,34 +9,26 @@
 
 <body>
     <div class="login">
-        <div class="heading">
+        <div class="heading-banner">
             <img src="{{ asset('images/banner_uit.png') }}" alt="Banner">
+            <div style="display: flex; gap: 20px;">
+            </div>
         </div>
         <div class="body">
             <div class="content">
                 <div class="form">
                     <div class="login_form">
-                        <h1>ĐĂNG NHẬP</h1>
+                        <div style="width: 100%; display: flex; justify-content: center;">
+                            <h1>ĐĂNG NHẬP</h1>
+                        </div>
                         <!-- Form đăng nhập -->
                         <form method="POST" action="{{ url('login') }}">
                             @csrf
+                            <p>Username</p>
                             <input type="text" name="username" placeholder="Username" required>
+                            <p>Password</p>
                             <input type="password" name="password" placeholder="Password" required>
-                            <button type="submit" name="login_btn"
-                                style="
-                                    background-color: #208CE4;
-                                    height: 60px;
-                                    font-family: Inter;
-                                    font-size: 24px;
-                                    font-style: normal;
-                                    font-weight: 700;
-                                    line-height: normal;
-                                    color: white;
-                                    border: none;
-                                    padding: 10px 20px;
-                                    border-radius: 10px;
-                                    width: 100%;
-                                    cursor: pointer;">
+                            <button type="submit" name="login_btn" class="btn-login">
                                 Đăng nhập
                             </button>
                         </form>
@@ -92,19 +84,20 @@
             align-items: flex-start;
         }
 
-        .heading {
+        .heading-banner {
             display: flex;
             padding: 0px 20px;
-            flex-direction: column;
-            justify-content: center;
-            align-items: flex-start;
-            align-self: stretch;
+            justify-content: space-between;
+            align-items: center;
             background-color: white;
+            width: 100%;
+            border-bottom: 1px solid rgba(0, 60, 60, 0.20);
+            position: fixed;
         }
 
-        .heading .img {
+        .heading-banner img {
             width: 20%;
-            height: 100%;
+            height: 80px;
         }
 
         .body {
@@ -129,6 +122,7 @@
             justify-content: center;
             align-items: center;
             gap: 10px;
+            width: 100%;
         }
 
         .picture {
@@ -148,14 +142,12 @@
 
         .login_form {
             display: flex;
-            width: 610px;
+            width: 550px;
             height: auto;
-            /* Tự động điều chỉnh chiều cao */
             flex-direction: column;
             justify-content: space-between;
-            /* Tạo khoảng cách tự động giữa các phần tử */
             align-items: stretch;
-            /* Đảm bảo các phần tử giãn rộng theo chiều ngang */
+            gap: 20px;
         }
 
         .login_form h1 {
@@ -167,16 +159,16 @@
         .login_form input {
             display: flex;
             width: 100%;
-            height: 60px;
+            height: 50px;
             padding: 15px;
-            margin-top: 25px;
+            margin-top: 15px;
             margin-bottom: 25px;
             align-items: center;
             border-radius: 10px;
             border: 1px solid rgba(0, 0, 0, 0.2);
             background: #fff;
             color: #000;
-            font-size: 20px;
+            font-size: 16px;
             outline: none;
         }
 
@@ -194,6 +186,26 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
+        }
+
+        .btn-login {
+            background-color: #208CE4;
+            height: 50px;
+            font-family: Inter;
+            font-size: 20px;
+            font-style: normal;
+            font-weight: 700;
+            line-height: normal;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .btn-login:hover {
+            background-color: #004b9a;
         }
     </style>
 </body>

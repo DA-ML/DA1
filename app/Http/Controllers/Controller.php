@@ -38,7 +38,7 @@ class Controller
                 'system' => $sinhvien->hedaotao,
                 'password_sv' => $sinhvien->password_sv,
             ]);
-            return redirect()->route('student.dashboard');
+            return redirect()->route('student.dashboard')->with(['alert' => 'Đăng nhập thành công']);
         }
 
         // Kiểm tra đăng nhập cho giáo viên
@@ -54,7 +54,7 @@ class Controller
                 'major' => $giaovien->khoa,
                 'password_gv' => $giaovien->password_gv,
             ]);
-            return redirect()->route('teacher.dashboard');
+            return redirect()->route('teacher.dashboard')->with(['alert' => 'Đăng nhập thành công']);
         }
 
         // Nếu không có sinh viên hoặc giáo viên phù hợp
