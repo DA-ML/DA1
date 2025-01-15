@@ -55,6 +55,7 @@
                                 @foreach ($baiKiemTras as $baiKiemTra)
                                     <th>{{ $baiKiemTra->tenbkt }}</th>
                                 @endforeach
+                                <th>Điểm trung bình</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -62,13 +63,34 @@
                                 <tr>
                                     <td>{{ $studentData['sinh_vien']->tensv }}</td>
                                     <td>{{ $studentData['sinh_vien']->mssv }}</td>
+                                    @php
+                                        $totalScore = 0;
+                                        $count = 0;
+                                    @endphp
                                     @foreach ($studentData['ket_qua'] as $ketQua)
-                                        <td>{{ $ketQua['diem'] }}</td>
+                                        @if (is_null($ketQua['diem']) || $ketQua['diem'] === '-')
+                                            <td>-</td>
+                                        @else
+                                            <td>{{ $ketQua['diem'] }}</td>
+                                            @php
+                                                // Chỉ cộng điểm hợp lệ
+                                                $totalScore += floatval($ketQua['diem']);
+                                                $count++;
+                                            @endphp
+                                        @endif
                                     @endforeach
+                                    <td>
+                                        @if ($count > 0)
+                                            {{ round($totalScore / $count, 2) }} <!-- Tính trung bình -->
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>
                     </table>
+
 
                 </div>
             </div>
