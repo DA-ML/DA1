@@ -103,19 +103,17 @@ class StudentController extends Controller
             ->where('QuanLyHS.mssv', $student->mssv)
             ->where('HocKy.tenhk', $this->currentSemester)
             ->where('HocKy.namhoc', $this->currentYear)
-            ->select('BaiKiemTra.ngaybatdau')
-            ->pluck('ngaybatdau')
-            ->filter(function ($date) {
-                return $date !== null;
+            ->select('BaiKiemTra.ngaybatdau', 'BaiKiemTra.tenbkt')
+            ->get()
+            ->groupBy(function ($exam) {
+                return date('Y-m-d', strtotime($exam->ngaybatdau));
             })
-            ->map(function ($date) {
-                return date('Y-m-d', strtotime($date));
+            ->map(function ($group) {
+                return $group->pluck('tenbkt')->toArray();
             })
             ->toArray();
 
-        $examDates = array_values($exams);
-
-        return view('student.calendar', compact('user', 'examDates'));
+        return view('student.calendar', compact('user', 'exams'));
     }
 
     public function studentPassword()

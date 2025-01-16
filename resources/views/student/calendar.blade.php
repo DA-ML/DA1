@@ -96,12 +96,23 @@
         align-self: stretch;
         display: flex;
         justify-content: center;
+        cursor: pointer;
+    }
+
+    .calendar-cell:hover {
+        background-color: #f0f2f5;
+        color: #000;
     }
 
     .calendar-cell.exam-day {
         background-color: #E3F2FD;
         color: #208ce4;
         font-weight: bold;
+    }
+
+    .calendar-cell.exam-day:hover {
+        background-color: #208ce4;
+        color: #FFF;
     }
 
     .calendar-cell.empty {
@@ -120,10 +131,23 @@
     .calendar-week-day:last-child {
         margin-right: 15px;
     }
-</style>
-<script>
-    const examDates = @json($examDates); // Mảng ngày từ PHP, ví dụ: ["2025-01-12", "2025-01-13"]
 
+    .tooltip {
+        position: absolute;
+        background-color: #FFF;
+        color: #000000;
+        padding: 5px 10px;
+        border-radius: 5px;
+        z-index: 1000;
+        pointer-events: none;
+        border: 1px solid rgba(0, 60, 60, 0.50);
+        font-family: "Inter";
+        font-size: 16px;
+    }
+</style>
+
+<script>
+    const exams = @json($exams);
     const weekDays = ["Chủ nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
     const monthNames = [
         "Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
@@ -172,11 +196,34 @@
             cell.className = "calendar-cell";
             cell.textContent = day;
 
-            // Định dạng ngày để so sánh với `$examDates`
+            // Định dạng ngày để so sánh với `exams`
             const dateStr = `${year}-${(month + 1).toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
-            if (examDates.includes(dateStr)) {
+
+            const examList = exams[dateStr];
+            if (examList) {
                 cell.classList.add("exam-day");
+                cell.setAttribute("data-exam-names", examList.join(", "));
             }
+
+            // Thêm sự kiện hover
+            cell.addEventListener("mouseover", function () {
+                const examNames = cell.getAttribute("data-exam-names");
+                if (examNames) {
+                    const tooltip = document.createElement("div");
+                    tooltip.className = "tooltip";
+                    tooltip.textContent = `Bài kiểm tra: ${examNames}`;
+                    document.body.appendChild(tooltip);
+
+                    const rect = cell.getBoundingClientRect();
+                    tooltip.style.left = `${rect.left + window.scrollX}px`;
+                    tooltip.style.top = `${rect.top + window.scrollY - tooltip.offsetHeight}px`;
+                }
+            });
+
+            cell.addEventListener("mouseout", function () {
+                const tooltip = document.querySelector(".tooltip");
+                if (tooltip) tooltip.remove();
+            });
 
             daysGrid.appendChild(cell);
         }
