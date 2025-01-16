@@ -46,6 +46,23 @@
                             <h4>Sinh viên: {{ $result->tensv }} (MSSV: {{ $result->mssv }})</h4>
                             <p>Số lần làm bài: {{ $result->solanlam }}</p>
                             <p>Điểm: {{ $result->diem }}</p>
+                            <p>
+                                Câu trả lời:
+                                @php
+                                    $decodedResult = json_decode($result->cau_tra_loi, true); // Decode lần 1
+                                    if (is_array($decodedResult)) {
+                                        $decodedResult = array_map(function($item) {
+                                            return json_decode($item, true); // Decode lần 2
+                                        }, $decodedResult);
+                                    } else {
+                                        $decodedResult = json_decode($decodedResult, true); // Decode lần 2 nếu không phải array
+                                    }
+                                @endphp
+
+                                @foreach($decodedResult as $item)
+                                    {{ $item ?? '-' }}&nbsp;&nbsp;  <!-- Dùng &nbsp; để cách giữa các giá trị -->
+                                @endforeach
+                            </p>
                         </li>
                     @endforeach
                 </ul>

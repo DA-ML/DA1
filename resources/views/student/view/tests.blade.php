@@ -200,7 +200,7 @@
         gap: 20px;
         flex: 1 0 0;
         align-self: stretch;
-        overflow: hidden;
+        overflow-y: auto;
     }
 
     .class-list {
