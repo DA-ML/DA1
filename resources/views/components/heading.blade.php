@@ -156,7 +156,7 @@
                     </svg>
                     Thông tin cá nhân
                 </a>
-                <form action="{{ route('logout') }}" method="POST" id="logoutForm">
+                <form action="{{ route('logout') }}" method="POST" id="logoutForm" onclick="confirmLogout()">
                     @csrf
                     <div style="cursor: pointer; display: flex; align-items: center;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
@@ -226,4 +226,12 @@
     document.getElementById('logoutForm').addEventListener('click', function() {
         this.submit(); // Tự động gửi form khi nhấn vào
     });
+
+    function confirmLogout() {
+        if (confirm("Bạn có chắc chắn muốn đăng xuất không?")) {
+            document.getElementById("logoutForm").submit()
+        } else {
+            console.log("Người dùng đã hủy.");
+        }
+    }
 </script>
