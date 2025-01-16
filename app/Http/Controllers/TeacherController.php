@@ -153,20 +153,17 @@ class TeacherController extends Controller
             ->where('QuanLyGV.msgv', $teacher->msgv)
             ->where('HocKy.tenhk', $this->currentSemester)
             ->where('HocKy.namhoc', $this->currentYear)
-            ->select('BaiKiemTra.ngaybatdau')
-            ->pluck('ngaybatdau')
-            ->filter(function ($date) {
-                return $date !== null;
+            ->select('BaiKiemTra.ngaybatdau', 'BaiKiemTra.tenbkt')
+            ->get()
+            ->groupBy(function ($exam) {
+                return date('Y-m-d', strtotime($exam->ngaybatdau));
             })
-            ->map(function ($date) {
-                return date('Y-m-d', strtotime($date));
+            ->map(function ($group) {
+                return $group->pluck('tenbkt')->toArray();
             })
             ->toArray();
 
-        // Reset key của mảng
-        $examDates = array_values($exams);
-
-        return view('teacher.calendar', compact('user', 'examDates'));
+        return view('teacher.calendar', compact('user', 'exams'));
     }
 
     public function teacherPassword()
