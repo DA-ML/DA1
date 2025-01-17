@@ -31,11 +31,14 @@
             <div class="class-statics">
                 <div class="statics-body">
                     Thông báo
-                    @if (!empty($class->mota))
-                        <p>{{ $class->mota }}</p>
+                    @if ($class->moTa->isNotEmpty())
+                        @foreach ($class->moTa as $mota)
+                            <p>{{ $mota->mota }}</p>
+                        @endforeach
                     @else
                         <p>Hiện tại chưa có thông tin.</p>
                     @endif
+
                     Thống kê
                     <h1>Thành phần đánh giá A1</h1>
                     <h2>Tổng tỷ lệ điểm G2.2 của bạn: {{ $totalPercentage }}%</h2>

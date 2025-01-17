@@ -130,7 +130,7 @@
         color: #208CE4;
         font-weight: 700;
     }
-    
+
     .lecture {
         border-radius: 10px;
         background: #208CE4;
