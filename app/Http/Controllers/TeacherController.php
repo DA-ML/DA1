@@ -256,6 +256,7 @@ class TeacherController extends Controller
         // Validate dữ liệu đầu vào
         $request->validate([
             'mota' => 'required|string|max:500',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
         ]);
 
         // Tìm lớp học
@@ -265,10 +266,27 @@ class TeacherController extends Controller
             return redirect()->route('teacher.classlist')->withErrors(['alert' => 'Lớp không tồn tại']);
         }
 
-        // Thêm mô tả mới
+        // Xử lý lưu ảnh
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+
+            // Đảm bảo thư mục tồn tại
+            if (!file_exists(public_path('uploads'))) {
+                mkdir(public_path('uploads'), 0777, true);
+            }
+
+            // Lưu file vào public/uploads
+            $imageName = time() . '_' . $file->getClientOriginalName(); // Tạo tên file duy nhất
+            $imagePath = 'uploads/' . $imageName; // Đường dẫn lưu trong cơ sở dữ liệu
+            $file->move(public_path('uploads'), $imageName); // Di chuyển file
+        }
+
+        // Thêm mô tả mới vào cơ sở dữ liệu
         MoTa::create([
             'malop' => $malop,
             'mota' => $request->input('mota'),
+            'image_path' => $imagePath,
         ]);
 
         return redirect()->route('class.details', ['malop' => $malop])->with('alert', 'Thêm mô tả thành công.');
@@ -309,9 +327,37 @@ class TeacherController extends Controller
             return redirect()->route('teacher.classlist')->withErrors(['error' => 'Lớp học không tồn tại']);
         }
 
-        // Cập nhật thông báo
-        $notification->mota = $request->input('mota');
-        $notification->save();
+        $request->validate([
+            'mota' => 'required|string|max:500',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:10240',
+        ]);
+
+        $imagePath = $notification->image_path; // Đường dẫn ảnh cũ (nếu có)
+
+        if ($request->hasFile('image')) {
+            // Xóa ảnh cũ nếu tồn tại
+            if (!empty($notification->image_path) && file_exists(public_path($notification->image_path))) {
+                unlink(public_path($notification->image_path)); // Xóa file cũ từ thư mục public
+            }
+
+            $file = $request->file('image');
+
+            // Đảm bảo thư mục 'uploads' tồn tại
+            if (!file_exists(public_path('uploads'))) {
+                mkdir(public_path('uploads'), 0777, true); // Tạo thư mục với quyền 0777
+            }
+
+            // Lưu file mới
+            $imageName = time() . '_' . $file->getClientOriginalName(); // Tạo tên file duy nhất
+            $imagePath = 'uploads/' . $imageName; // Đường dẫn lưu trong cơ sở dữ liệu
+            $file->move(public_path('uploads'), $imageName); // Di chuyển file vào thư mục public/uploads
+        }
+
+        // Cập nhật dữ liệu thông báo
+        $notification->update([
+            'mota' => $request->input('mota'),
+            'image_path' => $imagePath, // Cập nhật đường dẫn ảnh
+        ]);
 
         return redirect()->route('class.details', ['malop' => $malop])->with('alert', 'Thông báo đã được cập nhật');
     }

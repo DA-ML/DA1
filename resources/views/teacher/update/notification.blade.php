@@ -35,10 +35,20 @@
             <div class="class-statics">
                 <div class="statics-body">
                     Thông báo
-                    <form action="{{ route('notification.update', ['id' => $notification->id, 'malop' => $class->malop]) }}" method="POST">
+                    <form action="{{ route('notification.update', ['id' => $notification->id, 'malop' => $class->malop]) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="form-container">
                             <textarea id="mota" name="mota" rows="5">{{ old('mota', $notification->mota) }}</textarea>
+                            @if ($notification->image_path)
+                                <div class="current-image">
+                                    <label>Hình ảnh hiện tại:</label>
+                                    <img src="{{ asset($notification->image_path) }}" alt="Ảnh thông báo" style="max-width: 100%; height: auto;">
+                                </div>
+                            @endif
+                        <div class="upload-image">
+                            <label for="image">Cập nhật hình ảnh:</label>
+                            <input type="file" name="image" id="image" accept="image/jpeg, image/png">
+                        </div>
                             <button type="submit">Cập nhật</button>
                         </div>
                     </form>

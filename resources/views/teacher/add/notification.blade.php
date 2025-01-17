@@ -35,10 +35,14 @@
             <div class="class-statics">
                 <div class="statics-body">
                     Thông báo
-                    <form action="{{ route('notification.add', ['malop' => $class->malop]) }}" method="POST">
+                    <form action="{{ route('notification.add', ['malop' => $class->malop]) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="form-container">
                             <textarea name="mota" id="mota" rows="5" required></textarea>
+                            <div class="upload-image">
+                                <label for="upload-image">Thêm hình ảnh:</label>
+                                <input type="file" name="image" id="upload-image" accept="image/jpeg, image/png" />
+                            </div>
                             <button type="submit">Thêm thông báo</button>
                         </div>
                     </form>
