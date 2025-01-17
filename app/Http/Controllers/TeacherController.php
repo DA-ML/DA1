@@ -17,6 +17,7 @@ use App\Models\SinhVienKetQua;
 use App\Models\NhanXetBaiKiemTra;
 use App\Models\BaiKiemTraTile;
 use App\Models\KetQuaThanhPhan;
+use App\Models\MoTa;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -241,38 +242,79 @@ class TeacherController extends Controller
     public function showNotification($malop)
     {
         // Lấy thông tin lớp học dựa vào mã lớp
-        $class = LopHoc::where('malop', $malop)->first();
+        $class = LopHoc::where('malop', $malop)->with('moTa')->first();
 
         if (!$class) {
             return redirect()->route('teacher.classlist')->withErrors(['error' => 'Lớp không tồn tại']);
         }
 
-        return view('teacher.update.notification', compact('class'));
+        return view('teacher.add.notification', compact('class'));
     }
 
-    public function updateNotification(Request $request, $malop)
+    public function storeNotification(Request $request, $malop)
     {
         // Validate dữ liệu đầu vào
         $request->validate([
-            'mota' => 'nullable|string|max:500',
+            'mota' => 'required|string|max:500',
         ]);
 
-        // Lấy thông tin lớp học dựa vào mã lớp
+        // Tìm lớp học
         $class = LopHoc::where('malop', $malop)->first();
 
         if (!$class) {
             return redirect()->route('teacher.classlist')->withErrors(['alert' => 'Lớp không tồn tại']);
         }
 
-        // Cập nhật mô tả
-        $class->mota = $request->input('mota');
-        $class->save();
+        // Thêm mô tả mới
+        MoTa::create([
+            'malop' => $malop,
+            'mota' => $request->input('mota'),
+        ]);
 
-        session()->flash('alert', 'Cập nhật thông báo thành công.');
-
-        return redirect()->route('class.details', ['malop' => $malop]);
+        return redirect()->route('class.details', ['malop' => $malop])->with('alert', 'Thêm mô tả thành công.');
     }
 
+    public function editNotification($id, $malop)
+    {
+        // Lấy thông tin thông báo
+        $notification = MoTa::find($id);
+
+        if (!$notification) {
+            return redirect()->route('teacher.classlist')->withErrors(['error' => 'Thông báo không tồn tại']);
+        }
+
+        // Lấy thông tin lớp học dựa vào mã lớp
+        $class = LopHoc::where('malop', $malop)->first();
+
+        if (!$class) {
+            return redirect()->route('teacher.classlist')->withErrors(['error' => 'Lớp học không tồn tại']);
+        }
+
+        return view('teacher.update.notification', compact('notification', 'class'));
+    }
+
+    public function updateNotification(Request $request, $id, $malop)
+    {
+        // Lấy thông tin thông báo
+        $notification = MoTa::find($id);
+
+        if (!$notification) {
+            return redirect()->route('teacher.classlist')->withErrors(['error' => 'Thông báo không tồn tại']);
+        }
+
+        // Lấy thông tin lớp học
+        $class = LopHoc::where('malop', $malop)->first();
+
+        if (!$class) {
+            return redirect()->route('teacher.classlist')->withErrors(['error' => 'Lớp học không tồn tại']);
+        }
+
+        // Cập nhật thông báo
+        $notification->mota = $request->input('mota');
+        $notification->save();
+
+        return redirect()->route('class.details', ['malop' => $malop])->with('alert', 'Thông báo đã được cập nhật');
+    }
 
     public function classTest($malop)
     {

@@ -34,13 +34,18 @@
             </div>
             <div class="class-statics">
                 <div class="statics-body">
-                    Thông báo
-                    @if (!empty($class->mota))
-                        <p>{{ $class->mota }}</p>
+                    <h3>Thông báo</h3>
+                    @if ($class->moTa->isNotEmpty())
+                        @foreach ($class->moTa as $mota)
+                            <p class="mota-text">{{ $mota->mota }}</p>
+                            <small class="created-at">Được tạo lúc: {{ $mota->created_at }}</small>
+                            <a href="{{ route('notification.update', ['id' => $mota->id, 'malop' => $class->malop]) }}" class="update-link">Cập nhật thông báo</a>
+                            <hr>
+                        @endforeach
                     @else
-                        <p>Hiện tại chưa có thông tin.</p>
+                        <p>Hiện tại chưa có thông báo nào.</p>
                     @endif
-                    <a href="{{ route('notification.edit', ['malop' => $class->malop]) }}">Cập nhật thông báo</a>
+                    <a href="{{ route('notification.add', ['malop' => $class->malop]) }}">Thêm thông báo mới</a>
                 </div>
             </div>
         </div>
@@ -206,5 +211,24 @@
         font-weight: 700;
         color: #208CE4;
         text-decoration: none;
+    }
+
+    .created-at {
+        font-size: 14px;
+        font-style: italic;
+        font-weight: 400;
+        margin-top: 0;
+        padding-top: 0;
+        line-height: 1;
+        margin-bottom: 0px;
+    }
+
+    .mota-text {
+        margin-bottom: 0px;
+    }
+
+    .update-link {
+        display: inline-block;
+        margin-top: 0px;
     }
 </style>

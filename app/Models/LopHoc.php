@@ -45,4 +45,9 @@ class LopHoc extends Model
     {
         return $this->belongsTo(HocKy::class, 'mahk', 'mahk');
     }
+
+    public function moTa()
+    {
+        return $this->hasMany(MoTa::class, 'malop', 'malop');
+    }
 }

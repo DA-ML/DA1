@@ -63,8 +63,10 @@ Route::middleware('check.login')->group(function () {
 
     Route::get('teacher/view/classes/{malop}', [TeacherController::class, 'viewClass'])->name('class.details');
 
-    Route::get('teacher/update/notification/{malop}', [TeacherController::class, 'showNotification'])->name('notification.edit');
-    Route::post('teacher/update/notification/{malop}', [TeacherController::class, 'updateNotification'])->name('notification.update');
+    Route::get('teacher/update/notification/{id}/{malop}', [TeacherController::class, 'editNotification'])->name('notification.edit');
+    Route::post('teacher/update/notification/{id}/{malop}', [TeacherController::class, 'updateNotification'])->name('notification.update');
+    Route::get('teacher/add/notification/{malop}', [TeacherController::class, 'showNotification'])->name('notification.form');
+    Route::post('teacher/add/notification/{malop}', [TeacherController::class, 'storeNotification'])->name('notification.add');
 
     Route::get('teacher/view/tests/{malop}', [TeacherController::class, 'classTest'])->name('class.tests');
 

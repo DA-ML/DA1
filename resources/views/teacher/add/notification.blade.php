@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Update Notification</title>
+    <title>Add Notification</title>
 </head>
 @if (session('alert'))
     <script type="text/javascript">
@@ -35,11 +35,11 @@
             <div class="class-statics">
                 <div class="statics-body">
                     Thông báo
-                    <form action="{{ route('notification.update', ['id' => $notification->id, 'malop' => $class->malop]) }}" method="POST">
+                    <form action="{{ route('notification.add', ['malop' => $class->malop]) }}" method="POST">
                         @csrf
                         <div class="form-container">
-                            <textarea id="mota" name="mota" rows="5">{{ old('mota', $notification->mota) }}</textarea>
-                            <button type="submit">Cập nhật</button>
+                            <textarea name="mota" id="mota" rows="5" required></textarea>
+                            <button type="submit">Thêm thông báo</button>
                         </div>
                     </form>
                 </div>

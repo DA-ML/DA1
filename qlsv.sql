@@ -189,6 +189,16 @@ CREATE TABLE KetQuaThanhPhan (
     FOREIGN KEY (chuan_id) REFERENCES ChuanDauRa(id)
 );
 
+CREATE TABLE MoTa (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    malop CHAR(10),
+    mota TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (malop) REFERENCES LopHoc(malop) ON DELETE CASCADE
+);
+
+
 INSERT INTO SinhVien (mssv, password_sv, tensv, ngaysinh, emailsv, hedaotao)
 VALUES
 ('SV001', 'svpass123', 'Nguyễn Văn An', '2004-05-15', '22520857@gm.uit.edu.vn','Chính quy'),
