@@ -43,6 +43,7 @@
                                     <th>STT</th>
                                     <th>Tên sinh viên</th>
                                     <th>MSSV</th>
+                                    <th>Email</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -61,6 +62,9 @@
                                             </td>
                                             <td>
                                                 {{ $member->sinhVien->mssv }}
+                                            </td>
+                                            <td>
+                                                <a href="mailto:{{ $member->sinhVien->emailsv }}">{{ $member->sinhVien->emailsv }}</a>
                                             </td>
                                         </tr>
                                     @endforeach

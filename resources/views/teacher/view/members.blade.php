@@ -28,13 +28,13 @@
                     </div>
                 </div>
             </div>
-            <!-- Danh sách bài giảng -->
+            <!-- Danh sách sinh viên -->
             <div class="class-btn">
                 <div class="btn">
                     <div class="lecturelist-btn">
                         @include('components.search_bar')
                     </div>
-                    <!-- Hiển thị bảng danh sách bài giảng -->
+                    <!-- Hiển thị bảng danh sách sinh viên -->
                     <div class="class-lectures">
                         <table class="table table-striped">
                             <thead>
@@ -42,6 +42,7 @@
                                     <th>STT</th>
                                     <th>Tên sinh viên</th>
                                     <th>MSSV</th>
+                                    <th>Email</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -60,6 +61,9 @@
                                             </td>
                                             <td>
                                                 {{ $member->sinhVien->mssv }}
+                                            </td>
+                                            <td>
+                                                <a href="mailto:{{ $member->sinhVien->emailsv }}">{{ $member->sinhVien->emailsv }}</a>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -252,5 +256,9 @@
         font-weight: normal;
         padding: 8px;
         text-align: left;
+    }
+
+    .class-lectures td a {
+        color: #208CE4;
     }
 </style>
