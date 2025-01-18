@@ -38,6 +38,11 @@
                     @if ($class->moTa->isNotEmpty())
                         @foreach ($class->moTa as $mota)
                             <p class="mota-text">{{ $mota->mota }}</p>
+                            @if (!empty($mota->image_path))
+                                <div class="mota-image">
+                                    <img src="{{ asset($mota->image_path) }}" alt="Hình ảnh thông báo" style="max-width: 100%; height: auto;">
+                                </div>
+                            @endif
                             <small class="created-at">Được tạo lúc: {{ $mota->created_at }}</small>
                             <a href="{{ route('notification.update', ['id' => $mota->id, 'malop' => $class->malop]) }}" class="update-link">Cập nhật thông báo</a>
                             <hr>

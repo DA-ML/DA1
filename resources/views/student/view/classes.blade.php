@@ -34,11 +34,15 @@
                     @if ($class->moTa->isNotEmpty())
                         @foreach ($class->moTa as $mota)
                             <p>{{ $mota->mota }}</p>
+                            @if ($mota->image_path)
+                                <div class="mota-image">
+                                    <img src="{{ asset($mota->image_path) }}" alt="Ảnh mô tả" style="max-width: 100%; height: auto;">
+                                </div>
+                            @endif
                         @endforeach
                     @else
                         <p>Hiện tại chưa có thông tin.</p>
                     @endif
-
                     Thống kê
                     <h1>Thành phần đánh giá A1</h1>
                     <h2>Tổng tỷ lệ điểm G2.2 của bạn: {{ $totalPercentage }}%</h2>

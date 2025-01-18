@@ -9,7 +9,7 @@ class MoTa extends Model
     use HasFactory;
 
     protected $table = 'MoTa';
-    protected $fillable = ['malop', 'mota'];
+    protected $fillable = ['malop', 'mota', 'image_path'];
 
     public function lopHoc()
     {
