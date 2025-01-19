@@ -53,7 +53,7 @@
                                 <th>Tên sinh viên</th>
                                 <th>Mã số sinh viên</th>
                                 @foreach ($baiKiemTras as $baiKiemTra)
-                                    <th>{{ $baiKiemTra->tenbkt }}</th>
+                                    <th>{{ $baiKiemTra->tenbkt }} ({{ $baiKiemTra->tile }}%)</th>
                                 @endforeach
                                 <th>Điểm trung bình</th>
                             </tr>
@@ -64,8 +64,8 @@
                                     <td>{{ $studentData['sinh_vien']->tensv }}</td>
                                     <td>{{ $studentData['sinh_vien']->mssv }}</td>
                                     @php
-                                        $totalScore = 0;
-                                        $count = 0;
+                                        $weightedTotal = 0;
+                                        $totalWeight = 0;
                                     @endphp
                                     @foreach ($studentData['ket_qua'] as $ketQua)
                                         @if (is_null($ketQua['diem']) || $ketQua['diem'] === '-')
@@ -73,15 +73,14 @@
                                         @else
                                             <td>{{ $ketQua['diem'] }}</td>
                                             @php
-                                                // Chỉ cộng điểm hợp lệ
-                                                $totalScore += floatval($ketQua['diem']);
-                                                $count++;
+                                                $weightedTotal += floatval($ketQua['diem']) * ($ketQua['tile'] );
+                                                $totalWeight += $ketQua['tile'];
                                             @endphp
                                         @endif
                                     @endforeach
                                     <td>
-                                        @if ($count > 0)
-                                            {{ round($totalScore / $count, 2) }} <!-- Tính trung bình -->
+                                        @if ($totalWeight > 0)
+                                            {{ round($weightedTotal / $totalWeight, 2) }} <!-- Tính trung bình có trọng số -->
                                         @else
                                             -
                                         @endif
@@ -90,8 +89,6 @@
                             @endforeach
                         </tbody>
                     </table>
-
-
                 </div>
             </div>
         </div>

@@ -699,10 +699,16 @@ ORDER BY
             ->with('sinhVien')
             ->get();
 
-        // Lấy thông tin bài kiểm tra trong lớp
-        $baiKiemTras = BaiKiemTra::where('malop', $malop)->get();
+        // Lấy thông tin bài kiểm tra và tỉ lệ
+        $baiKiemTras = BaiKiemTra::leftJoin('BaiKiemTraTile', function ($join) {
+            $join->on('BaiKiemTra.msbkt', '=', 'BaiKiemTraTile.msbkt');
+        })
+            ->where('BaiKiemTra.malop', $malop) // Chỉ định rõ bảng
+            ->select('BaiKiemTra.*', 'BaiKiemTraTile.tile')
+            ->get();
 
-        // Tạo danh sách sinh viên kèm điểm cao nhất từng bài kiểm tra
+
+        // Tạo danh sách sinh viên kèm điểm và tỉ lệ
         $studentsWithResults = $members->map(function ($member) use ($baiKiemTras) {
             $student = $member->sinhVien;
 
@@ -713,7 +719,8 @@ ORDER BY
 
                 return [
                     'bai_kiem_tra' => $baiKiemTra->tenbkt,
-                    'diem' => $highestScore !== null ? $highestScore : '-'
+                    'diem' => $highestScore !== null ? $highestScore : '-',
+                    'tile' => $baiKiemTra->tile
                 ];
             });
 
