@@ -28,7 +28,7 @@
                     </div>
                 </div>
             </div>
-            <!-- Danh sách bài giảng -->
+            <!-- Danh sách bài giảng chung -->
             <div class="class-btn">
                 <div class="btn">
                     <div class="lecturelist-btn">
@@ -44,6 +44,7 @@
                             Thêm bài giảng
                         </button>
                     </div>
+                    <p style="font-weight: 700; font-size:20px; font-family: Inter;">Danh sách bài giảng chung</p>
                     <!-- Hiển thị bảng danh sách bài giảng -->
                     <div class="class-lectures">
                         <table class="table table-striped" style="width: 100%">
@@ -309,10 +310,11 @@
 
     .day{
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         width: 100%;
         height: 40px;
         background: #FFF;
+        flex-direction: column;
         border-radius: 10px;
         font-family: Inter;
         font-size: 16px;
