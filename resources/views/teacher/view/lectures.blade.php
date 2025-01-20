@@ -109,6 +109,11 @@
                             </tbody>
                         </table>
                     </div>
+                    {{-- Ngày --}}
+                    <div class="day">
+                        <p>13 tháng 9 - 19 tháng 9</p>
+                        <p>20 tháng 9 - 26 tháng 9</p>
+                    </div>
                 </div>
 
             </div>
@@ -299,6 +304,21 @@
 
     .class-lectures a {
         text-decoration: none;
+        color: #000;
+    }
+
+    .day{
+        display: flex;
+        align-items: center;
+        width: 100%;
+        height: 40px;
+        background: #FFF;
+        border-radius: 10px;
+        font-family: Inter;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: normal;
         color: #000;
     }
 </style>
