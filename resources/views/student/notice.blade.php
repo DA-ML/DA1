@@ -13,12 +13,18 @@
         @if ($notices->isEmpty())
             <p>Không có thông báo nào.</p>
         @else
-            <ul>
-                @foreach ($notices as $notice)
-                    <li>{{ $notice->message }}</li>
-
-                @endforeach
-            </ul>
+        <ul>
+            @foreach ($notices as $notice)
+                <li>
+                    {{ $notice->message }}
+                    @if($notice->baiKiemTra)
+                        <a href="{{ route('student.detail.essay', ['malop' => $notice->baiKiemTra->malop, 'msbkt' => $notice->baiKiemTra->msbkt]) }}" class="view-detail-link">Xem chi tiết</a>
+                    @else
+                        <span>Thông tin bài kiểm tra không có sẵn</span>
+                    @endif
+                </li>
+            @endforeach
+        </ul>
         @endif
     </div>
 </div>
@@ -40,12 +46,13 @@
         flex-direction: column;
         align-items: flex-start;
         background: #FFF;
+        padding: 20px;
     }
 
     .body h1 {
         color: #000;
         font-family: Inter;
-        font-size: 20px;
+        font-size: 30px;
         font-style: normal;
         font-weight: 700;
         line-height: normal;
@@ -65,6 +72,14 @@
         line-height: normal;
         margin: 1rem 0;
     }
-</style>
 
+    .view-detail-link {
+        color: blue;
+    }
+
+    .view-detail-link:hover {
+        color: #004b9a;
+    }
+
+</style>
 </html>

@@ -907,10 +907,14 @@ class StudentController extends Controller
     {
         $mssv = Session::get('user.id');
         if ($mssv) {
+            // Lấy thông báo của sinh viên
             $notices = ThongBao::where('mssv', $mssv)
                 ->orderBy('created_at', 'desc')
+                ->with('baiKiemTra') // Đảm bảo tải thông tin bài kiểm tra kèm theo thông báo
                 ->get();
         }
+
         return view('student.notice', compact('notices'));
     }
+
 }

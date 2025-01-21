@@ -1375,6 +1375,7 @@ ORDER BY
 
         // Tạo thông báo cho sinh viên
         ThongBao::create([
+            'msbkt' => $validated['msbkt'],
             'mssv' => $validated['mssv'],
             'message' => 'Điểm bài kiểm tra ' . $validated['msbkt'] . ' đã được cập nhật.',
 

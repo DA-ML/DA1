@@ -54,4 +54,9 @@ class BaiKiemTra extends Model
     {
         return $this->hasMany(KetQuaBaiKiemTra::class, 'msbkt', 'msbkt');
     }
+
+    public function thongBaos()
+    {
+        return $this->hasMany(ThongBao::class, 'msbkt', 'msbkt');
+    }
 }

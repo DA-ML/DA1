@@ -202,11 +202,13 @@ CREATE TABLE MoTa (
 CREATE TABLE ThongBao (
     id INT AUTO_INCREMENT PRIMARY KEY,
     mssv CHAR(10),
+    msbkt INT,
     message TEXT,
     is_read BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (mssv) REFERENCES SinhVien(mssv) ON DELETE CASCADE
+    FOREIGN KEY (mssv) REFERENCES SinhVien(mssv) ON DELETE CASCADE,
+    FOREIGN KEY (msbkt) REFERENCES BaiKiemTra(msbkt) ON DELETE CASCADE
 );
 
 INSERT INTO SinhVien (mssv, password_sv, tensv, ngaysinh, emailsv, hedaotao)

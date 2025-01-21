@@ -9,5 +9,10 @@ class ThongBao extends Model
     use HasFactory;
 
     protected $table = 'ThongBao';
-    protected $fillable = ['mssv', 'message', 'is_read'];
+    protected $fillable = ['mssv', 'msbkt', 'message', 'is_read'];
+
+    public function baiKiemTra()
+    {
+        return $this->belongsTo(BaiKiemTra::class, 'msbkt', 'msbkt');
+    }
 }
