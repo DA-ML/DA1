@@ -4,6 +4,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Teacher View Lecture</title>
 </head>
+@php
+    use Carbon\Carbon;
+
+    $currentTime = Carbon::now('Asia/Ho_Chi_Minh');
+
+    // Danh sách các tuần được định nghĩa
+    $weeks = [
+        [
+            'start' => Carbon::create(2025, 1, 13, 0, 0, 0, 'Asia/Ho_Chi_Minh'),
+            'end' => Carbon::create(2025, 1, 19, 23, 59, 59, 'Asia/Ho_Chi_Minh'),
+            'label' => '13 tháng 1 - 19 tháng 1',
+        ],
+        [
+            'start' => Carbon::create(2025, 1, 20, 0, 0, 0, 'Asia/Ho_Chi_Minh'),
+            'end' => Carbon::create(2025, 1, 26, 23, 59, 59, 'Asia/Ho_Chi_Minh'),
+            'label' => '20 tháng 1 - 26 tháng 1',
+        ],
+    ];
+
+    // Xác định tuần hiện tại
+    $currentWeekKey = null;
+    foreach ($weeks as $key => $week) {
+        if ($currentTime->between($week['start'], $week['end'])) {
+            $currentWeekKey = $key;
+            break;
+        }
+    }
+@endphp
 
 <link rel="stylesheet" href="{{ asset('css/global.css') }}">
 <Div class="teacher-viewclass">
@@ -110,10 +138,17 @@
                             </tbody>
                         </table>
                     </div>
-                    {{-- Ngày --}}
-                    <div class="day">
-                        <p>13 tháng 9 - 19 tháng 9</p>
-                        <p>20 tháng 9 - 26 tháng 9</p>
+                    <div class="weeks">
+                        @foreach ($weeks as $key => $week)
+                            <div class="week">
+                                <p>{{ $week['label'] }}</p>
+
+                                {{-- Nếu đây là tuần hiện tại, hiển thị nút Thêm bài giảng --}}
+                                @if ($currentWeekKey === $key)
+                                    <button class="add-lecture-button">Thêm bài giảng</button>
+                                @endif
+                            </div>
+                        @endforeach
                     </div>
                 </div>
 
@@ -323,4 +358,19 @@
         line-height: normal;
         color: #000;
     }
+
+    .add-lecture-button {
+        padding: 10px 20px;
+        background-color: #208CE4;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+
+    .add-lecture-button:hover {
+        background-color: #004b9a;
+    }
 </style>
+</html>
