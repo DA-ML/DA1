@@ -1374,12 +1374,16 @@ ORDER BY
         }
 
         // Tạo thông báo cho sinh viên
-        ThongBao::create([
-            'msbkt' => $validated['msbkt'],
-            'mssv' => $validated['mssv'],
-            'message' => 'Điểm bài kiểm tra ' . $validated['msbkt'] . ' đã được cập nhật.',
-
-        ]);
+        ThongBao::updateOrCreate(
+            [
+                'msbkt' => $validated['msbkt'],
+                'mssv' => $validated['mssv'],
+            ],
+            [
+                'message' => 'Điểm bài kiểm tra ' . $validated['msbkt'] . ' đã được cập nhật.',
+                'updated_at' => now(),
+            ]
+        );
 
         return redirect()->route('grading.list', [
             'malop' => $request->input('malop'),

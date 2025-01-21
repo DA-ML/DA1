@@ -194,8 +194,8 @@ CREATE TABLE MoTa (
     malop CHAR(10),
     mota TEXT,
     image_path TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at DATETIME,
+    updated_at DATETIME,
     FOREIGN KEY (malop) REFERENCES LopHoc(malop) ON DELETE CASCADE
 );
 
@@ -205,9 +205,8 @@ CREATE TABLE ThongBao (
     msbkt INT,
     message TEXT,
     is_read BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (mssv) REFERENCES SinhVien(mssv) ON DELETE CASCADE,
+    updated_at DATETIME,
+	created_at DATETIME,
     FOREIGN KEY (msbkt) REFERENCES BaiKiemTra(msbkt) ON DELETE CASCADE
 );
 

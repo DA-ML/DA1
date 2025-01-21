@@ -17,6 +17,7 @@
             @foreach ($notices as $notice)
                 <li>
                     {{ $notice->message }}
+                    <small class="updated-at">Được tạo lúc: {{ $notice->updated_at }}</small>
                     @if($notice->baiKiemTra)
                         <a href="{{ route('student.detail.essay', ['malop' => $notice->baiKiemTra->malop, 'msbkt' => $notice->baiKiemTra->msbkt]) }}" class="view-detail-link">Xem chi tiết</a>
                     @else

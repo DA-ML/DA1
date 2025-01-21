@@ -7,9 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 class ThongBao extends Model
 {
     use HasFactory;
-
+    public $timestamps = true;
+    public $incrementing = true;
+    protected $keyType = 'int';
     protected $table = 'ThongBao';
-    protected $fillable = ['mssv', 'msbkt', 'message', 'is_read'];
+    protected $fillable = ['mssv', 'msbkt', 'message', 'is_read', 'created_at', 'updated_at'];
 
     public function baiKiemTra()
     {
