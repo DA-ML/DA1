@@ -46,6 +46,8 @@ Route::middleware('check.login')->group(function () {
     Route::get('student/view/members/{malop}', [StudentController::class, 'viewMember'])->name('student.class.members');
 
     Route::get('student/view/scores/{malop}', [StudentController::class, 'viewScore'])->name('student.class.scores');
+    Route::get('student/notice', [StudentController::class, 'studentNotification'])->name('student.notice');
+    Route::post('student/notice/{id}/read', [StudentController::class, 'markAsRead'])->name('student.notice.read');
 });
 
 // Route nhóm cho giáo viên

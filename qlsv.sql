@@ -199,6 +199,15 @@ CREATE TABLE MoTa (
     FOREIGN KEY (malop) REFERENCES LopHoc(malop) ON DELETE CASCADE
 );
 
+CREATE TABLE ThongBao (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    mssv CHAR(10),
+    message TEXT,
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (mssv) REFERENCES SinhVien(mssv) ON DELETE CASCADE
+);
 
 INSERT INTO SinhVien (mssv, password_sv, tensv, ngaysinh, emailsv, hedaotao)
 VALUES

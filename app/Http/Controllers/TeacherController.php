@@ -18,6 +18,7 @@ use App\Models\NhanXetBaiKiemTra;
 use App\Models\BaiKiemTraTile;
 use App\Models\KetQuaThanhPhan;
 use App\Models\MoTa;
+use App\Models\ThongBao;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -1371,6 +1372,13 @@ ORDER BY
                 'thoigian' => now(),
             ]);
         }
+
+        // Tạo thông báo cho sinh viên
+        ThongBao::create([
+            'mssv' => $validated['mssv'],
+            'message' => 'Điểm bài kiểm tra ' . $validated['msbkt'] . ' đã được cập nhật.',
+
+        ]);
 
         return redirect()->route('grading.list', [
             'malop' => $request->input('malop'),

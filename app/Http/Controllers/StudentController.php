@@ -14,6 +14,7 @@ use App\Models\KetQuaBaiKiemTra;
 use App\Models\SinhVienKetQua;
 use App\Models\KetQuaChuans;
 use App\Models\NhanXetBaiKiemTra;
+use App\Models\ThongBao;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
@@ -899,5 +900,17 @@ class StudentController extends Controller
         }
 
         return $totalPercentage ?? 0;
+    }
+
+    // Hiển thị thông báo cho sinh viên khi có điểm
+    public function studentNotification()
+    {
+        $mssv = Session::get('user.id');
+        if ($mssv) {
+            $notices = ThongBao::where('mssv', $mssv)
+                ->orderBy('created_at', 'desc')
+                ->get();
+        }
+        return view('student.notice', compact('notices'));
     }
 }
