@@ -481,8 +481,13 @@ class StudentController extends Controller
             return redirect()->route('student.classlist')->withErrors(['error' => 'Lớp không tồn tại']);
         }
 
-        // Lấy danh sách các bài kiểm tra của lớp
-        $baiKiemTras = BaiKiemTra::where('malop', $malop)->get();
+        // Lấy danh sách các bài kiểm tra và tỷ lệ của lớp
+        $baiKiemTras = BaiKiemTra::leftJoin('BaiKiemTraTile', function ($join) {
+            $join->on('BaiKiemTra.msbkt', '=', 'BaiKiemTraTile.msbkt');
+        })
+            ->where('BaiKiemTra.malop', $malop)
+            ->select('BaiKiemTra.*', 'BaiKiemTraTile.tile')
+            ->get();
 
         // Lấy điểm cao nhất của sinh viên cho mỗi bài kiểm tra
         $scores = $baiKiemTras->map(function ($baiKiemTra) use ($studentId) {
@@ -491,15 +496,22 @@ class StudentController extends Controller
                 ->orderByDesc('diem') // Sắp xếp điểm theo thứ tự giảm dần
                 ->first(); // Lấy điểm cao nhất
 
+            $score = $ketQua ? $ketQua->diem : null;
+            $weightedScore = $score !== null ? $score * ($baiKiemTra->tile ?? 1) : 0;
+
             return [
                 'tenbkt' => $baiKiemTra->tenbkt,
-                'diem' => $ketQua ? $ketQua->diem : '-' // Dấu '-' nếu không có điểm
+                'diem' => $score !== null ? $score : '-',
+                'tile' => $baiKiemTra->tile,
+                'weighted_score' => $weightedScore
             ];
         });
 
-        // Tính điểm trung bình
-        $averageScore = $scores->filter(fn($score) => is_numeric($score['diem']))
-            ->avg(fn($score) => $score['diem']);
+        // Tổng trọng số
+        $totalWeight = $baiKiemTras->sum('tile') ?: 1;
+
+        // Tính điểm trung bình có trọng số
+        $averageScore = $scores->sum('weighted_score') / $totalWeight;
 
         return view('student.view.scores', compact('class', 'scores', 'averageScore'));
     }

@@ -507,10 +507,15 @@ ORDER BY
             ->with('sinhVien')
             ->get();
 
-        // Lấy thông tin bài kiểm tra trong lớp
-        $baiKiemTras = BaiKiemTra::where('malop', $malop)->get();
+         // Lấy thông tin bài kiểm tra và tỉ lệ
+        $baiKiemTras = BaiKiemTra::leftJoin('BaiKiemTraTile', function ($join) {
+            $join->on('BaiKiemTra.msbkt', '=', 'BaiKiemTraTile.msbkt');
+        })
+            ->where('BaiKiemTra.malop', $malop) // Chỉ định rõ bảng
+            ->select('BaiKiemTra.*', 'BaiKiemTraTile.tile')
+            ->get();
 
-        // Tạo danh sách sinh viên kèm điểm cao nhất từng bài kiểm tra và tính điểm trung bình
+        // Tạo danh sách sinh viên kèm điểm và tỉ lệ
         $studentsWithResults = $members->map(function ($member) use ($baiKiemTras) {
             $student = $member->sinhVien;
 
@@ -520,11 +525,16 @@ ORDER BY
                     ->where('mssv', $student->mssv)
                     ->max('diem'); // Lấy điểm cao nhất
 
-                return $highestScore !== null ? $highestScore : 0;
+                $weightedScore = $highestScore !== null ? $highestScore * ($baiKiemTra->tile ?? 1) : 0;
+
+                return $weightedScore;
             });
 
-            // Tính điểm trung bình của sinh viên
-            $averageScore = count($results) > 0 ? array_sum($results->toArray()) / count($results) : 0;
+            // Tổng tỉ lệ của các bài kiểm tra
+            $totalWeight = $baiKiemTras->sum('tile') ?: 1;
+
+            // Tính điểm trung bình có trọng số
+            $averageScore = $results->sum() / $totalWeight;
 
             return [
                 'sinh_vien' => $student,
