@@ -4,44 +4,46 @@ namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithTitle;
 
 class ScoreDataExport implements FromArray, WithHeadings
 {
     protected $studentsWithResults;
+    protected $baiKiemTras;
 
-    public function __construct($studentsWithResults)
+    public function __construct($studentsWithResults, $baiKiemTras)
     {
         $this->studentsWithResults = $studentsWithResults;
+        $this->baiKiemTras = $baiKiemTras;
     }
 
-    // Tạo mảng dữ liệu từ Controller
     public function array(): array
     {
         $data = [];
 
         foreach ($this->studentsWithResults as $studentData) {
-            $studentName = $studentData['ten_sv'];  // Sử dụng 'ten_sv' thay vì sinh_vien->tensv
-            $studentId = $studentData['mssv'];     // Sử dụng 'mssv' thay vì sinh_vien->mssv
+            $studentName = $studentData['ten_sv'];
+            $studentId = $studentData['mssv'];
 
-            // Tạo mảng điểm của sinh viên
             $examScores = [];
-            $totalScore = 0;
-            $numExams = 0;
+            $weightedTotal = 0;
+            $totalWeight = 0;
+
             foreach ($studentData['ket_qua'] as $result) {
-                $score = $result['diem'] !== null ? $result['diem'] : 0; // Nếu không có điểm thì tính là 0
+                $score = $result['diem'] !== '-' ? floatval($result['diem']) : '-';
+                $tile = $result['tile'] !== null ? floatval($result['tile']) : 0;
+
                 $examScores[] = $score;
 
-                if ($score !== 0) {
-                    $totalScore += $score; // Tính tổng điểm
-                    $numExams++; // Đếm số bài kiểm tra có điểm
+                // Tính tổng trọng số và điểm trung bình có trọng số
+                if ($score !== '-') {
+                    $weightedTotal += $score * $tile;
+                    $totalWeight += $tile;
                 }
             }
 
-            // Thêm thông tin sinh viên và điểm vào mảng
-            $averageScore = $numExams > 0 ? $totalScore / $numExams : '-';
+            // Tính điểm trung bình
+            $averageScore = $totalWeight > 0 ? round($weightedTotal / $totalWeight, 2) : '-';
 
-            // Thêm thông tin sinh viên và điểm vào mảng
             $data[] = array_merge([$studentName, $studentId], $examScores, [$averageScore]);
         }
 
@@ -52,12 +54,11 @@ class ScoreDataExport implements FromArray, WithHeadings
     {
         $heading = ['Tên Sinh Viên', 'MSSV'];
 
-        // Lấy tên các bài kiểm tra từ dữ liệu (bài kiểm tra có thể thay đổi theo lớp)
-        foreach ($this->studentsWithResults[0]['ket_qua'] as $result) {
-            $heading[] = $result['bai_kiem_tra']; // Tên bài kiểm tra
+        foreach ($this->baiKiemTras as $baiKiemTra) {
+            $tile = $baiKiemTra->tile !== null ? " ({$baiKiemTra->tile}%)" : '';
+            $heading[] = "{$baiKiemTra->tenbkt}{$tile}";
         }
 
-        // Thêm cột điểm trung bình
         $heading[] = 'Điểm Trung Bình';
 
         return $heading;

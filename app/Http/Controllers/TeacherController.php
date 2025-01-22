@@ -736,7 +736,7 @@ ORDER BY
 
     public function exportScores($malop)
     {
-        // Lấy danh sách sinh viên và điểm như trong hàm classScores
+        // Lấy thông tin lớp học
         $class = LopHoc::where('malop', $malop)
             ->with(['quanLyHS', 'quanLyGV', 'baiGiang', 'baiKiemTra'])
             ->first();
@@ -745,41 +745,46 @@ ORDER BY
             return redirect()->route('teacher.classlist')->withErrors(['error' => 'Lớp không tồn tại']);
         }
 
+        // Lấy danh sách sinh viên qua QuanLyHS
         $members = QuanLyHS::where('malop', $malop)
             ->with('sinhVien')
             ->get();
 
-        $baiKiemTras = BaiKiemTra::where('malop', $malop)->get();
+        // Lấy thông tin bài kiểm tra và tỉ lệ
+        $baiKiemTras = BaiKiemTra::leftJoin('BaiKiemTraTile', function ($join) {
+            $join->on('BaiKiemTra.msbkt', '=', 'BaiKiemTraTile.msbkt');
+        })
+            ->where('BaiKiemTra.malop', $malop)
+            ->select('BaiKiemTra.*', 'BaiKiemTraTile.tile')
+            ->get();
 
+        // Tạo danh sách sinh viên kèm điểm và tỉ lệ
         $studentsWithResults = $members->map(function ($member) use ($baiKiemTras) {
             $student = $member->sinhVien;
 
             $results = $baiKiemTras->map(function ($baiKiemTra) use ($student) {
                 $highestScore = KetQuaBaiKiemTra::where('msbkt', $baiKiemTra->msbkt)
                     ->where('mssv', $student->mssv)
-                    ->max('diem');
-
-                $score = $highestScore !== null ? $highestScore : null;
+                    ->max('diem'); // Lấy điểm cao nhất
 
                 return [
                     'bai_kiem_tra' => $baiKiemTra->tenbkt,
-                    'diem' => $score
+                    'diem' => $highestScore !== null ? $highestScore : '-',
+                    'tile' => $baiKiemTra->tile,
                 ];
             });
-
-            $averageScore = $results->where('diem', '!=', '-')->avg('diem') ?? '-';
 
             return [
                 'ten_sv' => $student->tensv,
                 'mssv' => $student->mssv,
                 'ket_qua' => $results->toArray(),
-                'diem_tb' => $averageScore,
             ];
         });
 
-        // Truyền trực tiếp dữ liệu vào export
-        return Excel::download(new ScoreDataExport($studentsWithResults), 'scores.xlsx');
+        // Xuất dữ liệu ra file Excel
+        return Excel::download(new ScoreDataExport($studentsWithResults, $baiKiemTras), 'scores.xlsx');
     }
+
 
 
     public function addLecture(Request $request, $malop)
