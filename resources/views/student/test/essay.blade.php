@@ -52,7 +52,7 @@
                         </div>
                         <div style="align-items: center; width: 100%">
                             <label for="file-upload" style="display: block; font-weight: bold; margin-bottom: 10px;">
-                                Chỉ hỗ trợ tệp dưới dạng PDF hoặc ảnh (jpg, jpeg, png)
+                                Chỉ hỗ trợ tệp dưới dạng PDF (Kích thước 10MB) hoặc ảnh (jpg, jpeg, png)
                             </label>
                             <input type="file" name="file" id="file" accept=".pdf,image/*" required title="Tên file được tải lên sẽ hiển thị ở đây">
                         </div>
