@@ -118,6 +118,15 @@
         line-height: normal;
     }
 
+    .statics-body p {
+        color: #000;
+        font-family: Inter;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: normal;
+    }
+
     .created-at, .updated-at {
         font-size: 14px;
         font-style: italic;
