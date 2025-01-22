@@ -79,6 +79,8 @@ CREATE TABLE BaiGiang (
 		link_paths TEXT NULL,
 	noidungbg TEXT,
 	malop CHAR(10),
+	updated_at DATETIME,
+	created_at DATETIME,
 	FOREIGN KEY (malop) REFERENCES LopHoc(malop)
 );
 
