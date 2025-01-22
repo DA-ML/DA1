@@ -5,7 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>View Lectures</title>
 </head>
+@php
+    use Carbon\Carbon;
 
+    // Nhóm bài giảng theo tuần
+    $groupedLectures = $lectures->groupBy(function ($lecture) {
+        return Carbon::parse($lecture->created_at)->startOfWeek()->format('Y-m-d');
+    });
+@endphp
 <link rel="stylesheet" href="{{ asset('css/global.css') }}">
 <Div class="student-viewlecture">
     @include('components.heading')
@@ -37,30 +44,38 @@
                     </div>
                     <!-- Hiển thị bảng danh sách bài giảng -->
                     <div class="class-lectures">
-                        <table class="table table-striped">
+                        <table class="table table-striped" style="width: 100%">
                             <thead>
                                 <tr>
                                     <th>STT</th>
                                     <th>Tên bài giảng</th>
+                                    <th>Thời gian bắt đầu</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @if ($lectures->isEmpty())
-                                    <!-- Kiểm tra nếu không có bài giảng -->
                                     <tr>
-                                        <td colspan="4" class="text-center">Bạn chưa có bài giảng nào.</td>
+                                        <td colspan="5" class="text-center">Bạn chưa có bài giảng nào.</td>
                                     </tr>
                                 @else
-                                    @foreach ($lectures as $key => $lecture)
+                                    @foreach ($groupedLectures as $weekStart => $weeklyLectures)
                                         <tr>
-                                            <td>{{ $key + 1 }}</td>
-                                            <td>
-                                                <a style="text-decoration: none; color: #000"
-                                                    href="{{ route('student.lecture.detail', ['malop' => $lecture->malop, 'id' => $lecture->msbg]) }}">
-                                                    {{ $lecture->tenbg }}
-                                                </a>
+                                            <td colspan="5" class="text-center" style="background-color: #E3F2FD">
+                                                <strong>Tuần bắt đầu từ: {{ Carbon::parse($weekStart)->format('d/m/Y') }}</strong>
                                             </td>
                                         </tr>
+                                        @foreach ($weeklyLectures as $key => $lecture)
+                                            <tr>
+                                                <td>{{ $loop->parent->iteration }}.{{ $key + 1 }}</td>
+                                                <td>
+                                                    <a style="text-decoration: none; color: #000"
+                                                        href="{{ route('student.lecture.detail', ['malop' => $lecture->malop, 'id' => $lecture->msbg]) }}">
+                                                        {{ $lecture->tenbg }}
+                                                    </a>
+                                                </td>
+                                                <td>{{ $lecture->created_at->format('d/m/Y H:i') }}</td>
+                                            </tr>
+                                        @endforeach
                                     @endforeach
                                 @endif
                             </tbody>
