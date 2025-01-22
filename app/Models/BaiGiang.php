@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class BaiGiang extends Model
 {
     protected $table = 'BaiGiang';
-    public $timestamps = false;
+    public $timestamps = true;
     public $incrementing = false;
     protected $keyType = 'int';
     protected $primaryKey = 'msbg';

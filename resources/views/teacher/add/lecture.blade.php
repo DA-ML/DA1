@@ -54,12 +54,6 @@
                             <input type="text" name="tenbg" class="field" placeholder="Tên bài giảng">
                             Mô tả
                             <textarea name="noidungbg" class="field-2" placeholder="Mô tả"></textarea>
-                            Ngày bắt đầu
-                            <input type="date" id="date-start" name="date-start" required value="{{ old('date-start') }}"
-                                style="font-family: Inter; width: 100%; height: 40px; border-radius: 5px; border: 1px solid rgba(44, 148, 231, 0.50); padding: 10px">
-                            Ngày kết thúc
-                            <input type="date" id="date-end" name="date-end" required value="{{ old('date-end') }}"
-                                style="font-family: Inter; width: 100%; height: 40px; border-radius: 5px; border: 1px solid rgba(44, 148, 231, 0.50); padding: 10px">
                             <button type="submit" class="button-donee">Hoàn tất</button>
                         </div>
                     </form>
