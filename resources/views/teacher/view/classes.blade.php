@@ -44,6 +44,7 @@
                                 </div>
                             @endif
                             <small class="created-at">Được tạo lúc: {{ $mota->created_at }}</small>
+                            <small class="updated-at">Được cập nhật lúc: {{ $mota->updated_at }}</small>
                             <a href="{{ route('notification.update', ['id' => $mota->id, 'malop' => $class->malop]) }}" class="update-link">Cập nhật thông báo</a>
                             <hr>
                         @endforeach
@@ -177,35 +178,6 @@
         line-height: normal;
     }
 
-    .statics-test {
-        display: flex;
-        padding: 0px 20px;
-        justify-content: space-between;
-        align-items: flex-start;
-        align-self: stretch;
-        width: 100%;
-    }
-
-    .list-test {
-        display: flex;
-        width: 500px;
-        flex-direction: column;
-        align-items: flex-start;
-        align-self: stretch;
-    }
-
-    .statics-btn {
-        display: flex;
-        width: 500px;
-        flex-direction: column;
-        align-items: center;
-        align-self: stretch;
-    }
-
-    .statics-chart {
-        width: 50%;
-    }
-
     .statics-body p {
         font-weight: 400;
         font-size: 16px;
@@ -218,7 +190,7 @@
         text-decoration: none;
     }
 
-    .created-at {
+    .created-at, .updated-at {
         font-size: 14px;
         font-style: italic;
         font-weight: 400;
