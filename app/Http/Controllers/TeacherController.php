@@ -1313,6 +1313,14 @@ ORDER BY
             'comment' => 'nullable|string|max:500',
         ]);
 
+        // Lấy thông tin bài kiểm tra
+        $baiKiemTra = BaiKiemTra::find($validated['msbkt']);
+        if (!$baiKiemTra) {
+            return redirect()->back()->withErrors('Không tìm thấy bài kiểm tra.');
+        }
+
+        $tenbkt = $baiKiemTra->tenbkt;
+
         // Tìm hoặc tạo bản ghi trong bảng SinhVienKetQua
         $sinhvienKetQua = SinhVienKetQua::firstOrCreate(
             [
@@ -1378,14 +1386,14 @@ ORDER BY
             ]);
         }
 
-        // Tạo thông báo cho sinh viên
+        // Tạo thông báo cho sinh viên với `tenbkt`
         ThongBao::updateOrCreate(
             [
                 'msbkt' => $validated['msbkt'],
                 'mssv' => $validated['mssv'],
             ],
             [
-                'message' => 'Điểm bài kiểm tra ' . $validated['msbkt'] . ' đã được cập nhật.',
+                'message' => 'Điểm bài kiểm tra "' . $tenbkt . '" đã được cập nhật.',
                 'updated_at' => now(),
             ]
         );
@@ -1397,7 +1405,6 @@ ORDER BY
             'alert' => 'Điểm đã được cập nhật thành công!',
         ]);
     }
-
     public function storeTestPercent(Request $request, $malop)
     {
         $request->validate([
